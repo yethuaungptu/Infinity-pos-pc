@@ -10,31 +10,9 @@ import {
   MapPinIcon,
   CreditCardIcon,
   ChartBarIcon,
+  EyeIcon,
 } from '@heroicons/react/24/outline';
-
-interface Customer {
-  id: string;
-  firstName: string;
-  lastName: string;
-  email?: string;
-  phone?: string;
-  address?: {
-    street: string;
-    city: string;
-    state: string;
-    zipCode: string;
-    country: string;
-  };
-  dateOfBirth?: Date;
-  loyaltyPoints: number;
-  totalSpent: number;
-  totalTransactions: number;
-  lastVisit?: Date;
-  notes?: string;
-  active: boolean;
-  createdAt: Date;
-  updatedAt: Date;
-}
+import { Customer } from '../../types/core';
 
 interface CustomerStats {
   totalCustomers: number;
@@ -44,10 +22,12 @@ interface CustomerStats {
   topSpender: Customer | null;
 }
 
-const CustomerManagement: React.FC = () => {
+const CustomerManagement: React.FC<{ onViewCustomer: (id: any) => void }> = ({
+  onViewCustomer,
+}) => {
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
-  const [sortBy, setSortBy] = useState<keyof Customer>('lastName');
+  const [sortBy, setSortBy] = useState<keyof Customer>('contactPerson');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
   const [showModal, setShowModal] = useState(false);
   const [editingCustomer, setEditingCustomer] = useState<Customer | null>(null);
@@ -56,79 +36,36 @@ const CustomerManagement: React.FC = () => {
 
   // Form state
   const [formData, setFormData] = useState<Partial<Customer>>({
-    firstName: '',
-    lastName: '',
+    type: 'FARMER',
+    businessName: '',
+    contactPerson: '',
     email: '',
     phone: '',
-    address: {
-      street: '',
-      city: '',
-      state: '',
-      zipCode: '',
-      country: 'US',
-    },
-    notes: '',
-    active: true,
+    address: '',
+    creditLimit: 0,
+    creditBalance: 0, // Current outstanding amount
+    paymentTerms: 7, // Days (7, 30, 60, 90)
+    creditStatus: 'CURRENT',
+    farmSize: 0, // in acres
+    animalTypes: [], // ['poultry', 'cattle', 'dairy']
+    henEggsDailyProduction: 0,
+    duckEggsDailyProduction: 0,
+    collectionSchedule: 'DAILY',
     loyaltyPoints: 0,
   });
 
   // Mock data - replace with actual API calls
   useEffect(() => {
-    const mockCustomers: Customer[] = [
-      {
-        id: '1',
-        firstName: 'John',
-        lastName: 'Doe',
-        email: 'john.doe@example.com',
-        phone: '+1-555-0101',
-        address: {
-          street: '123 Main St',
-          city: 'Anytown',
-          state: 'CA',
-          zipCode: '90210',
-          country: 'US',
-        },
-        loyaltyPoints: 150,
-        totalSpent: 450.75,
-        totalTransactions: 15,
-        lastVisit: new Date('2024-01-15'),
-        notes: 'Prefers decaf coffee',
-        active: true,
-        createdAt: new Date('2023-06-15'),
-        updatedAt: new Date('2024-01-15'),
-      },
-      {
-        id: '2',
-        firstName: 'Jane',
-        lastName: 'Smith',
-        email: 'jane.smith@example.com',
-        phone: '+1-555-0102',
-        loyaltyPoints: 85,
-        totalSpent: 280.5,
-        totalTransactions: 8,
-        lastVisit: new Date('2024-01-12'),
-        active: true,
-        createdAt: new Date('2023-08-20'),
-        updatedAt: new Date('2024-01-12'),
-      },
-      {
-        id: '3',
-        firstName: 'Bob',
-        lastName: 'Johnson',
-        email: 'bob.johnson@example.com',
-        phone: '+1-555-0103',
-        loyaltyPoints: 320,
-        totalSpent: 1250.25,
-        totalTransactions: 35,
-        lastVisit: new Date('2024-01-14'),
-        notes: 'VIP customer, loves espresso',
-        active: true,
-        createdAt: new Date('2023-03-10'),
-        updatedAt: new Date('2024-01-14'),
-      },
-    ];
-
-    setCustomers(mockCustomers);
+    const fetchCustomers = async () => {
+      try {
+        const customers = await window.api.getCustomers();
+        setCustomers(customers); // Replace with allProducts when backend is ready
+      } catch (error) {
+        console.error('Error fetching products:', error);
+        setCustomers([]); // Fallback to mock data on error
+      }
+    };
+    fetchCustomers();
   }, []);
 
   const openModal = (customer?: Customer) => {
@@ -138,19 +75,21 @@ const CustomerManagement: React.FC = () => {
     } else {
       setEditingCustomer(null);
       setFormData({
-        firstName: '',
-        lastName: '',
+        type: 'FARMER',
+        businessName: '',
+        contactPerson: '',
         email: '',
         phone: '',
-        address: {
-          street: '',
-          city: '',
-          state: '',
-          zipCode: '',
-          country: 'US',
-        },
-        notes: '',
-        active: true,
+        address: '',
+        creditLimit: 0,
+        creditBalance: 0, // Current outstanding amount
+        paymentTerms: 7, // Days (7, 30, 60, 90)
+        creditStatus: 'CURRENT',
+        farmSize: 0, // in acres
+        animalTypes: [], // ['poultry', 'cattle', 'dairy']
+        henEggsDailyProduction: 0,
+        duckEggsDailyProduction: 0,
+        collectionSchedule: 'DAILY',
         loyaltyPoints: 0,
       });
     }
@@ -174,7 +113,8 @@ const CustomerManagement: React.FC = () => {
           ...formData,
           updatedAt: new Date(),
         } as Customer;
-
+        console.log('Updating customer with data:', updatedCustomer);
+        await window.api.updateCustomer(updatedCustomer);
         setCustomers((prev) =>
           prev.map((c) => (c.id === editingCustomer.id ? updatedCustomer : c)),
         );
@@ -182,14 +122,11 @@ const CustomerManagement: React.FC = () => {
       } else {
         // Create new customer
         const newCustomer: Customer = {
-          id: Date.now().toString(),
           ...(formData as Customer),
-          totalSpent: 0,
-          totalTransactions: 0,
           createdAt: new Date(),
           updatedAt: new Date(),
         };
-
+        await window.api.createCustomerData(newCustomer);
         setCustomers((prev) => [...prev, newCustomer]);
         console.log('Created customer:', newCustomer);
       }
@@ -221,8 +158,7 @@ const CustomerManagement: React.FC = () => {
 
   const filteredCustomers = customers
     .filter((customer) => {
-      const fullName =
-        `${customer.firstName} ${customer.lastName}`.toLowerCase();
+      const fullName = `${customer.contactPerson} `.toLowerCase();
       const searchLower = searchTerm.toLowerCase();
       return (
         fullName.includes(searchLower) ||
@@ -231,8 +167,8 @@ const CustomerManagement: React.FC = () => {
       );
     })
     .sort((a, b) => {
-      const aValue = a[sortBy];
-      const bValue = b[sortBy];
+      const aValue = a[sortBy] || '';
+      const bValue = b[sortBy] || '';
 
       if (sortOrder === 'asc') {
         return aValue > bValue ? 1 : -1;
@@ -256,12 +192,15 @@ const CustomerManagement: React.FC = () => {
       (c) => c.createdAt >= thisMonth,
     ).length;
     const activeCustomers = customers.filter((c) => c.active).length;
-    const totalSpent = customers.reduce((sum, c) => sum + c.totalSpent, 0);
+    const totalSpent = customers.reduce(
+      (sum, c) => sum + c.totalPurchases || 0,
+      0,
+    );
     const averageSpent =
       customers.length > 0 ? totalSpent / customers.length : 0;
     const topSpender = customers.reduce(
       (top, customer) =>
-        top.totalSpent > customer.totalSpent ? top : customer,
+        top.totalPurchases > customer.totalPurchases ? top : customer,
       customers[0] || null,
     );
 
@@ -340,7 +279,7 @@ const CustomerManagement: React.FC = () => {
               <ChartBarIcon className="h-8 w-8 text-orange-600 mr-3" />
               <div>
                 <h3 className="text-2xl font-bold text-orange-600">
-                  ${stats.averageSpent.toFixed(2)}
+                  {stats.averageSpent} MMK
                 </h3>
                 <p className="text-gray-600">Average Spent</p>
               </div>
@@ -351,7 +290,7 @@ const CustomerManagement: React.FC = () => {
               <CreditCardIcon className="h-8 w-8 text-yellow-600 mr-3" />
               <div>
                 <h3 className="text-xl font-bold text-yellow-600">
-                  {stats.topSpender?.firstName || 'N/A'}
+                  {stats.topSpender?.contactPerson || 'N/A'}
                 </h3>
                 <p className="text-gray-600">Top Spender</p>
               </div>
@@ -404,17 +343,20 @@ const CustomerManagement: React.FC = () => {
                   Customer
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Type
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Contact
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Total Spent
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Transactions
+                  Credit
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                {/* <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Loyalty Points
-                </th>
+                </th> */}
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Last Visit
                 </th>
@@ -438,15 +380,18 @@ const CustomerManagement: React.FC = () => {
                       </div>
                       <div className="ml-4">
                         <div className="text-sm font-medium text-gray-900">
-                          {customer.firstName} {customer.lastName}
+                          {customer.contactPerson}
                         </div>
-                        {customer.notes && (
+                        {customer.businessName && (
                           <div className="text-sm text-gray-500">
-                            {customer.notes}
+                            {customer.businessName}
                           </div>
                         )}
                       </div>
                     </div>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    {customer.type}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="text-sm text-gray-900">
@@ -466,27 +411,24 @@ const CustomerManagement: React.FC = () => {
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                     <div className="font-medium">
-                      ${customer.totalSpent.toFixed(2)}
+                      {customer.totalPurchases || 0} MMK
                     </div>
                     <div className="text-gray-500">
-                      Avg: $
-                      {(
-                        customer.totalSpent /
-                        Math.max(customer.totalTransactions, 1)
-                      ).toFixed(2)}
+                      Avg:
+                      {(customer.totalPurchases || 0) / 1} MMK
                     </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                    {customer.totalTransactions}
+                    {customer.creditBalance} MMK
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
+                  {/* <td className="px-6 py-4 whitespace-nowrap">
                     <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
                       {customer.loyaltyPoints} pts
                     </span>
-                  </td>
+                  </td> */}
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                    {customer.lastVisit
-                      ? customer.lastVisit.toLocaleDateString()
+                    {customer.lastPurchase
+                      ? customer.lastPurchase.toLocaleDateString()
                       : 'Never'}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
@@ -508,11 +450,17 @@ const CustomerManagement: React.FC = () => {
                       <PencilIcon className="h-4 w-4" />
                     </button>
                     <button
+                      onClick={() => onViewCustomer(customer.id)}
+                      className="text-blue-600"
+                    >
+                      <EyeIcon className="h-4 w-4" />
+                    </button>
+                    {/* <button
                       onClick={() => handleDelete(customer.id)}
                       className="text-red-600 hover:text-red-900"
                     >
                       <TrashIcon className="h-4 w-4" />
-                    </button>
+                    </button> */}
                   </td>
                 </tr>
               ))}
@@ -573,230 +521,377 @@ const CustomerManagement: React.FC = () => {
       {/* Modal */}
       {showModal && (
         <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
-          <div className="relative top-20 mx-auto p-5 border w-[600px] shadow-lg rounded-md bg-white">
-            <div className="mt-3">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-medium text-gray-900">
-                  {editingCustomer ? 'Edit Customer' : 'Add New Customer'}
-                </h3>
-                <button
-                  onClick={closeModal}
-                  className="text-gray-400 hover:text-gray-600 text-2xl"
+          <div className="relative top-10 mx-auto p-6 border w-[700px] shadow-lg rounded-md bg-white">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-medium text-gray-900">
+                {editingCustomer ? 'Edit Customer' : 'Add New Customer'}
+              </h3>
+              <button
+                onClick={closeModal}
+                className="text-gray-400 hover:text-gray-600 text-2xl"
+              >
+                ×
+              </button>
+            </div>
+
+            <form onSubmit={handleSubmit} className="space-y-4">
+              {/* Customer Type */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700">
+                  Customer Type *
+                </label>
+                <select
+                  value={formData.type || 'FARMER'}
+                  onChange={(e) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      type: e.target.value ? e.target.value : 'FARMER',
+                    }))
+                  }
+                  className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-500"
+                  required
                 >
-                  ×
-                </button>
+                  <option value="">Select type</option>
+                  <option value="FARMER">Farmer</option>
+                  <option value="REGULAR">Regular</option>
+                  <option value="WHOLESALE">Wholesale</option>
+                </select>
               </div>
 
-              <form onSubmit={handleSubmit} className="space-y-4">
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700">
-                      First Name *
-                    </label>
-                    <input
-                      type="text"
-                      value={formData.firstName || ''}
-                      onChange={(e) =>
-                        setFormData((prev) => ({
-                          ...prev,
-                          firstName: e.target.value,
-                        }))
-                      }
-                      className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-500"
-                      required
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700">
-                      Last Name *
-                    </label>
-                    <input
-                      type="text"
-                      value={formData.lastName || ''}
-                      onChange={(e) =>
-                        setFormData((prev) => ({
-                          ...prev,
-                          lastName: e.target.value,
-                        }))
-                      }
-                      className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-500"
-                      required
-                    />
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700">
-                      Email
-                    </label>
-                    <input
-                      type="email"
-                      value={formData.email || ''}
-                      onChange={(e) =>
-                        setFormData((prev) => ({
-                          ...prev,
-                          email: e.target.value,
-                        }))
-                      }
-                      className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-500"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700">
-                      Phone
-                    </label>
-                    <input
-                      type="tel"
-                      value={formData.phone || ''}
-                      onChange={(e) =>
-                        setFormData((prev) => ({
-                          ...prev,
-                          phone: e.target.value,
-                        }))
-                      }
-                      className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-500"
-                    />
-                  </div>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Address
-                  </label>
-                  <div className="space-y-2">
-                    <input
-                      type="text"
-                      placeholder="Street Address"
-                      value={formData.address?.street || ''}
-                      onChange={(e) =>
-                        setFormData((prev) => ({
-                          ...prev,
-                          address: { ...prev.address!, street: e.target.value },
-                        }))
-                      }
-                      className="block w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-500"
-                    />
-                    <div className="grid grid-cols-3 gap-2">
-                      <input
-                        type="text"
-                        placeholder="City"
-                        value={formData.address?.city || ''}
-                        onChange={(e) =>
-                          setFormData((prev) => ({
-                            ...prev,
-                            address: { ...prev.address!, city: e.target.value },
-                          }))
-                        }
-                        className="border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-500"
-                      />
-                      <input
-                        type="text"
-                        placeholder="State"
-                        value={formData.address?.state || ''}
-                        onChange={(e) =>
-                          setFormData((prev) => ({
-                            ...prev,
-                            address: {
-                              ...prev.address!,
-                              state: e.target.value,
-                            },
-                          }))
-                        }
-                        className="border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-500"
-                      />
-                      <input
-                        type="text"
-                        placeholder="ZIP Code"
-                        value={formData.address?.zipCode || ''}
-                        onChange={(e) =>
-                          setFormData((prev) => ({
-                            ...prev,
-                            address: {
-                              ...prev.address!,
-                              zipCode: e.target.value,
-                            },
-                          }))
-                        }
-                        className="border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-500"
-                      />
-                    </div>
-                  </div>
-                </div>
-
+              {/* Business Name + Contact Person */}
+              <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700">
-                    Loyalty Points
+                    Business Name
+                  </label>
+                  <input
+                    type="text"
+                    value={formData.businessName || ''}
+                    onChange={(e) =>
+                      setFormData((prev) => ({
+                        ...prev,
+                        businessName: e.target.value,
+                      }))
+                    }
+                    className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">
+                    Contact Person *
+                  </label>
+                  <input
+                    type="text"
+                    value={formData.contactPerson || ''}
+                    onChange={(e) =>
+                      setFormData((prev) => ({
+                        ...prev,
+                        contactPerson: e.target.value,
+                      }))
+                    }
+                    className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2"
+                    required
+                  />
+                </div>
+              </div>
+
+              {/* Email + Phone */}
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">
+                    Email
+                  </label>
+                  <input
+                    type="email"
+                    value={formData.email || ''}
+                    onChange={(e) =>
+                      setFormData((prev) => ({
+                        ...prev,
+                        email: e.target.value,
+                      }))
+                    }
+                    className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">
+                    Phone
+                  </label>
+                  <input
+                    type="tel"
+                    value={formData.phone || ''}
+                    onChange={(e) =>
+                      setFormData((prev) => ({
+                        ...prev,
+                        phone: e.target.value,
+                      }))
+                    }
+                    className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2"
+                  />
+                </div>
+              </div>
+
+              {/* Address */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700">
+                  Address
+                </label>
+                <input
+                  type="text"
+                  placeholder="Full Address"
+                  value={formData.address || ''}
+                  onChange={(e) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      address: e.target.value,
+                    }))
+                  }
+                  className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+
+              {/* Credit Info */}
+              <div className="grid grid-cols-3 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">
+                    Credit Limit
                   </label>
                   <input
                     type="number"
-                    value={formData.loyaltyPoints || 0}
+                    value={formData.creditLimit || 0}
                     onChange={(e) =>
                       setFormData((prev) => ({
                         ...prev,
-                        loyaltyPoints: parseInt(e.target.value) || 0,
+                        creditLimit: parseFloat(e.target.value) || 0,
                       }))
                     }
-                    className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-500"
+                    className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2"
                   />
                 </div>
-
                 <div>
                   <label className="block text-sm font-medium text-gray-700">
-                    Notes
+                    Payment Terms (days)
                   </label>
-                  <textarea
-                    value={formData.notes || ''}
+                  <input
+                    type="number"
+                    value={formData.paymentTerms || 30}
                     onChange={(e) =>
                       setFormData((prev) => ({
                         ...prev,
-                        notes: e.target.value,
+                        paymentTerms: parseInt(e.target.value) || 30,
                       }))
                     }
-                    rows={3}
-                    className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-500"
-                    placeholder="Customer preferences, special notes, etc."
+                    className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2"
                   />
                 </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">
+                    Credit Status
+                  </label>
+                  <select
+                    value={formData.creditStatus || 'CURRENT'}
+                    onChange={(e) =>
+                      setFormData((prev) => ({
+                        ...prev,
+                        creditStatus: e.target.value
+                          ? e.target.value
+                          : 'CURRENT',
+                      }))
+                    }
+                    className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2"
+                  >
+                    <option value="CURRENT">Current</option>
+                    <option value="OVERDUE_30">Overdue 30</option>
+                    <option value="OVERDUE_60">Overdue 60</option>
+                    <option value="OVERDUE_90">Overdue 90</option>
+                    <option value="BAD_DEBT">Bad Debt</option>
+                  </select>
+                </div>
+              </div>
 
+              {/* Farmer Fields */}
+              {formData.type === 'FARMER' && (
+                <div className="space-y-2">
+                  <label className="block text-sm font-medium text-gray-700">
+                    Farm Size (acres)
+                  </label>
+                  <input
+                    type="number"
+                    value={formData.farmSize || ''}
+                    onChange={(e) =>
+                      setFormData((prev) => ({
+                        ...prev,
+                        farmSize: parseFloat(e.target.value) || 0,
+                      }))
+                    }
+                    className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2"
+                  />
+                  <label className="block text-sm font-medium text-gray-700">
+                    Animal Types (comma separated)
+                  </label>
+                  <input
+                    type="text"
+                    defaultValue={
+                      Array.isArray(formData.animalTypes)
+                        ? formData.animalTypes.join(', ')
+                        : ''
+                    }
+                    onBlur={(e) =>
+                      setFormData((prev) => ({
+                        ...prev,
+                        animalTypes: e.target.value
+                          .split(',')
+                          .map((s) => s.trim())
+                          .filter(Boolean),
+                      }))
+                    }
+                    className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2"
+                  />
+                </div>
+              )}
+
+              {/* Egg Production */}
+              {formData.type === 'FARMER' && (
+                <div className="grid grid-cols-3 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700">
+                      Hen Eggs (daily)
+                    </label>
+                    <input
+                      type="number"
+                      value={formData.henEggsDailyProduction || 0}
+                      onChange={(e) =>
+                        setFormData((prev) => ({
+                          ...prev,
+                          henEggsDailyProduction: parseInt(e.target.value) || 0,
+                        }))
+                      }
+                      className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700">
+                      Duck Eggs (daily)
+                    </label>
+                    <input
+                      type="number"
+                      value={formData.duckEggsDailyProduction || 0}
+                      onChange={(e) =>
+                        setFormData((prev) => ({
+                          ...prev,
+                          duckEggsDailyProduction:
+                            parseInt(e.target.value) || 0,
+                        }))
+                      }
+                      className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700">
+                      Collection Schedule
+                    </label>
+                    <select
+                      value={formData.collectionSchedule || 'DAILY'}
+                      onChange={(e) =>
+                        setFormData((prev) => ({
+                          ...prev,
+                          collectionSchedule: e.target.value
+                            ? e.target.value
+                            : 'DAILY',
+                        }))
+                      }
+                      className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2"
+                    >
+                      <option value="DAILY">Daily</option>
+                      <option value="WEEKLY">Weekly</option>
+                      <option value="ALTERNATE">Alternate</option>
+                      <option value="CUSTOM">Custom</option>
+                    </select>
+                  </div>
+                </div>
+              )}
+
+              {/* Retail toggle */}
+              {formData.type === 'RETAIL' && (
                 <div className="flex items-center">
                   <input
                     type="checkbox"
-                    id="active"
-                    checked={formData.active || false}
+                    id="isRetail"
+                    checked={formData.isRetail || false}
                     onChange={(e) =>
                       setFormData((prev) => ({
                         ...prev,
-                        active: e.target.checked,
+                        isRetail: e.target.checked,
                       }))
                     }
                     className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
                   />
                   <label
-                    htmlFor="active"
+                    htmlFor="isRetail"
                     className="ml-2 block text-sm text-gray-900"
                   >
-                    Customer is active
+                    Retail Customer
                   </label>
                 </div>
+              )}
 
-                <div className="flex justify-end space-x-3 pt-4">
-                  <button
-                    type="button"
-                    onClick={closeModal}
-                    className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50"
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    type="submit"
-                    className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
-                  >
-                    {editingCustomer ? 'Update Customer' : 'Create Customer'}
-                  </button>
-                </div>
-              </form>
-            </div>
+              {/* Loyalty Points */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700">
+                  Loyalty Points
+                </label>
+                <input
+                  type="number"
+                  value={formData.loyaltyPoints || 0}
+                  onChange={(e) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      loyaltyPoints: parseInt(e.target.value) || 0,
+                    }))
+                  }
+                  className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2"
+                />
+              </div>
+
+              {/* Active */}
+              <div className="flex items-center">
+                <input
+                  type="checkbox"
+                  id="active"
+                  checked={formData.active || false}
+                  onChange={(e) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      active: e.target.checked,
+                    }))
+                  }
+                  className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                />
+                <label
+                  htmlFor="active"
+                  className="ml-2 block text-sm text-gray-900"
+                >
+                  Customer is active
+                </label>
+              </div>
+
+              {/* Actions */}
+              <div className="flex justify-end space-x-3 pt-4">
+                <button
+                  type="button"
+                  onClick={closeModal}
+                  className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+                >
+                  {editingCustomer ? 'Update Customer' : 'Create Customer'}
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       )}

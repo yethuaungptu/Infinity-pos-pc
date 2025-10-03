@@ -1,24 +1,31 @@
 // Core business types for Agricultural POS System
 
-export type CustomerType = 'farmer' | 'regular' | 'wholesale';
+export type CustomerType = 'FARMER' | 'REGULAR' | 'WHOLESALE';
 export type ProductType =
-  | 'feed'
-  | 'medicine'
-  | 'equipment'
-  | 'eggs'
-  | 'supplies';
-export type PaymentMethod = 'cash' | 'credit' | 'bank_transfer' | 'check';
+  | 'FEED'
+  | 'MEDICINE'
+  | 'EQUIPMENT'
+  | 'EGGS'
+  | 'SUPPLIES'
+  | 'OTHERS';
+export type PaymentMethod =
+  | 'CASH'
+  | 'CREDIT'
+  | 'BANK_TRANSFER'
+  | 'CHECK'
+  | 'DIGITAL';
 export type TransactionStatus =
-  | 'completed'
-  | 'pending'
-  | 'cancelled'
-  | 'refunded';
+  | 'COMPLETED'
+  | 'PENDING'
+  | 'CANCELLED'
+  | 'REFUNDED'
+  | 'PARTIAL_REFUND';
 export type CreditStatus =
-  | 'current'
-  | 'overdue_30'
-  | 'overdue_60'
-  | 'overdue_90'
-  | 'bad_debt';
+  | 'CURRENT'
+  | 'OVERDUE_30'
+  | 'OVERDUE_60'
+  | 'OVERDUE_90'
+  | 'BAD_DEBT';
 
 // Customer interfaces
 export interface Customer {
@@ -28,7 +35,7 @@ export interface Customer {
   contactPerson: string;
   email?: string;
   phone?: string;
-  address?: Address;
+  address?: string;
 
   // Credit information
   creditLimit: number;
@@ -39,11 +46,9 @@ export interface Customer {
   // Farmer-specific
   farmSize?: number; // in acres
   animalTypes?: string[]; // ['poultry', 'cattle', 'dairy']
-  eggProduction?: {
-    henEggs: number; // daily production
-    duckEggs: number;
-    collectionSchedule: 'daily' | 'alternate' | 'weekly';
-  };
+  henEggsDailyProduction?: number;
+  duckEggsDailyProduction?: number;
+  collectionSchedule?: 'DAILY' | 'ALTERNATE' | 'WEEKLY' | 'CUSTOM';
 
   // Regular customer specific
   isRetail?: boolean;
@@ -114,14 +119,17 @@ export interface Product {
   // Medicine-specific
   requiresPrescription?: boolean;
   activeIngredient?: string;
+  dosage?: string;
 
   // Feed-specific
   animalType?: string; // 'poultry', 'cattle', 'dairy'
   nutritionInfo?: string;
+  feedType?: string; // 'starter', 'grower', 'finisher'
 
   // Vendor information
   primaryVendorId: string;
   alternateVendors?: string[];
+  primaryVendor?: any;
 
   createdAt: Date;
   updatedAt: Date;
@@ -132,14 +140,22 @@ export interface Product {
 export interface Transaction {
   id: string;
   receiptNumber: string;
-  type: 'sale' | 'purchase' | 'egg_collection' | 'egg_sale';
+  type:
+    | 'SALE'
+    | 'PURCHASE'
+    | 'EGG_COLLECTION'
+    | 'EGG_SALE'
+    | 'REFUND'
+    | 'ADJUSTMENT';
 
   // Customer/Vendor
   customerId?: string;
   vendorId?: string;
 
   // Items
-  items: TransactionItem[];
+  items: {
+    create: TransactionItem[];
+  };
 
   // Financial
   subtotal: number;
@@ -170,9 +186,9 @@ export interface Transaction {
 
 export interface TransactionItem {
   id: string;
-  productId: string;
+  product: any;
   productName: string;
-  sku: string;
+  productSku: string;
   quantity: number;
   unit: string;
   unitPrice: number;
@@ -235,8 +251,8 @@ export interface Staff {
   address?: Address;
 
   // Employment
-  position: 'manager' | 'cashier' | 'collector' | 'admin';
-  department: 'sales' | 'collection' | 'inventory' | 'admin';
+  position: 'MANAGER' | 'CASHIER' | 'COLLECTOR' | 'ADMIN' | 'SUPERVISOR';
+  department: 'SALES' | 'COLLECTION' | 'INVENTORY' | 'ADMIN' | 'MANAGEMENT';
   hireDate: Date;
   salary: number;
 
@@ -253,6 +269,7 @@ export interface Staff {
 
   // System access
   username: string;
+  password: string;
   lastLogin?: Date;
   active: boolean;
 
@@ -282,9 +299,10 @@ export interface PaymentRecord {
   amount: number;
   paymentMethod: PaymentMethod;
   transactionIds?: string[]; // Which invoices this payment covers
-  staffId: string;
+  processBy: string;
   paymentDate: Date;
   notes?: string;
+  staff?: any;
 }
 
 // Route Management (for egg collection)

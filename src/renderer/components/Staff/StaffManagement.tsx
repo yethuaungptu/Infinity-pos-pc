@@ -31,8 +31,8 @@ const StaffManagement: React.FC = () => {
     lastName: '',
     email: '',
     phone: '',
-    position: 'cashier',
-    department: 'sales',
+    position: 'CASHIER',
+    department: 'SALES',
     salary: 0,
     username: '',
     permissions: [],
@@ -116,84 +116,23 @@ const StaffManagement: React.FC = () => {
 
   // Mock data - replace with actual API calls
   useEffect(() => {
-    const mockStaff: Staff[] = [
-      {
-        id: '1',
-        employeeId: 'EMP001',
-        firstName: 'John',
-        lastName: 'Manager',
-        email: 'john@agripos.com',
-        phone: '+1-555-0101',
-        position: 'manager',
-        department: 'admin',
-        hireDate: new Date('2023-01-15'),
-        salary: 5000,
-        permissions: [
-          'pos_sales',
-          'inventory_manage',
-          'customer_manage',
-          'reports_view',
-          'credit_approve',
-          'settings_manage',
-          'staff_manage',
-        ],
-        username: 'john.manager',
-        lastLogin: new Date(),
-        active: true,
-        createdAt: new Date('2023-01-15'),
-        updatedAt: new Date(),
-      },
-      {
-        id: '2',
-        employeeId: 'EMP002',
-        firstName: 'Sarah',
-        lastName: 'Cashier',
-        email: 'sarah@agripos.com',
-        phone: '+1-555-0102',
-        position: 'cashier',
-        department: 'sales',
-        hireDate: new Date('2023-03-20'),
-        salary: 2500,
-        permissions: ['pos_sales', 'customer_manage', 'cash_handle'],
-        username: 'sarah.cashier',
-        lastLogin: new Date(Date.now() - 2 * 60 * 60 * 1000), // 2 hours ago
-        active: true,
-        createdAt: new Date('2023-03-20'),
-        updatedAt: new Date(),
-      },
-      {
-        id: '3',
-        employeeId: 'EMP003',
-        firstName: 'Mike',
-        lastName: 'Collector',
-        email: 'mike@agripos.com',
-        phone: '+1-555-0103',
-        position: 'collector',
-        department: 'collection',
-        hireDate: new Date('2023-05-10'),
-        salary: 2800,
-        permissions: ['egg_collection', 'customer_manage'],
-        collectionRoutes: ['Route A', 'Route B'],
-        performanceMetrics: {
-          totalCollections: 145,
-          averageQuality: 4.2,
-          onTimeRate: 95,
-        },
-        username: 'mike.collector',
-        lastLogin: new Date(Date.now() - 1 * 60 * 60 * 1000), // 1 hour ago
-        active: true,
-        createdAt: new Date('2023-05-10'),
-        updatedAt: new Date(),
-      },
-    ];
-
-    setStaff(mockStaff);
+    const fetchData = async () => {
+      try {
+        const staffs = await window.api.getStaffs();
+        console.log(staffs);
+        setStaff(staffs);
+      } catch (e) {
+        console.log('Error fetching staff');
+        setStaff([]);
+      }
+    };
+    fetchData();
   }, []);
 
   const openModal = (staffMember?: Staff) => {
     if (staffMember) {
       setEditingStaff(staffMember);
-      setFormData({ ...staffMember });
+      setFormData({ ...staffMember, password: '' });
     } else {
       setEditingStaff(null);
       setFormData({
@@ -201,10 +140,11 @@ const StaffManagement: React.FC = () => {
         lastName: '',
         email: '',
         phone: '',
-        position: 'cashier',
-        department: 'sales',
+        position: 'CASHIER',
+        department: 'SALES',
         salary: 0,
         username: '',
+        password: '',
         permissions: [],
         active: true,
       });
@@ -238,19 +178,19 @@ const StaffManagement: React.FC = () => {
         setStaff((prev) =>
           prev.map((s) => (s.id === editingStaff.id ? updatedStaff : s)),
         );
+        await window.api.updateStaff(updatedStaff);
         console.log('Updated staff:', updatedStaff);
       } else {
         // Create new staff
         const newStaff: Staff = {
-          id: Date.now().toString(),
           employeeId: `EMP${String(staff.length + 1).padStart(3, '0')}`,
           ...(formData as Staff),
-          hireDate: new Date(),
           createdAt: new Date(),
           updatedAt: new Date(),
         };
 
         setStaff((prev) => [...prev, newStaff]);
+        await window.api.createStaffData(newStaff);
         console.log('Created staff:', newStaff);
       }
 
@@ -374,7 +314,7 @@ const StaffManagement: React.FC = () => {
               <MapPinIcon className="h-8 w-8 text-purple-600 mr-3" />
               <div>
                 <h3 className="text-2xl font-bold text-purple-600">
-                  {staff.filter((s) => s.position === 'collector').length}
+                  {staff.filter((s) => s.position === 'COLLECTOR').length}
                 </h3>
                 <p className="text-gray-600">Collectors</p>
               </div>
@@ -385,8 +325,8 @@ const StaffManagement: React.FC = () => {
               <CurrencyDollarIcon className="h-8 w-8 text-yellow-600 mr-3" />
               <div>
                 <h3 className="text-2xl font-bold text-yellow-600">
-                  $
-                  {staff.reduce((sum, s) => sum + s.salary, 0).toLocaleString()}
+                  {staff.reduce((sum, s) => sum + s.salary, 0).toLocaleString()}{' '}
+                  MMK
                 </h3>
                 <p className="text-gray-600">Total Payroll</p>
               </div>
@@ -411,22 +351,24 @@ const StaffManagement: React.FC = () => {
             onChange={(e) => setDepartmentFilter(e.target.value)}
             className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
           >
-            <option value="all">All Departments</option>
-            <option value="sales">Sales</option>
-            <option value="collection">Collection</option>
-            <option value="inventory">Inventory</option>
-            <option value="admin">Admin</option>
+            <option value="ALL">All Departments</option>
+            <option value="SALES">Sales</option>
+            <option value="COLLECTION">Collection</option>
+            <option value="INVENTORY">Inventory</option>
+            <option value="ADMIN">Admin</option>
+            <option value="MANAGEMENT">Management</option>
           </select>
           <select
             value={positionFilter}
             onChange={(e) => setPositionFilter(e.target.value)}
             className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
           >
-            <option value="all">All Positions</option>
-            <option value="manager">Manager</option>
-            <option value="cashier">Cashier</option>
-            <option value="collector">Collector</option>
-            <option value="admin">Admin</option>
+            <option value="ALL">All Positions</option>
+            <option value="MANAGER">Manager</option>
+            <option value="CASHIER">Cashier</option>
+            <option value="COLLECTOR">Collector</option>
+            <option value="ADMIN">Admin</option>
+            <option value="SUPERVISOR">Supervisor</option>
           </select>
         </div>
       </div>
@@ -447,7 +389,7 @@ const StaffManagement: React.FC = () => {
                   Contact
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Performance
+                  Salary
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Last Login
@@ -493,7 +435,7 @@ const StaffManagement: React.FC = () => {
                     <div className="text-sm text-gray-500">{member.phone}</div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
-                    {member.position === 'collector' &&
+                    {member.position === 'COLLECTOR' &&
                     member.performanceMetrics ? (
                       <div className="text-sm">
                         <div className="text-gray-900">
@@ -509,7 +451,7 @@ const StaffManagement: React.FC = () => {
                       </div>
                     ) : (
                       <div className="text-sm text-gray-900">
-                        ${member.salary.toLocaleString()}/month
+                        {member.salary.toLocaleString()} MMK/month
                       </div>
                     )}
                   </td>
@@ -531,13 +473,13 @@ const StaffManagement: React.FC = () => {
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                     <div className="flex justify-end space-x-2">
-                      <button
+                      {/* <button
                         onClick={() => openPermissionsModal(member)}
                         className="text-purple-600 hover:text-purple-900"
                         title="Manage Permissions"
                       >
                         <ShieldCheckIcon className="h-4 w-4" />
-                      </button>
+                      </button> */}
                       <button
                         onClick={() => openModal(member)}
                         className="text-indigo-600 hover:text-indigo-900"
@@ -663,7 +605,7 @@ const StaffManagement: React.FC = () => {
                       Position *
                     </label>
                     <select
-                      value={formData.position || 'cashier'}
+                      value={formData.position || 'CASHIER'}
                       onChange={(e) =>
                         setFormData((prev) => ({
                           ...prev,
@@ -673,10 +615,11 @@ const StaffManagement: React.FC = () => {
                       className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-500"
                       required
                     >
-                      <option value="manager">Manager</option>
-                      <option value="cashier">Cashier</option>
-                      <option value="collector">Collector</option>
-                      <option value="admin">Admin</option>
+                      <option value="MANAGER">Manager</option>
+                      <option value="CASHIER">Cashier</option>
+                      <option value="COLLECTOR">Collector</option>
+                      <option value="ADMIN">Admin</option>
+                      <option value="SUPERVISOR">Supervisor</option>
                     </select>
                   </div>
                   <div>
@@ -694,10 +637,11 @@ const StaffManagement: React.FC = () => {
                       className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-500"
                       required
                     >
-                      <option value="sales">Sales</option>
-                      <option value="collection">Collection</option>
-                      <option value="inventory">Inventory</option>
-                      <option value="admin">Admin</option>
+                      <option value="SALES">Sales</option>
+                      <option value="COLLECTION">Collection</option>
+                      <option value="INVENTORY">Inventory</option>
+                      <option value="ADMIN">Admin</option>
+                      <option value="MANAGEMENT">Management</option>
                     </select>
                   </div>
                 </div>
@@ -722,6 +666,33 @@ const StaffManagement: React.FC = () => {
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700">
+                      Hire Date
+                    </label>
+                    <input
+                      type="date"
+                      value={
+                        formData.hireDate
+                          ? new Date(formData.hireDate)
+                              .toISOString()
+                              .split('T')[0]
+                          : ''
+                      }
+                      onChange={(e) =>
+                        setFormData((p) => ({
+                          ...p,
+                          hireDate: e.target.value
+                            ? new Date(e.target.value)
+                            : p.hireDate,
+                        }))
+                      }
+                      className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2"
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700">
                       Username *
                     </label>
                     <input
@@ -735,6 +706,23 @@ const StaffManagement: React.FC = () => {
                       }
                       className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-500"
                       required
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700">
+                      Password *
+                    </label>
+                    <input
+                      type="password"
+                      value={formData.password || ''}
+                      onChange={(e) =>
+                        setFormData((prev) => ({
+                          ...prev,
+                          password: e.target.value,
+                        }))
+                      }
+                      className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-500"
+                      required={!editingStaff}
                     />
                   </div>
                 </div>

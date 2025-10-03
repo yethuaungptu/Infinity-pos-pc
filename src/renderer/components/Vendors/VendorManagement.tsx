@@ -14,6 +14,16 @@ import {
 } from '@heroicons/react/24/outline';
 import { Vendor, ProductType } from '../../types/core';
 
+declare global {
+  interface Window {
+    api: {
+      getVendors: () => Promise<Vendor[]>;
+      createVendorData: (data: any) => Promise<any>;
+      updateVendor: (data: any) => Promise<any>;
+    };
+  }
+}
+
 const VendorManagement: React.FC = () => {
   const [vendors, setVendors] = useState<Vendor[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
@@ -114,8 +124,18 @@ const VendorManagement: React.FC = () => {
         active: true,
       },
     ];
-
-    setVendors(mockVendors);
+    const fetchVendors = async () => {
+      try {
+        const data = await window.api.getVendors();
+        console.log('Fetched vendors:', data);
+        setVendors(data);
+      } catch (error) {
+        console.error('Failed to fetch vendors:', error);
+        setVendors(mockVendors); // Fallback to mock data on error
+      }
+    };
+    fetchVendors();
+    // setVendors(mockVendors);
   }, []);
 
   const openModal = (vendor?: Vendor) => {
@@ -163,14 +183,14 @@ const VendorManagement: React.FC = () => {
           updatedAt: new Date(),
         } as Vendor;
 
-        setVendors((prev) =>
-          prev.map((v) => (v.id === editingVendor.id ? updatedVendor : v)),
-        );
+        // setVendors((prev) =>
+        //   prev.map((v) => (v.id === editingVendor.id ? updatedVendor : v)),
+        // );
+        await window.api.updateVendor(updatedVendor);
         console.log('Updated vendor:', updatedVendor);
       } else {
         // Create new vendor
         const newVendor: Vendor = {
-          id: Date.now().toString(),
           ...(formData as Vendor),
           creditBalance: 0,
           totalPurchases: 0,
@@ -178,7 +198,8 @@ const VendorManagement: React.FC = () => {
           createdAt: new Date(),
           updatedAt: new Date(),
         };
-
+        console.log('Form data for new vendor:', newVendor);
+        await window.api.createVendorData(newVendor);
         setVendors((prev) => [...prev, newVendor]);
         console.log('Created vendor:', newVendor);
       }
@@ -334,7 +355,7 @@ const VendorManagement: React.FC = () => {
               <CurrencyDollarIcon className="h-8 w-8 text-green-600 mr-3" />
               <div>
                 <h3 className="text-2xl font-bold text-green-600">
-                  ${totalCreditLimit.toLocaleString()}
+                  {totalCreditLimit.toLocaleString()} MMK
                 </h3>
                 <p className="text-gray-600">Total Credit Limit</p>
               </div>
@@ -345,7 +366,7 @@ const VendorManagement: React.FC = () => {
               <ExclamationTriangleIcon className="h-8 w-8 text-red-600 mr-3" />
               <div>
                 <h3 className="text-2xl font-bold text-red-600">
-                  ${totalOutstanding.toLocaleString()}
+                  {totalOutstanding.toLocaleString()} MMK
                 </h3>
                 <p className="text-gray-600">Outstanding Balance</p>
               </div>
@@ -433,6 +454,9 @@ const VendorManagement: React.FC = () => {
               {filteredVendors.map((vendor) => (
                 <tr key={vendor.id} className="hover:bg-gray-50">
                   <td className="px-6 py-4 whitespace-nowrap">
+                    <div className="text-lg">{vendor.companyName}</div>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
                     <div className="text-sm text-gray-900">
                       {vendor.email && (
                         <div className="flex items-center mb-1">
@@ -465,7 +489,7 @@ const VendorManagement: React.FC = () => {
                       <div className="flex justify-between">
                         <span>Limit:</span>
                         <span className="font-medium">
-                          ${vendor.creditLimit.toLocaleString()}
+                          {vendor.creditLimit.toLocaleString()} MMK
                         </span>
                       </div>
                       <div className="flex justify-between">
@@ -473,7 +497,7 @@ const VendorManagement: React.FC = () => {
                         <span
                           className={`font-medium ${getCreditStatusColor(vendor)}`}
                         >
-                          ${vendor.creditBalance.toLocaleString()}
+                          {vendor.creditBalance.toLocaleString()} MMK
                         </span>
                       </div>
                       <div className="w-full bg-gray-200 rounded-full h-1.5 mt-2">

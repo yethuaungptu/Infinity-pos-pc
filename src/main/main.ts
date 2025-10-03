@@ -1,19 +1,22 @@
 /* eslint global-require: off, no-console: off, promise/always-return: off */
 
-/**
- * This module executes inside of electron's main process. You can start
- * electron renderer process from here and communicate with the other processes
- * through IPC.
- *
- * When running `npm run build` or `npm run build:main`, this file is compiled to
- * `./src/main.js` using webpack. This gives us some performance wins.
- */
 import path from 'path';
 import { app, BrowserWindow, shell, ipcMain } from 'electron';
 import { autoUpdater } from 'electron-updater';
 import log from 'electron-log';
 import MenuBuilder from './menu';
 import { resolveHtmlPath } from './util';
+
+// ✅ Import our database service
+import { databaseService } from './database';
+import { InventoryService } from './services/inventoryService';
+import { VendorService } from './services/vendorService';
+import { CustomerService } from './services/customerService';
+import { TransactionService } from './services/transactionService';
+import { StaffService } from './services/staffService';
+import { AuthService } from './services/authService';
+import { IndexService } from './services/indexService';
+import { PaymentRecordService } from './services/paymentService';
 
 class AppUpdater {
   constructor() {
@@ -25,12 +28,110 @@ class AppUpdater {
 
 let mainWindow: BrowserWindow | null = null;
 
+// ---------------------------
+// Existing IPC test
+// ---------------------------
 ipcMain.on('ipc-example', async (event, arg) => {
   const msgTemplate = (pingPong: string) => `IPC test: ${pingPong}`;
   console.log(msgTemplate(arg));
   event.reply('ipc-example', msgTemplate('pong'));
 });
 
+// ---------------------------
+// New IPC handlers (Database)
+// ---------------------------
+ipcMain.handle('db:testConnection', async () => {
+  return databaseService.testConnection();
+});
+
+ipcMain.handle('auth:login', async (event, data) => {
+  return AuthService.login(data);
+});
+ipcMain.handle('auth:logout', async () => {
+  return AuthService.logout();
+});
+ipcMain.handle('auth:check', async () => {
+  return AuthService.checkAuth();
+});
+
+ipcMain.handle('db:getTodaySalesSummary', async () => {
+  return IndexService.getTodaySalesSummary();
+});
+
+ipcMain.handle('db:getProducts', async () => {
+  return InventoryService.getAllProduct();
+});
+
+ipcMain.handle('db:createProductData', async (event, data) => {
+  return InventoryService.createProduct(data);
+});
+
+ipcMain.handle('db:updateProductData', async (event, data) => {
+  return InventoryService.updateProduct(data);
+});
+
+ipcMain.handle('db:createVendorData', async (event, data) => {
+  return VendorService.createVendor(data);
+});
+ipcMain.handle('db:getVendors', async () => {
+  return VendorService.getVendors();
+});
+ipcMain.handle('db:updateVendor', async (event, data) => {
+  return VendorService.updateVendor(data);
+});
+
+ipcMain.handle('db:createCustomerData', async (event, data) => {
+  return CustomerService.createCustomer(data);
+});
+ipcMain.handle('db:getCustomers', async () => {
+  return CustomerService.getCustomers();
+});
+ipcMain.handle('db:getCustomerDetail', async (event, id) => {
+  return CustomerService.getCustomerById(id);
+});
+ipcMain.handle('db:getCustomerTransactions', async (event, id) => {
+  return CustomerService.getCustomerTransactions(id);
+});
+ipcMain.handle('db:updateCustomer', async (event, data) => {
+  return CustomerService.updateCustomer(data);
+});
+
+ipcMain.handle('db:createTransactionData', async (event, data) => {
+  return TransactionService.createTransaction(data);
+});
+ipcMain.handle('db:getTransactions', async () => {
+  return TransactionService.getTransactions();
+});
+ipcMain.handle('db:updateTransaction', async (event, data) => {
+  return TransactionService.updateTransaction(data);
+});
+
+ipcMain.handle('db:createStaffData', async (event, data) => {
+  return StaffService.createStaff(data);
+});
+ipcMain.handle('db:getStaffs', async () => {
+  return StaffService.getStaffs();
+});
+ipcMain.handle('db:updateStaff', async (event, data) => {
+  return StaffService.updateStaff(data);
+});
+
+ipcMain.handle('db:createPaymentRecordData', async (event, data) => {
+  return PaymentRecordService.createPaymentRecord(data);
+});
+ipcMain.handle('db:getPaymentRecords', async () => {
+  return PaymentRecordService.getPaymentRecords();
+});
+ipcMain.handle('db:getPaymentRecordsWithCustomerId', async (event, data) => {
+  return PaymentRecordService.getPaymentRecordsWithCustomerId(data);
+});
+ipcMain.handle('db:updatePaymentRecord', async (event, data) => {
+  return PaymentRecordService.updatePaymentRecord(data);
+});
+
+// ---------------------------
+// Error handling & Debugging
+// ---------------------------
 if (process.env.NODE_ENV === 'production') {
   const sourceMapSupport = require('source-map-support');
   sourceMapSupport.install();
@@ -56,6 +157,9 @@ const installExtensions = async () => {
     .catch(console.log);
 };
 
+// ---------------------------
+// Create Main Window
+// ---------------------------
 const createWindow = async () => {
   if (isDebug) {
     await installExtensions();
@@ -101,24 +205,21 @@ const createWindow = async () => {
   const menuBuilder = new MenuBuilder(mainWindow);
   menuBuilder.buildMenu();
 
-  // Open urls in the user's browser
+  // Open external links in user’s default browser
   mainWindow.webContents.setWindowOpenHandler((edata) => {
     shell.openExternal(edata.url);
     return { action: 'deny' };
   });
 
-  // Remove this if your app does not use auto updates
+  // Auto updater
   // eslint-disable-next-line
   new AppUpdater();
 };
 
-/**
- * Add event listeners...
- */
-
+// ---------------------------
+// App lifecycle
+// ---------------------------
 app.on('window-all-closed', () => {
-  // Respect the OSX convention of having the application in memory even
-  // after all windows have been closed
   if (process.platform !== 'darwin') {
     app.quit();
   }
@@ -129,8 +230,6 @@ app
   .then(() => {
     createWindow();
     app.on('activate', () => {
-      // On macOS it's common to re-create a window in the app when the
-      // dock icon is clicked and there are no other windows open.
       if (mainWindow === null) createWindow();
     });
   })

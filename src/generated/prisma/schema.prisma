@@ -1,0 +1,768 @@
+// Prisma Schema for Agricultural POS System
+// Supports both PostgreSQL (cloud) and SQLite (offline)
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/prisma"
+}
+
+// Main database - PostgreSQL for production
+// datasource db {
+//   provider = "postgresql"
+//   url      = env("DATABASE_URL")
+// }
+
+// Local database - SQLite for offline mode
+datasource localdb {
+  provider = "sqlite"
+  url      = "file:./agripos.db"
+}
+
+// ===== CORE BUSINESS MODELS =====
+
+model Store {
+  id       String  @id @default(cuid())
+  name     String
+  address  String
+  phone    String
+  email    String?
+  website  String?
+  taxRate  Float   @default(0.08)
+  currency String  @default("USD")
+  timezone String  @default("America/New_York")
+
+  // Receipt settings
+  receiptHeader String?
+  receiptFooter String?
+  printLogo     Boolean @default(false)
+  logoData      String? // Base64 encoded logo
+
+  // Business settings
+  creditTermsDefault Int   @default(30)
+  maxCreditLimit     Float @default(50000)
+  interestRate       Float @default(0.015)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("stores")
+}
+
+// ===== USER MANAGEMENT =====
+
+model Staff {
+  id         String  @id @default(cuid())
+  employeeId String  @unique
+  firstName  String
+  lastName   String
+  email      String? @unique
+  phone      String?
+
+  // Employment details
+  position   StaffPosition
+  department StaffDepartment
+  hireDate   DateTime
+  salary     Int
+  active     Boolean         @default(true)
+
+  // System access
+  username  String    @unique
+  password  String? // Hashed password
+  lastLogin DateTime?
+
+  // Permissions (JSON array)
+  permissions Json @default("[]")
+
+  // Performance metrics for collectors
+  totalCollections Int?   @default(0)
+  averageQuality   Float?
+  onTimeRate       Float?
+  // collectionRoutes    Json? // Array of route IDs
+
+  // Relations
+  transactions     Transaction[]
+  eggCollections   EggCollection[]
+  paymentRecords   PaymentRecord[]
+  collectionRoutes CollectionRoute[]
+
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+  PurchaseOrder PurchaseOrder[]
+
+  @@index([employeeId], map: "idx_staff_employee")
+  @@index([username], map: "idx_staff_username")
+  @@map("staff")
+}
+
+enum StaffPosition {
+  MANAGER
+  CASHIER
+  COLLECTOR
+  ADMIN
+  SUPERVISOR
+}
+
+enum StaffDepartment {
+  SALES
+  COLLECTION
+  INVENTORY
+  ADMIN
+  MANAGEMENT
+}
+
+// ===== CUSTOMER MANAGEMENT =====
+
+model Customer {
+  id   String       @id @default(cuid())
+  type CustomerType
+
+  // Basic info
+  businessName  String?
+  contactPerson String
+  email         String?
+  phone         String?
+
+  // Address
+  address String?
+
+  // Credit information
+  creditLimit   Int          @default(0)
+  creditBalance Int          @default(0) // Current outstanding amount
+  paymentTerms  Int          @default(30) // Days
+  creditStatus  CreditStatus @default(CURRENT)
+
+  // Farmer-specific fields
+  farmSize    Float? // in acres
+  animalTypes Json? // Array of animal types
+
+  // Egg production tracking
+  henEggsDailyProduction  Int                @default(0)
+  duckEggsDailyProduction Int                @default(0)
+  collectionSchedule      CollectionSchedule @default(DAILY)
+
+  // Regular customer fields
+  isRetail      Boolean @default(false)
+  loyaltyPoints Int     @default(0)
+
+  // Business metrics
+  totalPurchases    Int       @default(0)
+  totalEggSales     Int       @default(0)
+  lastPurchase      DateTime?
+  lastEggCollection DateTime?
+
+  // Relations
+  transactions   Transaction[]
+  eggCollections EggCollection[]
+  paymentRecords PaymentRecord[]
+  routes         CollectionRoute[] @relation("RouteCustomers")
+
+  active    Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("customers")
+}
+
+enum CustomerType {
+  FARMER
+  REGULAR
+  WHOLESALE
+}
+
+enum CreditStatus {
+  CURRENT
+  OVERDUE_30
+  OVERDUE_60
+  OVERDUE_90
+  BAD_DEBT
+}
+
+enum CollectionSchedule {
+  DAILY
+  ALTERNATE
+  WEEKLY
+  CUSTOM
+}
+
+// ===== VENDOR MANAGEMENT =====
+
+model Vendor {
+  id            String  @id @default(cuid())
+  companyName   String
+  contactPerson String
+  email         String?
+  phone         String?
+
+  // Address
+  street  String?
+  city    String?
+  state   String?
+  zipCode String?
+  country String  @default("US")
+
+  // Credit terms they give us
+  creditLimit          Float  @default(0)
+  creditBalance        Float  @default(0) // What we owe them
+  paymentTerms         Int    @default(30) // Days they give us
+  earlyPaymentDiscount Float? // Percentage discount for early payment
+
+  // Product categories they supply
+  productTypes Json @default("[]") // Array of ProductType
+
+  // Performance metrics
+  totalPurchases    Float     @default(0)
+  onTimePaymentRate Float     @default(100)
+  lastOrder         DateTime?
+  lastPayment       DateTime?
+
+  // Relations
+  products       Product[]
+  purchaseOrders PurchaseOrder[]
+  paymentRecords PaymentRecord[]
+
+  active      Boolean       @default(true)
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  Transaction Transaction[]
+
+  @@map("vendors")
+}
+
+// ===== PRODUCT MANAGEMENT =====
+
+model Product {
+  id          String      @id @default(cuid())
+  sku         String      @unique
+  name        String
+  description String?
+  type        ProductType
+  category    String
+
+  // Pricing
+  costPrice      Float // What we pay vendor
+  sellingPrice   Float // Regular customer price
+  wholesalePrice Float? // Farmer/wholesale price
+
+  // Inventory
+  stock        Int
+  unit         String // 'kg', 'bags', 'pieces', 'dozens'
+  minimumStock Int    @default(0)
+
+  // Product attributes
+  expiryDate   DateTime?
+  batchNumber  String?
+  manufacturer String?
+
+  // Medicine-specific
+  requiresPrescription Boolean @default(false)
+  activeIngredient     String?
+  dosage               String?
+
+  // Feed-specific
+  animalType    String? // 'poultry', 'cattle', 'dairy'
+  nutritionInfo String?
+  feedType      String? // 'starter', 'grower', 'layer'
+
+  // Vendor relationship
+  primaryVendorId  String
+  primaryVendor    Vendor @relation(fields: [primaryVendorId], references: [id])
+  alternateVendors Json? // Array of vendor IDs
+
+  // Relations
+  transactionItems   TransactionItem[]
+  purchaseOrderItems PurchaseOrderItem[]
+
+  active    Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Product indexes  
+  @@index([sku], map: "idx_products_sku")
+  @@index([type], map: "idx_products_type")
+  @@index([active], map: "idx_products_active")
+  @@map("products")
+}
+
+enum ProductType {
+  FEED
+  MEDICINE
+  EQUIPMENT
+  EGGS
+  SUPPLIES
+  OTHER
+}
+
+// ===== TRANSACTION MANAGEMENT =====
+
+model Transaction {
+  id            String          @id @default(cuid())
+  receiptNumber String          @unique
+  type          TransactionType
+
+  // Customer/Vendor
+  customerId String?
+  customer   Customer? @relation(fields: [customerId], references: [id])
+  vendorId   String?
+  vendor     Vendor?   @relation(fields: [vendorId], references: [id])
+
+  // Financial details
+  subtotal Float
+  tax      Float
+  discount Float @default(0)
+  total    Float
+
+  // Payment info
+  paymentMethod PaymentMethod
+  paidAmount    Float         @default(0)
+  balanceAmount Float         @default(0) // For credit transactions
+
+  // Status and timing
+  status    TransactionStatus @default(COMPLETED)
+  timestamp DateTime          @default(now())
+  dueDate   DateTime? // For credit transactions
+
+  // Staff and location
+  staffId String
+  staff   Staff  @relation(fields: [staffId], references: [id])
+
+  // Additional info
+  notes String?
+
+  // Relations
+  items          TransactionItem[]
+  paymentRecords PaymentRecord[]
+
+  // Sync tracking
+  synced    Boolean   @default(false)
+  cloudId   String? // Reference to cloud record when offline
+  syncError String?
+  lastSync  DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([customerId], map: "idx_transactions_customer")
+  @@index([timestamp], map: "idx_transactions_timestamp")
+  @@index([status], map: "idx_transactions_status")
+  @@index([receiptNumber], map: "idx_transactions_receipt")
+  @@map("transactions")
+}
+
+model TransactionItem {
+  id String @id @default(cuid())
+
+  // Transaction relationship
+  transactionId String
+  transaction   Transaction @relation(fields: [transactionId], references: [id], onDelete: Cascade)
+
+  // Product relationship
+  productId String
+  product   Product @relation(fields: [productId], references: [id])
+
+  // Item details
+  quantity  Int
+  unitPrice Int
+  total     Int
+
+  // Product snapshot (for historical accuracy)
+  productName String
+  productSku  String
+  unit        String
+
+  // Special attributes
+  batchNumber String?
+  expiryDate  DateTime?
+  grade       String? // For eggs: 'small', 'medium', 'large', 'xl'
+
+  @@map("transaction_items")
+}
+
+enum TransactionType {
+  SALE
+  PURCHASE
+  EGG_COLLECTION
+  EGG_SALE
+  REFUND
+  ADJUSTMENT
+}
+
+enum PaymentMethod {
+  CASH
+  CREDIT
+  BANK_TRANSFER
+  CHECK
+  DIGITAL
+}
+
+enum TransactionStatus {
+  PENDING
+  COMPLETED
+  CANCELLED
+  REFUNDED
+  PARTIAL_REFUND
+}
+
+// ===== EGG COLLECTION SYSTEM =====
+
+model EggCollection {
+  id String @id @default(cuid())
+
+  // Farm and route
+  farmerId String
+  farmer   Customer         @relation(fields: [farmerId], references: [id])
+  routeId  String?
+  route    CollectionRoute? @relation(fields: [routeId], references: [id])
+
+  // Staff and timing
+  staffId        String
+  staff          Staff    @relation(fields: [staffId], references: [id])
+  collectionDate DateTime @default(now())
+
+  // Hen eggs breakdown
+  henEggsSmall      Int @default(0)
+  henEggsMedium     Int @default(0)
+  henEggsLarge      Int @default(0)
+  henEggsExtraLarge Int @default(0)
+  henEggsDamaged    Int @default(0)
+  totalHenEggs      Int @default(0)
+
+  // Duck eggs breakdown
+  duckEggsSmall   Int @default(0)
+  duckEggsMedium  Int @default(0)
+  duckEggsLarge   Int @default(0)
+  duckEggsDamaged Int @default(0)
+  totalDuckEggs   Int @default(0)
+
+  // Pricing (per dozen)
+  henEggPrice  Float
+  duckEggPrice Float
+
+  // Totals
+  totalValue Float
+
+  // Quality tracking
+  qualityScore Float? // 1-5 rating
+  qualityNotes String?
+
+  // Payment tracking
+  paid        Boolean   @default(false)
+  paymentDate DateTime?
+
+  // Sync tracking
+  synced    Boolean   @default(false)
+  cloudId   String?
+  syncError String?
+  lastSync  DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Egg collection indexes
+  @@index([farmerId], map: "idx_egg_collections_farmer")
+  @@index([collectionDate], map: "idx_egg_collections_date")
+  @@index([paid], map: "idx_egg_collections_paid")
+  @@map("egg_collections")
+}
+
+model CollectionRoute {
+  id          String  @id @default(cuid())
+  name        String
+  description String?
+
+  // Route details
+  estimatedTime     Int // minutes
+  estimatedDistance Float // km
+  schedule          CollectionSchedule @default(DAILY)
+
+  // Assigned staff
+  staffId String?
+  staff   Staff?  @relation(fields: [staffId], references: [id])
+
+  // Route customers
+  customers Customer[] @relation("RouteCustomers")
+
+  // Performance metrics
+  averageTime      Int?
+  onTimePercentage Float?
+  totalCollections Int    @default(0)
+
+  // Relations
+  eggCollections EggCollection[]
+
+  active    Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("collection_routes")
+}
+
+// ===== PURCHASE ORDER MANAGEMENT =====
+
+model PurchaseOrder {
+  id          String @id @default(cuid())
+  orderNumber String @unique
+
+  // Vendor relationship
+  vendorId String
+  vendor   Vendor @relation(fields: [vendorId], references: [id])
+
+  // Order details
+  orderDate    DateTime  @default(now())
+  expectedDate DateTime?
+  receivedDate DateTime?
+
+  // Financial
+  subtotal Float
+  tax      Float @default(0)
+  shipping Float @default(0)
+  total    Float
+
+  // Status
+  status PurchaseOrderStatus @default(PENDING)
+
+  // Staff
+  orderedBy  String
+  staff      Staff   @relation(fields: [orderedBy], references: [id])
+  receivedBy String?
+
+  // Relations
+  items PurchaseOrderItem[]
+
+  notes String?
+
+  synced    Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("purchase_orders")
+}
+
+model PurchaseOrderItem {
+  id String @id @default(cuid())
+
+  // Purchase order relationship
+  purchaseOrderId String
+  purchaseOrder   PurchaseOrder @relation(fields: [purchaseOrderId], references: [id], onDelete: Cascade)
+
+  // Product relationship
+  productId String
+  product   Product @relation(fields: [productId], references: [id])
+
+  // Order details
+  quantityOrdered  Int
+  quantityReceived Int   @default(0)
+  unitCost         Float
+  totalCost        Float
+
+  // Product snapshot
+  productName String
+  productSku  String
+
+  @@map("purchase_order_items")
+}
+
+enum PurchaseOrderStatus {
+  PENDING
+  ORDERED
+  PARTIAL_RECEIVED
+  RECEIVED
+  CANCELLED
+}
+
+// ===== PAYMENT MANAGEMENT =====
+
+model PaymentRecord {
+  id     String      @id @default(cuid())
+  type   PaymentType
+  amount Float
+
+  // Customer payment
+  customerId String?
+  customer   Customer? @relation(fields: [customerId], references: [id])
+
+  // Vendor payment
+  vendorId String?
+  vendor   Vendor? @relation(fields: [vendorId], references: [id])
+
+  // Transaction reference
+  transactionId String?
+  transaction   Transaction? @relation(fields: [transactionId], references: [id])
+
+  // Payment details
+  paymentMethod PaymentMethod
+  paymentDate   DateTime      @default(now())
+  dueDate       DateTime?
+
+  // Reference numbers
+  referenceNumber String?
+  checkNumber     String?
+
+  // Staff
+  processedBy String
+  staff       Staff  @relation(fields: [processedBy], references: [id])
+
+  notes String?
+
+  synced    Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("payment_records")
+}
+
+enum PaymentType {
+  CUSTOMER_PAYMENT
+  VENDOR_PAYMENT
+  EGG_PAYMENT
+  REFUND
+  ADJUSTMENT
+  DEBIT
+}
+
+// ===== SYSTEM CONFIGURATION =====
+
+model SystemSetting {
+  id    String      @id @default(cuid())
+  key   String      @unique
+  value String
+  type  SettingType @default(STRING)
+
+  description String?
+  category    String  @default("general")
+
+  updatedAt DateTime @updatedAt
+  updatedBy String?
+
+  @@map("system_settings")
+}
+
+enum SettingType {
+  STRING
+  NUMBER
+  BOOLEAN
+  JSON
+}
+
+// ===== AUDIT & LOGGING =====
+
+model AuditLog {
+  id        String      @id @default(cuid())
+  tableName String
+  recordId  String
+  action    AuditAction
+
+  // Changes
+  oldValues Json?
+  newValues Json?
+
+  // User context
+  userId    String?
+  userAgent String?
+  ipAddress String?
+
+  timestamp DateTime @default(now())
+
+  @@map("audit_logs")
+}
+
+enum AuditAction {
+  CREATE
+  UPDATE
+  DELETE
+  LOGIN
+  LOGOUT
+  SYNC
+}
+
+// ===== SYNC TRACKING =====
+
+model SyncLog {
+  id        String        @id @default(cuid())
+  tableName String
+  recordId  String
+  operation SyncOperation
+
+  // Sync details
+  syncedAt DateTime @default(now())
+  success  Boolean
+  error    String?
+  attempts Int      @default(1)
+
+  // Conflict resolution
+  conflictResolution String?
+
+  @@map("sync_logs")
+}
+
+enum SyncOperation {
+  CREATE
+  UPDATE
+  DELETE
+  BULK_SYNC
+}
+
+// ===== NOTIFICATIONS =====
+
+model Notification {
+  id       String               @id @default(cuid())
+  type     NotificationType
+  category NotificationCategory
+  priority NotificationPriority @default(MEDIUM)
+
+  title   String
+  message String
+
+  // Recipients
+  recipientIds       Json? // Array of staff IDs
+  globalNotification Boolean @default(false)
+
+  // Status
+  read   Boolean   @default(false)
+  readAt DateTime?
+  readBy String?
+
+  // Expiration
+  expiresAt DateTime?
+
+  // Actions
+  actionRequired Boolean @default(false)
+  actionUrl      String?
+  actionData     Json?
+
+  createdAt DateTime @default(now())
+
+  @@map("notifications")
+}
+
+enum NotificationType {
+  INFO
+  SUCCESS
+  WARNING
+  ERROR
+  ALERT
+}
+
+enum NotificationCategory {
+  INVENTORY
+  SALES
+  CUSTOMER
+  VENDOR
+  SYSTEM
+  QUALITY
+  FINANCIAL
+}
+
+enum NotificationPriority {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+
+// ===== INDEXES FOR PERFORMANCE =====
+
+// Staff indexes
+
+// Sync indexes
+// @@index([synced], map: "idx_sync_status")
+// @@index([cloudId], map: "idx_cloud_reference")

@@ -18,6 +18,8 @@ interface DatabaseConfig {
   localDbPath?: string;
 }
 
+import { PrismaClient } from '../../generated/prisma';
+
 export class DatabaseService {
   private config: DatabaseConfig;
   private cloudPrisma: any; // Would be PrismaClient for PostgreSQL
@@ -29,15 +31,18 @@ export class DatabaseService {
   }
 
   private async initializeConnections() {
+    console.log('Initializing database connections...##########s');
     try {
       // Initialize cloud connection (PostgreSQL)
       if (this.config.isOnline && this.config.cloudUrl) {
-        // this.cloudPrisma = new PrismaClient({ datasources: { db: { url: this.config.cloudUrl } } });
+        this.cloudPrisma = new PrismaClient();
         console.log('Cloud database connection initialized');
       }
 
       // Initialize local connection (SQLite) - Always available for offline mode
-      // this.localPrisma = new PrismaClient({ datasources: { db: { url: `file:${this.config.localDbPath}` } } });
+      // const dbPath = path.join(__dirname, '..', 'prisma', 'agripos.db')
+      // console.log('Local DB Path:', dbPath);
+      this.localPrisma = new PrismaClient();
       console.log('Local database connection initialized');
     } catch (error) {
       console.error('Database initialization failed:', error);
@@ -47,6 +52,15 @@ export class DatabaseService {
 
   // Get active database client based on connection status
   private getActiveClient() {
+    const res =
+      this.config.isOnline && this.cloudPrisma
+        ? this.cloudPrisma
+        : this.localPrisma;
+    console.log(
+      'Using database client:',
+      this.config.isOnline ? 'Cloud' : 'Local',
+      res,
+    );
     return this.config.isOnline && this.cloudPrisma
       ? this.cloudPrisma
       : this.localPrisma;
@@ -110,6 +124,23 @@ export class DatabaseService {
     } catch (error) {
       console.error('Sync process failed:', error);
       return { success: false, synced, errors: errors + 1 };
+    }
+  }
+
+  async getAllProducts(): Promise<Product[]> {
+    const client = this.getActiveClient();
+    try {
+      // Mock database operation
+      console.log('Fetching all products from database...');
+      const test = await this.testConnection();
+      console.log('Raw query result:', client);
+      const products = await this.localPrisma.product.findMany({
+        where: { active: true },
+      });
+      return products; // Mock empty result
+    } catch (error) {
+      console.error('Failed to fetch products:', error);
+      throw new Error('Failed to fetch products');
     }
   }
 
@@ -211,7 +242,10 @@ export class DatabaseService {
     try {
       // Mock database operation
       console.log(`Updating ${table}:`, id, updateData);
-      // const result = await client[table].update({ where: { id }, data: updateData });
+      const result = await client[table].update({
+        where: { id },
+        data: updateData,
+      });
       return updateData as T;
     } catch (error) {
       console.error(`Failed to update ${table}:`, error);
@@ -532,8 +566,14 @@ export class DatabaseService {
 }
 
 // Export singleton instance
+// export const databaseService = new DatabaseService({
+//   isOnline: navigator.onLine,
+//   cloudUrl: process.env.DATABASE_URL,
+//   localDbPath: './agripos.db',
+// });
+
 export const databaseService = new DatabaseService({
-  isOnline: navigator.onLine,
-  cloudUrl: process.env.DATABASE_URL,
-  localDbPath: './agripos.db',
+  isOnline: false,
+  cloudUrl: '../../../prisma/agripos.db',
+  localDbPath: '../../../prisma/agripos.db',
 });

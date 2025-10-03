@@ -7,34 +7,44 @@ import {
   QrCodeIcon,
   PhotoIcon,
 } from '@heroicons/react/24/outline';
+import { Product } from '../../types/core';
 
-interface Product {
+// interface Product {
+//   id: string;
+//   sku: string;
+//   name: string;
+//   description?: string;
+//   sellingPrice: number;
+//   costPrice: number;
+//   stock: number;
+//   category: string;
+//   supplier?: string;
+//   barcode?: string;
+//   image?: string;
+//   lastUpdated: Date;
+//   active: boolean;
+// }
+
+interface TypeData {
   id: string;
-  sku: string;
   name: string;
   description?: string;
-  price: number;
-  costPrice: number;
-  stock: number;
-  category: string;
-  supplier?: string;
-  barcode?: string;
-  image?: string;
-  lastUpdated: Date;
-  active: boolean;
 }
-
-interface Category {
-  id: string;
-  name: string;
-  description?: string;
+enum ProductType {
+  FEED,
+  MEDICINE,
+  EQUIPMENT,
+  EGGS,
+  SUPPLIES,
+  OTHER,
 }
 
 const ProductManagement: React.FC = () => {
+  const [vendors, setVendors] = useState<any[]>([]);
   const [products, setProducts] = useState<Product[]>([]);
-  const [categories, setCategories] = useState<Category[]>([]);
+  const [typeData, setTypeData] = useState<TypeData[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState<string>('all');
+  const [selectedType, setSelectedType] = useState<string>('all');
   const [showModal, setShowModal] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [sortBy, setSortBy] = useState<keyof Product>('name');
@@ -45,65 +55,95 @@ const ProductManagement: React.FC = () => {
     sku: '',
     name: '',
     description: '',
-    price: 0,
-    costPrice: 0,
-    stock: 0,
+    type: 'FEED', // must be selected by user
     category: '',
-    supplier: '',
-    barcode: '',
+
+    // Pricing
+    costPrice: 0,
+    sellingPrice: 0,
+    wholesalePrice: 0,
+
+    // Inventory
+    stock: 0,
+    unit: '',
+    minimumStock: 0,
+
+    // Attributes
+    expiryDate: new Date(),
+    batchNumber: '',
+    manufacturer: '',
+
+    // Medicine
+    requiresPrescription: false,
+    activeIngredient: '',
+    dosage: '',
+
+    // Feed
+    animalType: '',
+    nutritionInfo: '',
+    feedType: '',
+
+    // Vendor
+    primaryVendorId: '',
+    alternateVendors: [''],
+
+    // Other
     active: true,
   });
 
   // Mock data - replace with actual API calls
   useEffect(() => {
-    const mockCategories: Category[] = [
-      { id: '1', name: 'beverages', description: 'Coffee, tea, and drinks' },
+    const fetchProducts = async () => {
+      try {
+        const products = await window.api.getProducts();
+        console.log('Fetched products from InventoryService:', products);
+        setProducts(products); // Replace with allProducts when backend is ready
+      } catch (error) {
+        console.error('Error fetching products:', error);
+        setProducts([]); // Fallback to mock data on error
+      }
+    };
+    fetchProducts();
+    const fetchVendors = async () => {
+      try {
+        const allVendors = await window.api.getVendors();
+        setVendors(allVendors);
+        console.log('Fetched vendors from VendorService:', allVendors);
+      } catch (error) {
+        console.error('Error fetching vendors:', error);
+        setVendors([]); // Fallback to empty array on error
+      }
+    };
+    fetchVendors();
+    const mockType: TypeData[] = [
+      { id: '1', name: 'FEED', description: 'Coffee, tea, and drinks' },
       {
         id: '2',
-        name: 'accessories',
+        name: 'MEDICINE',
         description: 'Cups, mugs, and equipment',
       },
-      { id: '3', name: 'dairy', description: 'Milk and dairy products' },
+      { id: '3', name: 'EQUIPMENT', description: 'Milk and dairy products' },
       {
         id: '4',
-        name: 'condiments',
+        name: 'EGGS',
+        description: 'Sugar, sweeteners, and flavorings',
+      },
+      {
+        id: '5',
+        name: 'SUPPLIES',
+        description: 'Sugar, sweeteners, and flavorings',
+      },
+      {
+        id: '6',
+        name: 'OTHER',
         description: 'Sugar, sweeteners, and flavorings',
       },
     ];
 
-    const mockProducts: Product[] = [
-      {
-        id: '1',
-        sku: 'PROD001',
-        name: 'Premium Coffee Beans',
-        description: 'High-quality arabica beans',
-        price: 12.99,
-        costPrice: 8.5,
-        stock: 50,
-        category: 'beverages',
-        supplier: 'Bean Supplier Co.',
-        barcode: '1234567890123',
-        lastUpdated: new Date(),
-        active: true,
-      },
-      {
-        id: '2',
-        sku: 'PROD002',
-        name: 'Ceramic Espresso Cup',
-        description: 'Professional grade espresso cup',
-        price: 8.5,
-        costPrice: 4.25,
-        stock: 25,
-        category: 'accessories',
-        supplier: 'Ceramics Plus',
-        barcode: '1234567890124',
-        lastUpdated: new Date(),
-        active: true,
-      },
-    ];
+    // const mockProducts: Product[] = [];
 
-    setCategories(mockCategories);
-    setProducts(mockProducts);
+    setTypeData(mockType);
+    // setProducts(mockProducts);
   }, []);
 
   const openModal = (product?: Product) => {
@@ -116,12 +156,39 @@ const ProductManagement: React.FC = () => {
         sku: '',
         name: '',
         description: '',
-        price: 0,
-        costPrice: 0,
-        stock: 0,
+        type: 'FEED', // must be selected by user
         category: '',
-        supplier: '',
-        barcode: '',
+
+        // Pricing
+        costPrice: 0,
+        sellingPrice: 0,
+        wholesalePrice: 0,
+
+        // Inventory
+        stock: 0,
+        unit: '',
+        minimumStock: 0,
+
+        // Attributes
+        expiryDate: new Date(),
+        batchNumber: '',
+        manufacturer: '',
+
+        // Medicine
+        requiresPrescription: false,
+        activeIngredient: '',
+        dosage: '',
+
+        // Feed
+        animalType: '',
+        nutritionInfo: '',
+        feedType: '',
+
+        // Vendor
+        primaryVendorId: '',
+        alternateVendors: [''],
+
+        // Other
         active: true,
       });
     }
@@ -140,24 +207,36 @@ const ProductManagement: React.FC = () => {
     try {
       if (editingProduct) {
         // Update existing product
+        const updateFormData = formData;
+        const { primaryVendorId } = updateFormData;
+        delete updateFormData.primaryVendorId;
         const updatedProduct = {
-          ...editingProduct,
-          ...formData,
-          lastUpdated: new Date(),
+          ...updateFormData,
+          primaryVendor: {
+            connect: { id: primaryVendorId },
+          },
+          updatedAt: new Date(),
         } as Product;
 
         setProducts((prev) =>
           prev.map((p) => (p.id === editingProduct.id ? updatedProduct : p)),
         );
-        console.log('Updated product:', updatedProduct);
+        await window.api.updateProductData(updatedProduct);
       } else {
         // Create new product
-        const newProduct: Product = {
-          id: Date.now().toString(),
-          ...(formData as Product),
-          lastUpdated: new Date(),
-        };
+        const { primaryVendorId, alternateVendors, ...rest } = formData;
 
+        const newProduct: any = {
+          ...rest,
+          // Vendor relation
+          primaryVendor: {
+            connect: { id: primaryVendorId },
+          },
+
+          // Optional JSON field
+          alternateVendors: alternateVendors?.length ? alternateVendors : [],
+        };
+        const createdProduct = await window.api.createProductData(newProduct);
         setProducts((prev) => [...prev, newProduct]);
         console.log('Created product:', newProduct);
       }
@@ -207,12 +286,12 @@ const ProductManagement: React.FC = () => {
         product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
         product.sku.toLowerCase().includes(searchTerm.toLowerCase());
       const matchesCategory =
-        selectedCategory === 'all' || product.category === selectedCategory;
+        selectedType === 'all' || product.type === selectedType;
       return matchesSearch && matchesCategory;
     })
     .sort((a, b) => {
-      const aValue = a[sortBy];
-      const bValue = b[sortBy];
+      const aValue = a[sortBy] || '';
+      const bValue = b[sortBy] || '';
 
       if (sortOrder === 'asc') {
         return aValue > bValue ? 1 : -1;
@@ -267,9 +346,9 @@ const ProductManagement: React.FC = () => {
           </div>
           <div className="bg-white p-4 rounded-lg shadow">
             <h3 className="text-lg font-semibold text-blue-600">
-              {categories.length}
+              {typeData.length}
             </h3>
-            <p className="text-gray-600">Categories</p>
+            <p className="text-gray-600">Product Type</p>
           </div>
         </div>
 
@@ -286,14 +365,14 @@ const ProductManagement: React.FC = () => {
             />
           </div>
           <select
-            value={selectedCategory}
-            onChange={(e) => setSelectedCategory(e.target.value)}
+            value={selectedType}
+            onChange={(e) => setSelectedType(e.target.value)}
             className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
           >
-            <option value="all">All Categories</option>
-            {categories.map((category) => (
-              <option key={category.id} value={category.name}>
-                {category.name.charAt(0).toUpperCase() + category.name.slice(1)}
+            <option value="">Select Type</option>
+            {typeData.map((type) => (
+              <option key={type.id} value={type.name}>
+                {type.name.charAt(0).toUpperCase() + type.name.slice(1)}
               </option>
             ))}
           </select>
@@ -329,13 +408,19 @@ const ProductManagement: React.FC = () => {
                   SKU
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Price
+                  Cost Price
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Selling Price
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Wholesale Price
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Stock
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Category
+                  Type
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Status
@@ -351,17 +436,9 @@ const ProductManagement: React.FC = () => {
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="flex items-center">
                       <div className="flex-shrink-0 h-10 w-10">
-                        {product.image ? (
-                          <img
-                            className="h-10 w-10 rounded-lg object-cover"
-                            src={product.image}
-                            alt=""
-                          />
-                        ) : (
-                          <div className="h-10 w-10 rounded-lg bg-gray-200 flex items-center justify-center">
-                            <PhotoIcon className="h-5 w-5 text-gray-400" />
-                          </div>
-                        )}
+                        <div className="h-10 w-10 rounded-lg bg-gray-200 flex items-center justify-center">
+                          <PhotoIcon className="h-5 w-5 text-gray-400" />
+                        </div>
                       </div>
                       <div className="ml-4">
                         <div className="text-sm font-medium text-gray-900">
@@ -377,7 +454,13 @@ const ProductManagement: React.FC = () => {
                     {product.sku}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                    ${product.price.toFixed(2)}
+                    {product.costPrice} MMK
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    {product.sellingPrice} MMK
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    {product.wholesalePrice} MMK
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <span
@@ -389,11 +472,12 @@ const ProductManagement: React.FC = () => {
                             : 'bg-green-100 text-green-800'
                       }`}
                     >
-                      {product.stock} units
+                      {product.stock} {product.unit}
                     </span>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                    {product.category}
+                    {product.type.charAt(0).toUpperCase() +
+                      product.type.slice(1)}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <span
@@ -430,7 +514,7 @@ const ProductManagement: React.FC = () => {
       {/* Modal */}
       {showModal && (
         <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
-          <div className="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+          <div className="relative top-20 mx-auto p-5 border w-3/4 shadow-lg rounded-md bg-white">
             <div className="mt-3">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-lg font-medium text-gray-900">
@@ -445,6 +529,7 @@ const ProductManagement: React.FC = () => {
               </div>
 
               <form onSubmit={handleSubmit} className="space-y-4">
+                {/* SKU + Generate */}
                 <div className="flex gap-2">
                   <div className="flex-1">
                     <label className="block text-sm font-medium text-gray-700">
@@ -454,12 +539,9 @@ const ProductManagement: React.FC = () => {
                       type="text"
                       value={formData.sku || ''}
                       onChange={(e) =>
-                        setFormData((prev) => ({
-                          ...prev,
-                          sku: e.target.value,
-                        }))
+                        setFormData((p) => ({ ...p, sku: e.target.value }))
                       }
-                      className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-500"
+                      className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2"
                       required
                     />
                   </div>
@@ -472,19 +554,46 @@ const ProductManagement: React.FC = () => {
                   </button>
                 </div>
 
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">
-                    Product Name
-                  </label>
-                  <input
-                    type="text"
-                    value={formData.name || ''}
-                    onChange={(e) =>
-                      setFormData((prev) => ({ ...prev, name: e.target.value }))
-                    }
-                    className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-500"
-                    required
-                  />
+                {/* Basic Info */}
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700">
+                      Name
+                    </label>
+                    <input
+                      type="text"
+                      value={formData.name || ''}
+                      onChange={(e) =>
+                        setFormData((p) => ({ ...p, name: e.target.value }))
+                      }
+                      className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700">
+                      Type
+                    </label>
+                    <select
+                      value={formData.type || ''}
+                      onChange={(e) =>
+                        setFormData((p: any) => ({
+                          ...p,
+                          type: e.target.value,
+                        }))
+                      }
+                      className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2"
+                      required
+                    >
+                      <option value="">Select type</option>
+                      <option value="FEED">Feed</option>
+                      <option value="MEDICINE">Medicine</option>
+                      <option value="EQUIPMENT">Equipment</option>
+                      <option value="EGGS">Eggs</option>
+                      <option value="SUPPLIES">Supplies</option>
+                      <option value="OTHER">Other</option>
+                    </select>
+                  </div>
                 </div>
 
                 <div>
@@ -494,32 +603,33 @@ const ProductManagement: React.FC = () => {
                   <textarea
                     value={formData.description || ''}
                     onChange={(e) =>
-                      setFormData((prev) => ({
-                        ...prev,
+                      setFormData((p) => ({
+                        ...p,
                         description: e.target.value,
                       }))
                     }
                     rows={3}
-                    className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-500"
+                    className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2"
                   />
                 </div>
 
-                <div className="grid grid-cols-2 gap-4">
+                {/* Pricing */}
+                <div className="grid grid-cols-3 gap-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-700">
                       Cost Price
                     </label>
                     <input
                       type="number"
-                      step="0.01"
+                      min={0}
                       value={formData.costPrice || ''}
                       onChange={(e) =>
-                        setFormData((prev) => ({
-                          ...prev,
+                        setFormData((p) => ({
+                          ...p,
                           costPrice: parseFloat(e.target.value) || 0,
                         }))
                       }
-                      className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-500"
+                      className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2"
                       required
                     />
                   </div>
@@ -529,104 +639,303 @@ const ProductManagement: React.FC = () => {
                     </label>
                     <input
                       type="number"
-                      step="0.01"
-                      value={formData.price || ''}
+                      min={0}
+                      value={formData.sellingPrice || ''}
                       onChange={(e) =>
-                        setFormData((prev) => ({
-                          ...prev,
-                          price: parseFloat(e.target.value) || 0,
+                        setFormData((p) => ({
+                          ...p,
+                          sellingPrice: parseFloat(e.target.value) || 0,
                         }))
                       }
-                      className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-500"
+                      className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2"
                       required
                     />
                   </div>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">
-                    Stock Quantity
-                  </label>
-                  <input
-                    type="number"
-                    value={formData.stock || ''}
-                    onChange={(e) =>
-                      setFormData((prev) => ({
-                        ...prev,
-                        stock: parseInt(e.target.value) || 0,
-                      }))
-                    }
-                    className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-500"
-                    required
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">
-                    Category
-                  </label>
-                  <select
-                    value={formData.category || ''}
-                    onChange={(e) =>
-                      setFormData((prev) => ({
-                        ...prev,
-                        category: e.target.value,
-                      }))
-                    }
-                    className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-500"
-                    required
-                  >
-                    <option value="">Select a category</option>
-                    {categories.map((category) => (
-                      <option key={category.id} value={category.name}>
-                        {category.name.charAt(0).toUpperCase() +
-                          category.name.slice(1)}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">
-                    Supplier
-                  </label>
-                  <input
-                    type="text"
-                    value={formData.supplier || ''}
-                    onChange={(e) =>
-                      setFormData((prev) => ({
-                        ...prev,
-                        supplier: e.target.value,
-                      }))
-                    }
-                    className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-500"
-                  />
-                </div>
-
-                <div className="flex gap-2">
-                  <div className="flex-1">
+                  <div>
                     <label className="block text-sm font-medium text-gray-700">
-                      Barcode
+                      Wholesale Price
+                    </label>
+                    <input
+                      type="number"
+                      min={0}
+                      value={formData.wholesalePrice || ''}
+                      onChange={(e) =>
+                        setFormData((p) => ({
+                          ...p,
+                          wholesalePrice: parseFloat(e.target.value) || 0,
+                        }))
+                      }
+                      className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2"
+                    />
+                  </div>
+                </div>
+
+                {/* Inventory */}
+                <div className="grid grid-cols-3 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700">
+                      Stock
+                    </label>
+                    <input
+                      type="number"
+                      value={formData.stock || ''}
+                      onChange={(e) =>
+                        setFormData((p) => ({
+                          ...p,
+                          stock: parseInt(e.target.value) || 0,
+                        }))
+                      }
+                      className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700">
+                      Unit
+                    </label>
+                    <select
+                      value={formData.unit || ''}
+                      onChange={(e) =>
+                        setFormData((p) => ({ ...p, unit: e.target.value }))
+                      }
+                      className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2"
+                      required
+                    >
+                      <option value="">Select unit</option>
+                      <option value="kg">Kg</option>
+                      <option value="bags">Bags</option>
+                      <option value="pieces">Pieces</option>
+                      <option value="dozens">Dozens</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700">
+                      Minimum Stock
+                    </label>
+                    <input
+                      type="number"
+                      value={formData.minimumStock || 0}
+                      onChange={(e) =>
+                        setFormData((p) => ({
+                          ...p,
+                          minimumStock: parseInt(e.target.value) || 0,
+                        }))
+                      }
+                      className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2"
+                    />
+                  </div>
+                </div>
+
+                {/* Optional Fields */}
+                <div className="grid grid-cols-3 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700">
+                      Expiry Date
+                    </label>
+                    <input
+                      type="date"
+                      value={
+                        formData.expiryDate
+                          ? new Date(formData.expiryDate)
+                              .toISOString()
+                              .split('T')[0]
+                          : ''
+                      }
+                      onChange={(e) =>
+                        setFormData((p) => ({
+                          ...p,
+                          expiryDate: e.target.value
+                            ? new Date(e.target.value)
+                            : p.expiryDate,
+                        }))
+                      }
+                      className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700">
+                      Batch No
                     </label>
                     <input
                       type="text"
-                      value={formData.barcode || ''}
+                      value={formData.batchNumber || ''}
                       onChange={(e) =>
-                        setFormData((prev) => ({
-                          ...prev,
-                          barcode: e.target.value,
+                        setFormData((p) => ({
+                          ...p,
+                          batchNumber: e.target.value,
                         }))
                       }
-                      className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-500"
+                      className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2"
                     />
                   </div>
-                  <button
-                    type="button"
-                    onClick={generateBarcode}
-                    className="mt-6 px-3 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 flex items-center"
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700">
+                      Manufacturer
+                    </label>
+                    <input
+                      type="text"
+                      value={formData.manufacturer || ''}
+                      onChange={(e) =>
+                        setFormData((p) => ({
+                          ...p,
+                          manufacturer: e.target.value,
+                        }))
+                      }
+                      className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2"
+                    />
+                  </div>
+                </div>
+
+                {/* Medicine-specific */}
+                {formData.type === 'MEDICINE' && (
+                  <div className="space-y-2 border p-3 rounded-md">
+                    <h4 className="font-medium">Medicine Details</h4>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700">
+                          Active Ingredient
+                        </label>
+                        <input
+                          type="text"
+                          value={formData.activeIngredient || ''}
+                          onChange={(e) =>
+                            setFormData((p) => ({
+                              ...p,
+                              activeIngredient: e.target.value,
+                            }))
+                          }
+                          className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700">
+                          Dosage
+                        </label>
+                        <input
+                          type="text"
+                          value={formData.dosage || ''}
+                          onChange={(e) =>
+                            setFormData((p) => ({
+                              ...p,
+                              dosage: e.target.value,
+                            }))
+                          }
+                          className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2"
+                        />
+                      </div>
+                    </div>
+                    <div className="flex items-center">
+                      <input
+                        type="checkbox"
+                        id="prescription"
+                        checked={formData.requiresPrescription || false}
+                        onChange={(e) =>
+                          setFormData((p) => ({
+                            ...p,
+                            requiresPrescription: e.target.checked,
+                          }))
+                        }
+                        className="h-4 w-4 text-blue-600 border-gray-300 rounded"
+                      />
+                      <label htmlFor="prescription" className="ml-2 text-sm">
+                        Requires Prescription
+                      </label>
+                    </div>
+                  </div>
+                )}
+
+                {/* Feed-specific */}
+                {formData.type === 'FEED' && (
+                  <div className="space-y-2 border p-3 rounded-md">
+                    <h4 className="font-medium">Feed Details</h4>
+                    <div className="grid grid-cols-3 gap-4">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700">
+                          Animal Type
+                        </label>
+
+                        <select
+                          value={formData.animalType || ''}
+                          onChange={(e) =>
+                            setFormData((p) => ({
+                              ...p,
+                              animalType: e.target.value,
+                            }))
+                          }
+                          className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2"
+                          required
+                        >
+                          <option value="">Select Animal Type</option>
+                          <option value="poultry">Poultry</option>
+                          <option value="cattle">Cattle</option>
+                          <option value="dairy">Dairy</option>
+                        </select>
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700">
+                          Feed Type
+                        </label>
+                        <select
+                          value={formData.feedType || ''}
+                          onChange={(e) =>
+                            setFormData((p) => ({
+                              ...p,
+                              feedType: e.target.value,
+                            }))
+                          }
+                          className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2"
+                          required
+                        >
+                          <option value="">Select Feed Type</option>
+                          <option value="starter">Starter</option>
+                          <option value="grower">Grower</option>
+                          <option value="layer">Layer</option>
+                        </select>
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700">
+                          Nutrition Info
+                        </label>
+                        <input
+                          type="text"
+                          value={formData.nutritionInfo || ''}
+                          onChange={(e) =>
+                            setFormData((p) => ({
+                              ...p,
+                              nutritionInfo: e.target.value,
+                            }))
+                          }
+                          className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Vendor */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">
+                    Primary Vendor ID
+                  </label>
+
+                  <select
+                    value={formData.primaryVendorId || ''}
+                    onChange={(e) =>
+                      setFormData((p) => ({
+                        ...p,
+                        primaryVendorId: e.target.value,
+                      }))
+                    }
+                    className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2"
+                    required
                   >
-                    <QrCodeIcon className="w-4 h-4" />
-                  </button>
+                    <option value="">Select Primary Vendor</option>
+                    {vendors.map((vendor) => (
+                      <option key={vendor.id} value={vendor.id}>
+                        {vendor.companyName}
+                      </option>
+                    ))}
+                  </select>
                 </div>
 
                 <div className="flex items-center">
@@ -635,21 +944,16 @@ const ProductManagement: React.FC = () => {
                     id="active"
                     checked={formData.active || false}
                     onChange={(e) =>
-                      setFormData((prev) => ({
-                        ...prev,
-                        active: e.target.checked,
-                      }))
+                      setFormData((p) => ({ ...p, active: e.target.checked }))
                     }
-                    className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                    className="h-4 w-4 text-blue-600 border-gray-300 rounded"
                   />
-                  <label
-                    htmlFor="active"
-                    className="ml-2 block text-sm text-gray-900"
-                  >
+                  <label htmlFor="active" className="ml-2 text-sm">
                     Product is active
                   </label>
                 </div>
 
+                {/* Actions */}
                 <div className="flex justify-end space-x-3 pt-4">
                   <button
                     type="button"

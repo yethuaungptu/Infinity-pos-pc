@@ -18,7 +18,38 @@ import {
   PaymentMethod,
 } from '../../types/core';
 
-const EnhancedPOSInterface: React.FC = () => {
+declare global {
+  interface Window {
+    api: {
+      check: () => Promise<any[]>;
+      login: (data: any) => Promise<any[]>;
+      logout: () => Promise<any[]>;
+      getProducts: () => Promise<any[]>;
+      createProductData: (data: any) => Promise<any>;
+      getVendors: () => Promise<any[]>;
+      updateProductData: (data: any) => Promise<any>;
+      getTodaySalesSummary: () => Promise<any>;
+      createVendorData: (data: any) => Promise<any>;
+      getCustomers: () => Promise<any[]>;
+      createCustomerData: (data: any) => Promise<any>;
+      getCustomerDetail: (id: string) => Promise<any>;
+      getCustomerTransactions: (id: string) => Promise<any>;
+      createTransactionData: (data: any) => Promise<any>;
+      updateCustomer: (data: any) => Promise<any>;
+      getStaffs: () => Promise<any[]>;
+      createStaffData: (data: any) => Promise<any>;
+      updateStaff: (data: any) => Promise<any>;
+      getPaymentRecord: () => Promise<any[]>;
+      getPaymentRecordsWithCustomerId: (id: string) => Promise<any>;
+      createPaymentRecordData: (data: any) => Promise<any>;
+      updatePaymentRecord: (data: any) => Promise<any>;
+    };
+  }
+}
+
+const EnhancedPOSInterface: React.FC<{ onDataChanged: () => void }> = ({
+  onDataChanged,
+}) => {
   const [cart, setCart] = useState<TransactionItem[]>([]);
   const [products, setProducts] = useState<Product[]>([]);
   const [customers, setCustomers] = useState<Customer[]>([]);
@@ -26,155 +57,42 @@ const EnhancedPOSInterface: React.FC = () => {
     null,
   );
   const [searchTerm, setSearchTerm] = useState('');
-  const [categoryFilter, setCategoryFilter] = useState<string>('all');
+  const [typeFilter, setCategoryFilter] = useState<string>('all');
   const [customerSearchTerm, setCustomerSearchTerm] = useState('');
-  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('cash');
+  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('CASH');
   const [isOffline, setIsOffline] = useState(false);
   const [showCustomerModal, setShowCustomerModal] = useState(false);
 
   // Mock data - replace with actual API calls
   useEffect(() => {
-    const mockProducts: Product[] = [
-      {
-        id: '1',
-        sku: 'FEED001',
-        name: 'Premium Poultry Feed',
-        description: 'High-quality feed for laying hens',
-        type: 'feed',
-        category: 'poultry_feed',
-        costPrice: 25.0,
-        sellingPrice: 35.0,
-        wholesalePrice: 32.0,
-        stock: 150,
-        unit: 'bags',
-        minimumStock: 20,
-        animalType: 'poultry',
-        primaryVendorId: '1',
-        createdAt: new Date(),
-        updatedAt: new Date(),
-        active: true,
-      },
-      {
-        id: '2',
-        sku: 'MED001',
-        name: 'Poultry Antibiotic',
-        description: 'Broad spectrum antibiotic for poultry',
-        type: 'medicine',
-        category: 'antibiotics',
-        costPrice: 15.0,
-        sellingPrice: 25.0,
-        stock: 45,
-        unit: 'bottles',
-        minimumStock: 10,
-        requiresPrescription: true,
-        activeIngredient: 'Amoxicillin',
-        expiryDate: new Date('2025-12-31'),
-        primaryVendorId: '2',
-        createdAt: new Date(),
-        updatedAt: new Date(),
-        active: true,
-      },
-      {
-        id: '3',
-        sku: 'EGG001',
-        name: 'Fresh Hen Eggs - Large',
-        description: 'Fresh large hen eggs',
-        type: 'eggs',
-        category: 'hen_eggs',
-        costPrice: 2.0,
-        sellingPrice: 3.5,
-        stock: 200,
-        unit: 'dozens',
-        minimumStock: 50,
-        primaryVendorId: 'farmers',
-        createdAt: new Date(),
-        updatedAt: new Date(),
-        active: true,
-      },
-      {
-        id: '4',
-        sku: 'EGG002',
-        name: 'Fresh Duck Eggs - Large',
-        description: 'Fresh large duck eggs',
-        type: 'eggs',
-        category: 'duck_eggs',
-        costPrice: 3.5,
-        sellingPrice: 5.0,
-        stock: 80,
-        unit: 'dozens',
-        minimumStock: 20,
-        primaryVendorId: 'farmers',
-        createdAt: new Date(),
-        updatedAt: new Date(),
-        active: true,
-      },
-    ];
+    const fetchProducts = async () => {
+      try {
+        const result = await window.api.getProducts();
+        console.log('Fetched products from InventoryService:', result);
+        setProducts(result); // Replace with allProducts when backend is ready
+      } catch (error) {
+        console.error('Error fetching products:', error);
+        setProducts([]); // Fallback to mock data on error
+      }
+    };
+    const fetchCustomers = async () => {
+      try {
+        const result = await window.api.getCustomers();
+        setCustomers(result);
+      } catch (error) {
+        console.error('Error fetching customers:', error);
+        setCustomers([]); // Fallback to empty list on error
+      }
+    };
 
-    const mockCustomers: Customer[] = [
-      {
-        id: '1',
-        type: 'farmer',
-        businessName: 'Happy Hen Farm',
-        contactPerson: 'John Farm',
-        phone: '+1-555-0301',
-        email: 'john@happyhenfarm.com',
-        creditLimit: 10000,
-        creditBalance: 2500,
-        paymentTerms: 30,
-        creditStatus: 'current',
-        farmSize: 50,
-        animalTypes: ['poultry'],
-        eggProduction: {
-          henEggs: 120,
-          duckEggs: 30,
-          collectionSchedule: 'daily',
-        },
-        totalPurchases: 25000,
-        createdAt: new Date('2023-01-15'),
-        updatedAt: new Date(),
-        active: true,
-      },
-      {
-        id: '2',
-        type: 'regular',
-        contactPerson: 'Mary Smith',
-        phone: '+1-555-0401',
-        email: 'mary@email.com',
-        creditLimit: 1000,
-        creditBalance: 150,
-        paymentTerms: 15,
-        creditStatus: 'current',
-        isRetail: true,
-        loyaltyPoints: 250,
-        totalPurchases: 3500,
-        createdAt: new Date('2023-06-10'),
-        updatedAt: new Date(),
-        active: true,
-      },
-      {
-        id: '3',
-        type: 'wholesale',
-        businessName: 'City Market',
-        contactPerson: 'Bob Johnson',
-        phone: '+1-555-0501',
-        email: 'bob@citymarket.com',
-        creditLimit: 5000,
-        creditBalance: 800,
-        paymentTerms: 30,
-        creditStatus: 'current',
-        totalPurchases: 15000,
-        createdAt: new Date('2023-03-20'),
-        updatedAt: new Date(),
-        active: true,
-      },
-    ];
-
-    setProducts(mockProducts);
-    setCustomers(mockCustomers);
+    fetchCustomers();
+    fetchProducts();
   }, []);
 
   const addToCart = (product: Product) => {
-    const existingItem = cart.find((item) => item.productId === product.id);
+    const existingItem = cart.find(
+      (item) => item.product.connect.id === product.id,
+    );
 
     if (existingItem) {
       updateQuantity(product.id, existingItem.quantity + 1);
@@ -182,9 +100,11 @@ const EnhancedPOSInterface: React.FC = () => {
       const price = getCustomerPrice(product);
       const newItem: TransactionItem = {
         id: Date.now().toString(),
-        productId: product.id,
+        product: {
+          connect: { id: product.id },
+        },
         productName: product.name,
-        sku: product.sku,
+        productSku: product.sku,
         quantity: 1,
         unit: product.unit,
         unitPrice: price,
@@ -198,9 +118,9 @@ const EnhancedPOSInterface: React.FC = () => {
     if (!selectedCustomer) return product.sellingPrice;
 
     switch (selectedCustomer.type) {
-      case 'farmer':
+      case 'FARMER':
         return product.wholesalePrice || product.sellingPrice;
-      case 'wholesale':
+      case 'WHOLESALE':
         return product.wholesalePrice || product.sellingPrice;
       default:
         return product.sellingPrice;
@@ -215,7 +135,7 @@ const EnhancedPOSInterface: React.FC = () => {
 
     setCart((prevCart) =>
       prevCart.map((item) =>
-        item.productId === productId
+        item.product.connect.id === productId
           ? {
               ...item,
               quantity: newQuantity,
@@ -228,16 +148,16 @@ const EnhancedPOSInterface: React.FC = () => {
 
   const removeFromCart = (productId: string) => {
     setCart((prevCart) =>
-      prevCart.filter((item) => item.productId !== productId),
+      prevCart.filter((item) => item.product.connect.id !== productId),
     );
   };
 
   const calculateTotals = () => {
     const subtotal = cart.reduce((sum, item) => sum + item.total, 0);
-    const tax = subtotal * 0.08; // 8% tax rate
-    const total = subtotal + tax;
-
-    return { subtotal, tax, total };
+    // const tax = subtotal * 0.08; // 8% tax rate
+    const total = subtotal;
+    // return { subtotal, tax, total };
+    return { subtotal, total };
   };
 
   const getAvailableCredit = (): number => {
@@ -246,7 +166,7 @@ const EnhancedPOSInterface: React.FC = () => {
   };
 
   const canProcessCreditSale = (): boolean => {
-    if (paymentMethod !== 'credit') return true;
+    if (paymentMethod !== 'CREDIT') return true;
     if (!selectedCustomer) return false;
 
     const { total } = calculateTotals();
@@ -254,31 +174,32 @@ const EnhancedPOSInterface: React.FC = () => {
   };
 
   const processPayment = async () => {
-    const { subtotal, tax, total } = calculateTotals();
+    const { subtotal, total } = calculateTotals();
 
-    if (paymentMethod === 'credit' && !canProcessCreditSale()) {
+    if (paymentMethod === 'CREDIT' && !canProcessCreditSale()) {
       alert('Insufficient credit limit for this customer!');
       return;
     }
-
+    const staff: any = await window.api.check();
+    const transactionId = `TXN_${Date.now()}`;
     const transaction: Transaction = {
-      id: `TXN_${Date.now()}`,
+      id: transactionId,
       receiptNumber: `RCP-${Date.now()}`,
-      type: 'sale',
+      type: 'SALE',
       customerId: selectedCustomer?.id,
-      items: [...cart],
+      items: { create: [...cart] },
       subtotal,
-      tax,
+      tax: 0,
       discount: 0,
       total,
       paymentMethod,
-      paidAmount: paymentMethod === 'credit' ? 0 : total,
-      balanceAmount: paymentMethod === 'credit' ? total : 0,
-      status: 'completed',
-      staffId: 'current-user',
+      paidAmount: paymentMethod === 'CREDIT' ? 0 : total,
+      balanceAmount: paymentMethod === 'CREDIT' ? total : 0,
+      status: 'COMPLETED',
+      staffId: staff.id,
       timestamp: new Date(),
       dueDate:
-        paymentMethod === 'credit' && selectedCustomer
+        paymentMethod === 'CREDIT' && selectedCustomer
           ? new Date(
               Date.now() + selectedCustomer.paymentTerms * 24 * 60 * 60 * 1000,
             )
@@ -287,10 +208,11 @@ const EnhancedPOSInterface: React.FC = () => {
     };
 
     try {
+      const result = await window.api.createTransactionData(transaction);
       console.log('Processing payment:', transaction);
 
       // Update customer credit balance if credit sale
-      if (paymentMethod === 'credit' && selectedCustomer) {
+      if (paymentMethod === 'CREDIT' && selectedCustomer) {
         const updatedCustomer = {
           ...selectedCustomer,
           creditBalance: selectedCustomer.creditBalance + total,
@@ -300,18 +222,20 @@ const EnhancedPOSInterface: React.FC = () => {
         setCustomers((prev) =>
           prev.map((c) => (c.id === selectedCustomer.id ? updatedCustomer : c)),
         );
+        await window.api.updateCustomer(updatedCustomer);
         setSelectedCustomer(updatedCustomer);
       }
 
       // Update inventory
       for (const item of cart) {
-        const product = products.find((p) => p.id === item.productId);
+        const product = products.find((p) => p.id === item.product.connect.id);
         if (product) {
           const updatedProduct = {
             ...product,
             stock: product.stock - item.quantity,
             updatedAt: new Date(),
           };
+          await window.api.updateProductData(updatedProduct);
           setProducts((prev) =>
             prev.map((p) => (p.id === product.id ? updatedProduct : p)),
           );
@@ -321,12 +245,13 @@ const EnhancedPOSInterface: React.FC = () => {
       // Clear cart and reset
       setCart([]);
       setSelectedCustomer(null);
-      setPaymentMethod('cash');
+      setPaymentMethod('CASH');
 
       // Show success message
       alert(
-        `${paymentMethod === 'credit' ? 'Credit sale' : 'Payment'} processed successfully! Total: $${total.toFixed(2)}`,
+        `${paymentMethod === 'CREDIT' ? 'Credit sale' : 'Payment'} processed successfully! Total: ${total} MMK`,
       );
+      onDataChanged();
     } catch (error) {
       console.error('Payment failed:', error);
       alert('Payment failed. Please try again.');
@@ -337,10 +262,9 @@ const EnhancedPOSInterface: React.FC = () => {
     const matchesSearch =
       product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       product.sku.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesCategory =
-      categoryFilter === 'all' || product.category === categoryFilter;
+    const matchesType = typeFilter === 'all' || product.type === typeFilter;
 
-    return matchesSearch && matchesCategory && product.active;
+    return matchesSearch && matchesType && product.active;
   });
 
   const filteredCustomers = customers.filter((customer) => {
@@ -349,8 +273,8 @@ const EnhancedPOSInterface: React.FC = () => {
     return searchString.includes(customerSearchTerm.toLowerCase());
   });
 
-  const categories = ['all', ...new Set(products.map((p) => p.category))];
-  const { subtotal, tax, total } = calculateTotals();
+  const types = ['all', ...new Set(products.map((p) => p.type))];
+  const { subtotal, total } = calculateTotals();
 
   return (
     <div className="flex h-screen bg-gray-50">
@@ -374,9 +298,9 @@ const EnhancedPOSInterface: React.FC = () => {
               </div>
               {selectedCustomer && (
                 <div className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-medium">
-                  {selectedCustomer.type === 'farmer'
+                  {selectedCustomer.type === 'FARMER'
                     ? '🚜'
-                    : selectedCustomer.type === 'wholesale'
+                    : selectedCustomer.type === 'WHOLESALE'
                       ? '🏪'
                       : '👤'}
                   {selectedCustomer.businessName ||
@@ -398,14 +322,14 @@ const EnhancedPOSInterface: React.FC = () => {
               />
             </div>
             <select
-              value={categoryFilter}
+              value={typeFilter}
               onChange={(e) => setCategoryFilter(e.target.value)}
               className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
             >
-              {categories.map((category) => (
+              {types.map((category) => (
                 <option key={category} value={category}>
                   {category === 'all'
-                    ? 'All Categories'
+                    ? 'All types'
                     : category.replace('_', ' ').toUpperCase()}
                 </option>
               ))}
@@ -427,11 +351,11 @@ const EnhancedPOSInterface: React.FC = () => {
               >
                 <div className="aspect-square bg-gray-200 rounded-lg mb-3 flex items-center justify-center relative">
                   <div className="text-4xl">
-                    {product.type === 'feed'
+                    {product.type === 'FEED'
                       ? '🌾'
-                      : product.type === 'medicine'
+                      : product.type === 'MEDICINE'
                         ? '💊'
-                        : product.type === 'eggs'
+                        : product.type === 'EGGS'
                           ? '🥚'
                           : '📦'}
                   </div>
@@ -452,9 +376,9 @@ const EnhancedPOSInterface: React.FC = () => {
 
                 <div className="flex items-center justify-between mb-2">
                   <span className="text-lg font-bold text-blue-600">
-                    ${price.toFixed(2)}
+                    {price} MMK
                   </span>
-                  {selectedCustomer?.type === 'farmer' &&
+                  {selectedCustomer?.type === 'FARMER' &&
                     product.wholesalePrice && (
                       <span className="text-xs text-green-600">
                         Farmer Price
@@ -508,7 +432,7 @@ const EnhancedPOSInterface: React.FC = () => {
             <div className="bg-gray-50 p-3 rounded-lg">
               <div className="flex items-center justify-between mb-2">
                 <div className="flex items-center">
-                  {selectedCustomer.type === 'farmer' ? (
+                  {selectedCustomer.type === 'FARMER' ? (
                     <BuildingOfficeIcon className="w-4 h-4 text-green-600 mr-2" />
                   ) : (
                     <UserIcon className="w-4 h-4 text-blue-600 mr-2" />
@@ -529,18 +453,20 @@ const EnhancedPOSInterface: React.FC = () => {
               <div className="text-sm text-gray-600">
                 <div className="flex justify-between">
                   <span>Credit Limit:</span>
-                  <span>${selectedCustomer.creditLimit.toLocaleString()}</span>
+                  <span>
+                    {selectedCustomer.creditLimit.toLocaleString()} MMK
+                  </span>
                 </div>
                 <div className="flex justify-between">
                   <span>Outstanding:</span>
                   <span className="text-red-600">
-                    ${selectedCustomer.creditBalance.toLocaleString()}
+                    {selectedCustomer.creditBalance.toLocaleString()} MMK
                   </span>
                 </div>
                 <div className="flex justify-between">
                   <span>Available Credit:</span>
                   <span className="text-green-600">
-                    ${getAvailableCredit().toLocaleString()}
+                    {getAvailableCredit().toLocaleString()} MMK
                   </span>
                 </div>
                 <div className="flex justify-between">
@@ -571,7 +497,7 @@ const EnhancedPOSInterface: React.FC = () => {
                     {item.productName}
                   </h4>
                   <button
-                    onClick={() => removeFromCart(item.productId)}
+                    onClick={() => removeFromCart(item.product.connect.id)}
                     className="text-red-500 hover:text-red-700 text-sm"
                   >
                     Remove
@@ -581,7 +507,10 @@ const EnhancedPOSInterface: React.FC = () => {
                   <div className="flex items-center gap-2">
                     <button
                       onClick={() =>
-                        updateQuantity(item.productId, item.quantity - 1)
+                        updateQuantity(
+                          item.product.connect.id,
+                          item.quantity - 1,
+                        )
                       }
                       className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center hover:bg-gray-300"
                     >
@@ -590,7 +519,10 @@ const EnhancedPOSInterface: React.FC = () => {
                     <span className="w-8 text-center">{item.quantity}</span>
                     <button
                       onClick={() =>
-                        updateQuantity(item.productId, item.quantity + 1)
+                        updateQuantity(
+                          item.product.connect.id,
+                          item.quantity + 1,
+                        )
                       }
                       className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center hover:bg-gray-300"
                     >
@@ -599,9 +531,9 @@ const EnhancedPOSInterface: React.FC = () => {
                   </div>
                   <div className="text-right">
                     <div className="text-sm text-gray-600">
-                      ${item.unitPrice.toFixed(2)}/{item.unit}
+                      {item.unitPrice} MMK / {item.unit}
                     </div>
-                    <div className="font-medium">${item.total.toFixed(2)}</div>
+                    <div className="font-medium">{item.total} MMK</div>
                   </div>
                 </div>
               </div>
@@ -616,8 +548,8 @@ const EnhancedPOSInterface: React.FC = () => {
             <label className="flex items-center">
               <input
                 type="radio"
-                value="cash"
-                checked={paymentMethod === 'cash'}
+                value="CASH"
+                checked={paymentMethod === 'CASH'}
                 onChange={(e) =>
                   setPaymentMethod(e.target.value as PaymentMethod)
                 }
@@ -629,8 +561,8 @@ const EnhancedPOSInterface: React.FC = () => {
             <label className="flex items-center">
               <input
                 type="radio"
-                value="credit"
-                checked={paymentMethod === 'credit'}
+                value="CREDIT"
+                checked={paymentMethod === 'CREDIT'}
                 onChange={(e) =>
                   setPaymentMethod(e.target.value as PaymentMethod)
                 }
@@ -646,8 +578,8 @@ const EnhancedPOSInterface: React.FC = () => {
             <label className="flex items-center">
               <input
                 type="radio"
-                value="bank_transfer"
-                checked={paymentMethod === 'bank_transfer'}
+                value="BANK_TRANSFER"
+                checked={paymentMethod === 'BANK_TRANSFER'}
                 onChange={(e) =>
                   setPaymentMethod(e.target.value as PaymentMethod)
                 }
@@ -658,7 +590,7 @@ const EnhancedPOSInterface: React.FC = () => {
             </label>
           </div>
 
-          {paymentMethod === 'credit' &&
+          {paymentMethod === 'CREDIT' &&
             selectedCustomer &&
             !canProcessCreditSale() && (
               <div className="mt-2 p-2 bg-red-50 border border-red-200 rounded-lg flex items-center">
@@ -675,17 +607,17 @@ const EnhancedPOSInterface: React.FC = () => {
           <div className="space-y-2">
             <div className="flex justify-between">
               <span>Subtotal:</span>
-              <span>${subtotal.toFixed(2)}</span>
+              <span>{subtotal} MMK</span>
             </div>
-            <div className="flex justify-between">
+            {/* <div className="flex justify-between">
               <span>Tax (8%):</span>
               <span>${tax.toFixed(2)}</span>
-            </div>
+            </div> */}
             <div className="flex justify-between text-lg font-bold">
               <span>Total:</span>
-              <span>${total.toFixed(2)}</span>
+              <span>{total} MMK</span>
             </div>
-            {paymentMethod === 'credit' && selectedCustomer && (
+            {paymentMethod === 'CREDIT' && selectedCustomer && (
               <div className="text-sm text-gray-600">
                 Due Date:{' '}
                 {new Date(
@@ -703,11 +635,11 @@ const EnhancedPOSInterface: React.FC = () => {
             onClick={processPayment}
             disabled={
               cart.length === 0 ||
-              (paymentMethod === 'credit' && !canProcessCreditSale())
+              (paymentMethod === 'CREDIT' && !canProcessCreditSale())
             }
             className="w-full bg-blue-600 text-white py-3 rounded-lg font-medium hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed flex items-center justify-center"
           >
-            {paymentMethod === 'credit' ? (
+            {paymentMethod === 'CREDIT' ? (
               <>
                 <CreditCardIcon className="w-5 h-5 mr-2" />
                 Process Credit Sale
@@ -779,9 +711,9 @@ const EnhancedPOSInterface: React.FC = () => {
                     <div className="flex items-center justify-between">
                       <div className="flex items-center">
                         <div className="mr-3">
-                          {customer.type === 'farmer'
+                          {customer.type === 'FARMER'
                             ? '🚜'
-                            : customer.type === 'wholesale'
+                            : customer.type === 'WHOLESALE'
                               ? '🏪'
                               : '👤'}
                         </div>

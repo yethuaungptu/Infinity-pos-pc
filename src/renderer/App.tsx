@@ -27,12 +27,15 @@ import StaffManagement from './components/Staff/StaffManagement';
 import VendorManagement from './components/Vendors/VendorManagement';
 import EggCollectionComponent from './components/EggCollection/EggCollection';
 import FinancialDashboard from './components/Financial/FinancialDashboard';
+import LoginPage from './components/Login/LoginPage';
+import CustomerDetail from './components/Customers/CustomerDetail';
 
 type TabType =
   | 'pos'
   | 'inventory'
   | 'reports'
   | 'customers'
+  | 'customerDetail'
   | 'vendors'
   | 'staff'
   | 'eggs'
@@ -55,6 +58,7 @@ interface AppState {
     role: string;
     permissions: string[];
   };
+  selectedCustomerId?: string; // 👈 add this
 }
 
 const App: React.FC = () => {
@@ -70,6 +74,42 @@ const App: React.FC = () => {
       permissions: ['all'],
     },
   });
+  const [user, setUser] = useState<any | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [salesSummary, setSalesSummary] = useState<any>(null);
+
+  useEffect(() => {
+    const checkSession = async () => {
+      const u: any = await window.api.check();
+      setUser(u);
+      setLoading(false);
+      if (u) {
+        setAppState((prev) => ({
+          ...prev,
+          currentUser: {
+            id: u.id,
+            name: u.username,
+            role: u.position,
+            permissions: ['all'],
+          },
+        }));
+      }
+    };
+    checkSession();
+    console.log(user);
+  }, []);
+  const fetchSalesSummary = async () => {
+    try {
+      const summary = await window.api.getTodaySalesSummary();
+      setSalesSummary(summary);
+    } catch (error) {
+      console.error('Failed to fetch sales summary', error);
+    }
+  };
+  useEffect(() => {
+    console.log('Fetching sales summary...');
+    fetchSalesSummary();
+  }, []);
 
   // Monitor network status
   useEffect(() => {
@@ -222,11 +262,30 @@ const App: React.FC = () => {
   const renderActiveComponent = () => {
     switch (appState.activeTab) {
       case 'pos':
-        return <EnhancedPOSInterface />;
+        return <EnhancedPOSInterface onDataChanged={fetchSalesSummary} />;
       case 'inventory':
         return <ProductManagement />;
       case 'customers':
-        return <CustomerManagement />;
+        return (
+          <CustomerManagement
+            onViewCustomer={(id) =>
+              setAppState((prev) => ({
+                ...prev,
+                activeTab: 'customerDetail',
+                selectedCustomerId: id,
+              }))
+            }
+          />
+        );
+      case 'customerDetail':
+        return (
+          <CustomerDetail
+            customerId={appState.selectedCustomerId!}
+            onBack={() =>
+              setAppState((prev) => ({ ...prev, activeTab: 'customers' }))
+            }
+          />
+        );
       case 'vendors':
         return <VendorManagement />;
       case 'eggs':
@@ -240,7 +299,7 @@ const App: React.FC = () => {
       case 'settings':
         return <SettingsManagement />;
       default:
-        return <EnhancedPOSInterface />;
+        return <EnhancedPOSInterface onDataChanged={fetchSalesSummary} />;
     }
   };
 
@@ -276,6 +335,7 @@ const App: React.FC = () => {
       pos: 'Point of Sale',
       inventory: 'Inventory Management',
       customers: 'Customer Management',
+      customerDetail: 'Customer Detail',
       vendors: 'Vendor Management',
       eggs: 'Egg Collection',
       financial: 'Financial Dashboard',
@@ -295,6 +355,26 @@ const App: React.FC = () => {
     creditOutstanding: 15650,
     vendorPaymentsDue: 8500,
   };
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-screen bg-gray-100">
+        <div className="text-gray-600 animate-pulse">Checking session...</div>
+      </div>
+    );
+  }
+
+  if (!user) {
+    return <LoginPage onLogin={setUser} />;
+  }
+
+  if (!salesSummary) {
+    return (
+      <div className="flex items-center justify-center h-screen bg-gray-100">
+        <div className="text-gray-600 animate-pulse">Loading dashboard...</div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex h-screen bg-gray-100">
@@ -389,20 +469,20 @@ const App: React.FC = () => {
         <div className="p-6 border-t border-gray-200 bg-gray-50">
           <div className="text-center mb-4">
             <div className="text-2xl font-bold text-gray-900">
-              ${dailyStats.sales.toLocaleString()}
+              {salesSummary.totalSales.toLocaleString()} MMK
             </div>
             <div className="text-sm text-gray-600">Today's Sales</div>
           </div>
           <div className="grid grid-cols-2 gap-3 text-xs">
             <div className="text-center">
               <div className="font-semibold text-gray-900">
-                {dailyStats.transactions}
+                {salesSummary.totalTransactions}
               </div>
               <div className="text-gray-600">Transactions</div>
             </div>
             <div className="text-center">
               <div className="font-semibold text-gray-900">
-                {dailyStats.itemsSold}
+                {salesSummary.totalItemsSold}
               </div>
               <div className="text-gray-600">Items Sold</div>
             </div>
