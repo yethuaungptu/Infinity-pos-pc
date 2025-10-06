@@ -15,6 +15,15 @@ export class InventoryServiceClass {
       throw new Error('Failed to retrieve held transaction');
     }
   }
+  async getProductDetail(id: string): Promise<any> {
+    try {
+      const product = await databaseService.findById('product', id);
+      return product as Product;
+    } catch (error) {
+      console.error('Failed to fetch product detail', error);
+      throw new Error('Failed to fetch product detail');
+    }
+  }
   async createProduct(data: any): Promise<Product> {
     try {
       const product = await databaseService.create('product', data);

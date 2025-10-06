@@ -512,10 +512,10 @@ model PurchaseOrder {
   receivedDate DateTime?
 
   // Financial
-  subtotal Float
-  tax      Float @default(0)
-  shipping Float @default(0)
-  total    Float
+  subtotal Int
+  tax      Int @default(0)
+  shipping Int @default(0)
+  total    Int
 
   // Status
   status PurchaseOrderStatus @default(PENDING)

@@ -25,6 +25,26 @@ export class VendorServiceClass {
       throw new Error('Failed to fetch vendors');
     }
   }
+  async getVendorDetail(id: string): Promise<Vendor> {
+    try {
+      const vendor = await databaseService.findById('vendor', id);
+      return vendor as Vendor;
+    } catch (error) {
+      console.error('Failed to fetch vendor detail', error);
+      throw new Error('Failed to fetch vendor detail');
+    }
+  }
+  async incrementVendorCredit(id: string, amount: number): Promise<any> {
+    try {
+      const vendor = await databaseService.update('vendor', id, {
+        creditBalance: { increment: amount },
+      });
+      return vendor as Vendor;
+    } catch (error) {
+      console.error('Failed to increment vendor amount', error);
+      throw new Error('Failed to increment vendor amount');
+    }
+  }
   async updateVendor(data: any): Promise<any> {
     try {
       const vendors = await databaseService.update('vendor', data.id, data);

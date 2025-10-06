@@ -94,6 +94,7 @@ export class DatabaseService {
           lte: endOfDay,
         },
         status: 'COMPLETED',
+        type: 'SALE',
       },
     });
 
@@ -104,6 +105,7 @@ export class DatabaseService {
           lte: endOfDay,
         },
         status: 'COMPLETED',
+        type: 'SALE',
       },
     });
 
@@ -118,7 +120,22 @@ export class DatabaseService {
             lte: endOfDay,
           },
           status: 'COMPLETED',
+          type: 'SALE',
         },
+      },
+    });
+
+    const creditOutToday = await client.transaction.aggregate({
+      _sum: {
+        total: true,
+      },
+      where: {
+        createdAt: {
+          gte: startOfDay,
+          lte: endOfDay,
+        },
+        status: 'COMPLETED',
+        type: 'PURCHASE',
       },
     });
 
@@ -126,6 +143,7 @@ export class DatabaseService {
       totalSales: totalSales._sum.total || 0,
       totalTransactions,
       totalItemsSold: totalItemsSold._sum.quantity || 0,
+      creditOutToday: creditOutToday._sum.total || 0,
     };
   }
 

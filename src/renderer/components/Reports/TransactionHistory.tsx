@@ -12,22 +12,24 @@ interface TransactionItem {
   id: string;
   productId: string;
   productName: string;
-  sku: string;
+  productSku: string;
   quantity: number;
-  price: number;
+  unitPrice: number;
   total: number;
 }
 
 interface Transaction {
   id: string;
   receiptNumber: string;
+  type: string;
   items: TransactionItem[];
   subtotal: number;
   tax: number;
   total: number;
   paymentMethod: 'cash' | 'card' | 'digital';
-  customerId?: string;
-  customerName?: string;
+  customer?: any;
+  vendor?: any;
+  staff?: any;
   userId: string;
   userEmail: string;
   timestamp: Date;
@@ -47,67 +49,33 @@ const TransactionHistory: React.FC = () => {
     end: new Date().toISOString().split('T')[0],
   });
   const [paymentFilter, setPaymentFilter] = useState<string>('all');
-  const [statusFilter, setStatusFilter] = useState<string>('all');
+  const [typeFilter, setTypeFilter] = useState<string>('all');
   const [showDetails, setShowDetails] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(20);
 
   // Mock data - replace with actual API calls
   useEffect(() => {
-    const mockTransactions: Transaction[] = [
-      {
-        id: '1',
-        receiptNumber: 'RCP-001',
-        items: [
-          {
-            id: '1',
-            productId: 'prod1',
-            productName: 'Premium Coffee Beans',
-            sku: 'PROD001',
-            quantity: 2,
-            price: 12.99,
-            total: 25.98,
-          },
-        ],
-        subtotal: 25.98,
-        tax: 2.08,
-        total: 28.06,
-        paymentMethod: 'card',
-        customerId: 'cust1',
-        customerName: 'John Doe',
-        userId: 'user1',
-        userEmail: 'cashier@store.com',
-        timestamp: new Date('2024-01-15T14:30:00'),
-        status: 'completed',
-        synced: true,
-      },
-      {
-        id: '2',
-        receiptNumber: 'RCP-002',
-        items: [
-          {
-            id: '2',
-            productId: 'prod2',
-            productName: 'Ceramic Espresso Cup',
-            sku: 'PROD002',
-            quantity: 1,
-            price: 8.5,
-            total: 8.5,
-          },
-        ],
-        subtotal: 8.5,
-        tax: 0.68,
-        total: 9.18,
-        paymentMethod: 'cash',
-        userId: 'user1',
-        userEmail: 'cashier@store.com',
-        timestamp: new Date('2024-01-15T15:45:00'),
-        status: 'completed',
-        synced: false,
-      },
-    ];
-
-    setTransactions(mockTransactions);
+    const fetchTransactions = async () => {
+      try {
+        const data = await window.api.getTransactions();
+        console.log('Fetched Transactions:', data); // --- IGNORE ---
+        if (data && Array.isArray(data)) {
+          setTransactions(
+            data.map((t: any) => ({
+              ...t,
+              timestamp: new Date(t.timestamp),
+            })),
+          );
+        } else {
+          setTransactions([]);
+        }
+      } catch (error) {
+        console.error('Failed to fetch transactions:', error);
+        setTransactions([]);
+      }
+    };
+    fetchTransactions();
   }, []);
 
   const filteredTransactions = transactions.filter((transaction) => {
@@ -115,7 +83,10 @@ const TransactionHistory: React.FC = () => {
       transaction.receiptNumber
         .toLowerCase()
         .includes(searchTerm.toLowerCase()) ||
-      transaction.customerName
+      transaction.customer?.contactPerson
+        ?.toLowerCase()
+        .includes(searchTerm.toLowerCase()) ||
+      transaction.vendor?.contactPerson
         ?.toLowerCase()
         .includes(searchTerm.toLowerCase()) ||
       transaction.items.some((item) =>
@@ -131,7 +102,7 @@ const TransactionHistory: React.FC = () => {
     const matchesPayment =
       paymentFilter === 'all' || transaction.paymentMethod === paymentFilter;
     const matchesStatus =
-      statusFilter === 'all' || transaction.status === statusFilter;
+      typeFilter === 'all' || transaction.type === typeFilter;
 
     return matchesSearch && matchesDate && matchesPayment && matchesStatus;
   });
@@ -144,20 +115,24 @@ const TransactionHistory: React.FC = () => {
   );
 
   const calculateTotals = () => {
-    const totalRevenue = filteredTransactions.reduce(
-      (sum, t) => sum + t.total,
-      0,
-    );
-    const totalTax = filteredTransactions.reduce((sum, t) => sum + t.tax, 0);
-    const completedTransactions = filteredTransactions.filter(
-      (t) => t.status === 'completed',
+    const totalSale = filteredTransactions
+      .filter((t) => t.type === 'SALE')
+      .reduce((sum, t) => sum + t.total, 0);
+    const totalPurchase = filteredTransactions
+      .filter((t) => t.type === 'PURCHASE')
+      .reduce((sum, t) => sum + t.total, 0);
+    const totalSaleTransactions = filteredTransactions.filter(
+      (t) => t.type === 'SALE',
+    ).length;
+    const totalPurchaseTransactions = filteredTransactions.filter(
+      (t) => t.type === 'PURCHASE',
     ).length;
 
     return {
-      totalRevenue,
-      totalTax,
-      transactionCount: filteredTransactions.length,
-      completedTransactions,
+      totalSale,
+      totalPurchase,
+      totalSaleTransactions,
+      totalPurchaseTransactions,
     };
   };
 
@@ -196,10 +171,9 @@ const TransactionHistory: React.FC = () => {
       [
         'Receipt',
         'Date',
-        'Customer',
+        'Type',
+        'Customer/Vendor',
         'Items',
-        'Subtotal',
-        'Tax',
         'Total',
         'Payment',
         'Status',
@@ -208,11 +182,14 @@ const TransactionHistory: React.FC = () => {
         [
           t.receiptNumber,
           t.timestamp.toISOString(),
-          t.customerName || 'Walk-in',
+          t.type,
+          t.customer
+            ? t.customer.contactPerson
+            : t.vendor
+              ? t.vendor.companyName
+              : 'Unknown',
           t.items.length,
-          t.subtotal.toFixed(2),
-          t.tax.toFixed(2),
-          t.total.toFixed(2),
+          t.total,
           t.paymentMethod,
           t.status,
         ].join(','),
@@ -256,27 +233,27 @@ const TransactionHistory: React.FC = () => {
         <div className="grid grid-cols-4 gap-4 mb-6">
           <div className="bg-white p-4 rounded-lg shadow">
             <h3 className="text-2xl font-bold text-green-600">
-              ${totals.totalRevenue.toFixed(2)}
+              {totals.totalSale} MMK
             </h3>
-            <p className="text-gray-600">Total Revenue</p>
+            <p className="text-gray-600">Total Sale</p>
           </div>
           <div className="bg-white p-4 rounded-lg shadow">
             <h3 className="text-2xl font-bold text-blue-600">
-              {totals.transactionCount}
+              {totals.totalPurchase} MMK
             </h3>
-            <p className="text-gray-600">Total Transactions</p>
+            <p className="text-gray-600">Total Purchase</p>
           </div>
           <div className="bg-white p-4 rounded-lg shadow">
             <h3 className="text-2xl font-bold text-purple-600">
-              ${totals.totalTax.toFixed(2)}
+              {totals.totalSaleTransactions}
             </h3>
-            <p className="text-gray-600">Total Tax Collected</p>
+            <p className="text-gray-600">Total Sale Transactions</p>
           </div>
           <div className="bg-white p-4 rounded-lg shadow">
             <h3 className="text-2xl font-bold text-orange-600">
-              {totals.completedTransactions}
+              {totals.totalPurchaseTransactions}
             </h3>
-            <p className="text-gray-600">Completed Sales</p>
+            <p className="text-gray-600">Total Purchase Transactions</p>
           </div>
         </div>
 
@@ -337,25 +314,23 @@ const TransactionHistory: React.FC = () => {
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
               >
                 <option value="all">All Methods</option>
-                <option value="cash">Cash</option>
-                <option value="card">Card</option>
-                <option value="digital">Digital</option>
+                <option value="CASH">Cash</option>
+                <option value="CREDIT">Credit</option>
               </select>
             </div>
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Status
+                Type
               </label>
               <select
-                value={statusFilter}
-                onChange={(e) => setStatusFilter(e.target.value)}
+                value={typeFilter}
+                onChange={(e) => setTypeFilter(e.target.value)}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
               >
                 <option value="all">All Status</option>
-                <option value="completed">Completed</option>
-                <option value="refunded">Refunded</option>
-                <option value="partial_refund">Partial Refund</option>
+                <option value="SALE">Sale</option>
+                <option value="PURCHASE">Purchase</option>
               </select>
             </div>
           </div>
@@ -375,7 +350,10 @@ const TransactionHistory: React.FC = () => {
                   Date & Time
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Customer
+                  Type
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Customer / Vendor
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Items
@@ -397,7 +375,11 @@ const TransactionHistory: React.FC = () => {
             <tbody className="bg-white divide-y divide-gray-200">
               {paginatedTransactions.map((transaction) => (
                 <React.Fragment key={transaction.id}>
-                  <tr className="hover:bg-gray-50">
+                  <tr
+                    className={`hover:bg-gray-50 ${
+                      transaction.vendor ? 'border-l-4 border-blue-500' : ''
+                    }`}
+                  >
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="flex items-center">
                         <div className="text-sm font-medium text-gray-900">
@@ -418,19 +400,24 @@ const TransactionHistory: React.FC = () => {
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      {transaction.customerName || 'Walk-in Customer'}
+                      <div>{transaction.type}</div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                      {transaction.customer
+                        ? transaction.customer.contactPerson
+                        : transaction.vendor
+                          ? transaction.vendor.companyName
+                          : 'Unknown'}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                       {transaction.items.length} item
                       {transaction.items.length !== 1 ? 's' : ''}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      <div className="font-medium">
-                        ${transaction.total.toFixed(2)}
-                      </div>
-                      <div className="text-gray-500">
+                      <div className="font-medium">{transaction.total} MMK</div>
+                      {/* <div className="text-gray-500">
                         Tax: ${transaction.tax.toFixed(2)}
-                      </div>
+                      </div> */}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <span
@@ -506,19 +493,22 @@ const TransactionHistory: React.FC = () => {
                               <dl className="space-y-1 text-sm">
                                 <div className="flex justify-between">
                                   <dt className="text-gray-600">Cashier:</dt>
-                                  <dd>{transaction.userEmail}</dd>
+                                  <dd>{transaction.staff.username}</dd>
                                 </div>
                                 <div className="flex justify-between">
                                   <dt className="text-gray-600">Subtotal:</dt>
-                                  <dd>${transaction.subtotal.toFixed(2)}</dd>
+                                  <dd>{transaction.subtotal} MMK</dd>
                                 </div>
                                 <div className="flex justify-between">
-                                  <dt className="text-gray-600">Tax:</dt>
-                                  <dd>${transaction.tax.toFixed(2)}</dd>
+                                  <dt className="text-gray-600">Other:</dt>
+                                  <dd>
+                                    {transaction.total - transaction.subtotal}{' '}
+                                    MMK
+                                  </dd>
                                 </div>
                                 <div className="flex justify-between font-medium">
                                   <dt className="text-gray-900">Total:</dt>
-                                  <dd>${transaction.total.toFixed(2)}</dd>
+                                  <dd>{transaction.total} MMK</dd>
                                 </div>
                                 {transaction.refundAmount && (
                                   <div className="flex justify-between text-red-600">
@@ -546,16 +536,15 @@ const TransactionHistory: React.FC = () => {
                                         {item.productName}
                                       </div>
                                       <div className="text-gray-600">
-                                        SKU: {item.sku}
+                                        SKU: {item.productSku}
                                       </div>
                                     </div>
                                     <div className="text-right">
                                       <div>
-                                        {item.quantity} × $
-                                        {item.price.toFixed(2)}
+                                        {item.quantity} × {item.unitPrice} MMK
                                       </div>
                                       <div className="font-medium">
-                                        ${item.total.toFixed(2)}
+                                        {item.total} MMK
                                       </div>
                                     </div>
                                   </div>

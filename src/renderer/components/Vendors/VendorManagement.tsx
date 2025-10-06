@@ -11,20 +11,27 @@ import {
   ExclamationTriangleIcon,
   PhoneIcon,
   EnvelopeIcon,
+  EyeIcon,
 } from '@heroicons/react/24/outline';
 import { Vendor, ProductType } from '../../types/core';
 
-declare global {
-  interface Window {
-    api: {
-      getVendors: () => Promise<Vendor[]>;
-      createVendorData: (data: any) => Promise<any>;
-      updateVendor: (data: any) => Promise<any>;
-    };
-  }
+// declare global {
+//   interface Window {
+//     api: {
+//       getVendors: () => Promise<Vendor[]>;
+//       createVendorData: (data: any) => Promise<any>;
+//       updateVendor: (data: any) => Promise<any>;
+//     };
+//   }
+// }
+
+interface VendorManagementProps {
+  onViewVendor?: (id: string) => void;
 }
 
-const VendorManagement: React.FC = () => {
+const VendorManagement: React.FC<VendorManagementProps> = ({
+  onViewVendor,
+}) => {
   const [vendors, setVendors] = useState<Vendor[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [productTypeFilter, setProductTypeFilter] = useState<string>('all');
@@ -35,6 +42,9 @@ const VendorManagement: React.FC = () => {
   const [selectedVendorForPayment, setSelectedVendorForPayment] =
     useState<Vendor | null>(null);
   const [paymentAmount, setPaymentAmount] = useState<number>(0);
+  const [paymentMethod, setPaymentMethod] = useState<
+    'CASH' | 'BANK_TRANSFER' | 'CHECK' | 'DIGITAL'
+  >('CASH');
 
   // Form state
   const [formData, setFormData] = useState<Partial<Vendor>>({
@@ -44,96 +54,22 @@ const VendorManagement: React.FC = () => {
     phone: '',
     creditLimit: 0,
     paymentTerms: 30,
-    earlyPaymentDiscount: 0,
+    creditBalance: 0,
     productTypes: [],
     active: true,
   });
 
   // Mock data - replace with actual API calls
+  const fetchVendors = async () => {
+    try {
+      const data = await window.api.getVendors();
+      setVendors(data);
+    } catch (error) {
+      console.error('Failed to fetch vendors:', error);
+      setVendors([]); // Fallback to mock data on error
+    }
+  };
   useEffect(() => {
-    const mockVendors: Vendor[] = [
-      {
-        id: '1',
-        companyName: 'AgriSupply Co.',
-        contactPerson: 'John Smith',
-        email: 'john@agrisupply.com',
-        phone: '+1-555-0201',
-        address: {
-          street: '123 Farm Road',
-          city: 'Farmville',
-          state: 'CA',
-          zipCode: '93444',
-          country: 'US',
-        },
-        creditLimit: 200000,
-        creditBalance: 85000,
-        paymentTerms: 45,
-        earlyPaymentDiscount: 2,
-        productTypes: ['feed', 'supplies'],
-        totalPurchases: 450000,
-        onTimePaymentRate: 98,
-        lastOrder: new Date('2024-01-10'),
-        lastPayment: new Date('2024-01-05'),
-        createdAt: new Date('2023-01-15'),
-        updatedAt: new Date(),
-        active: true,
-      },
-      {
-        id: '2',
-        companyName: 'VetMed Solutions',
-        contactPerson: 'Dr. Sarah Johnson',
-        email: 'sarah@vetmed.com',
-        phone: '+1-555-0202',
-        address: {
-          street: '456 Medical Blvd',
-          city: 'Healthtown',
-          state: 'TX',
-          zipCode: '75001',
-          country: 'US',
-        },
-        creditLimit: 150000,
-        creditBalance: 45000,
-        paymentTerms: 60,
-        earlyPaymentDiscount: 1.5,
-        productTypes: ['medicine'],
-        totalPurchases: 280000,
-        onTimePaymentRate: 100,
-        lastOrder: new Date('2024-01-12'),
-        lastPayment: new Date('2024-01-08'),
-        createdAt: new Date('2023-03-20'),
-        updatedAt: new Date(),
-        active: true,
-      },
-      {
-        id: '3',
-        companyName: 'Farm Equipment Plus',
-        contactPerson: 'Mike Wilson',
-        email: 'mike@farmequip.com',
-        phone: '+1-555-0203',
-        creditLimit: 100000,
-        creditBalance: 25000,
-        paymentTerms: 30,
-        earlyPaymentDiscount: 2.5,
-        productTypes: ['equipment'],
-        totalPurchases: 125000,
-        onTimePaymentRate: 95,
-        lastOrder: new Date('2024-01-08'),
-        lastPayment: new Date('2024-01-12'),
-        createdAt: new Date('2023-06-10'),
-        updatedAt: new Date(),
-        active: true,
-      },
-    ];
-    const fetchVendors = async () => {
-      try {
-        const data = await window.api.getVendors();
-        console.log('Fetched vendors:', data);
-        setVendors(data);
-      } catch (error) {
-        console.error('Failed to fetch vendors:', error);
-        setVendors(mockVendors); // Fallback to mock data on error
-      }
-    };
     fetchVendors();
     // setVendors(mockVendors);
   }, []);
@@ -151,7 +87,7 @@ const VendorManagement: React.FC = () => {
         phone: '',
         creditLimit: 0,
         paymentTerms: 30,
-        earlyPaymentDiscount: 0,
+        creditBalance: 0,
         productTypes: [],
         active: true,
       });
@@ -192,7 +128,6 @@ const VendorManagement: React.FC = () => {
         // Create new vendor
         const newVendor: Vendor = {
           ...(formData as Vendor),
-          creditBalance: 0,
           totalPurchases: 0,
           onTimePaymentRate: 100,
           createdAt: new Date(),
@@ -248,18 +183,33 @@ const VendorManagement: React.FC = () => {
         updatedAt: new Date(),
       };
 
-      setVendors((prev) =>
-        prev.map((v) =>
-          v.id === selectedVendorForPayment.id ? updatedVendor : v,
-        ),
-      );
+      // setVendors((prev) =>
+      //   prev.map((v) =>
+      //     v.id === selectedVendorForPayment.id ? updatedVendor : v,
+      //   ),
+      // );
+      const staff: any = await window.api.check();
+      const paymentRecord = {
+        type: 'VENDOR_PAYMENT',
+        amount: paymentAmount,
+        vendor: {
+          connect: { id: selectedVendorForPayment.id },
+        },
+        paymentMethod: paymentMethod,
+        paymentDate: new Date(),
+        staff: {
+          connect: { id: staff.id },
+        },
+      };
+
+      await window.api.createPaymentRecordData(paymentRecord);
+      await window.api.updateVendor(updatedVendor);
       setShowPaymentModal(false);
       setSelectedVendorForPayment(null);
       setPaymentAmount(0);
-
-      console.log('Processed payment:', paymentAmount);
+      fetchVendors();
       alert(
-        `Payment of $${paymentAmount.toLocaleString()} processed successfully!`,
+        `Payment of ${paymentAmount.toLocaleString()} MMK processed successfully!`,
       );
     } catch (error) {
       console.error('Error processing payment:', error);
@@ -403,10 +353,10 @@ const VendorManagement: React.FC = () => {
             className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
           >
             <option value="all">All Product Types</option>
-            <option value="feed">Feed</option>
-            <option value="medicine">Medicine</option>
-            <option value="equipment">Equipment</option>
-            <option value="supplies">Supplies</option>
+            <option value="FEED">Feed</option>
+            <option value="MEDICINE">Medicine</option>
+            <option value="EQUIPMENT">Equipment</option>
+            <option value="SUPPLIES">Supplies</option>
           </select>
           <select
             value={creditStatusFilter}
@@ -557,12 +507,18 @@ const VendorManagement: React.FC = () => {
                       >
                         <PencilIcon className="h-4 w-4" />
                       </button>
-                      <button
+                      {/* <button
                         onClick={() => handleDelete(vendor.id)}
                         className="text-red-600 hover:text-red-900"
                         title="Delete Vendor"
                       >
                         <TrashIcon className="h-4 w-4" />
+                      </button> */}
+                      <button
+                        onClick={() => onViewVendor && onViewVendor(vendor.id)}
+                        className="text-blue-600 hover:text-blue-900"
+                      >
+                        <EyeIcon className="h-4 w-4" />
                       </button>
                     </div>
                   </td>
@@ -706,16 +662,15 @@ const VendorManagement: React.FC = () => {
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700">
-                      Early Payment Discount (%)
+                      Credit Balance
                     </label>
                     <input
                       type="number"
-                      step="0.1"
-                      value={formData.earlyPaymentDiscount || ''}
+                      value={formData.creditBalance || ''}
                       onChange={(e) =>
                         setFormData((prev) => ({
                           ...prev,
-                          earlyPaymentDiscount: parseFloat(e.target.value) || 0,
+                          creditBalance: parseFloat(e.target.value) || 0,
                         }))
                       }
                       className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-500"
@@ -730,10 +685,10 @@ const VendorManagement: React.FC = () => {
                   <div className="grid grid-cols-2 gap-2">
                     {(
                       [
-                        'feed',
-                        'medicine',
-                        'equipment',
-                        'supplies',
+                        'FEED',
+                        'MEDICINE',
+                        'EQUIPMENT',
+                        'SUPPLIES',
                       ] as ProductType[]
                     ).map((type) => (
                       <div key={type} className="flex items-center">
@@ -821,7 +776,8 @@ const VendorManagement: React.FC = () => {
                   <div className="flex justify-between items-center mb-2">
                     <span className="text-gray-600">Outstanding Balance:</span>
                     <span className="text-lg font-bold text-red-600">
-                      ${selectedVendorForPayment.creditBalance.toLocaleString()}
+                      {selectedVendorForPayment.creditBalance.toLocaleString()}{' '}
+                      MMK
                     </span>
                   </div>
                   <div className="flex justify-between items-center">
@@ -841,7 +797,22 @@ const VendorManagement: React.FC = () => {
                     </div>
                   )}
                 </div>
-
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Payment Method *
+                  </label>
+                  <select
+                    value={paymentMethod}
+                    onChange={(e) => setPaymentMethod(e.target.value as any)}
+                    className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-500"
+                    required
+                  >
+                    <option value="CASH">Cash</option>
+                    <option value="BANK_TRANSFER">Bank Transfer</option>
+                    <option value="CHECK">Check</option>
+                    <option value="DIGITAL">Digital Payment</option>
+                  </select>
+                </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     Payment Amount

@@ -17,6 +17,7 @@ import { StaffService } from './services/staffService';
 import { AuthService } from './services/authService';
 import { IndexService } from './services/indexService';
 import { PaymentRecordService } from './services/paymentService';
+import { PurchaseService } from './services/purchaseService';
 
 class AppUpdater {
   constructor() {
@@ -62,6 +63,10 @@ ipcMain.handle('db:getProducts', async () => {
   return InventoryService.getAllProduct();
 });
 
+ipcMain.handle('db:getProductDetail', async (event, id) => {
+  return InventoryService.getProductDetail(id);
+});
+
 ipcMain.handle('db:createProductData', async (event, data) => {
   return InventoryService.createProduct(data);
 });
@@ -75,6 +80,12 @@ ipcMain.handle('db:createVendorData', async (event, data) => {
 });
 ipcMain.handle('db:getVendors', async () => {
   return VendorService.getVendors();
+});
+ipcMain.handle('db:getVendorDetail', async (event, id) => {
+  return VendorService.getVendorDetail(id);
+});
+ipcMain.handle('db:incrementVendorCredit', async (event, data) => {
+  return VendorService.incrementVendorCredit(data.id, data.amount);
 });
 ipcMain.handle('db:updateVendor', async (event, data) => {
   return VendorService.updateVendor(data);
@@ -125,8 +136,27 @@ ipcMain.handle('db:getPaymentRecords', async () => {
 ipcMain.handle('db:getPaymentRecordsWithCustomerId', async (event, data) => {
   return PaymentRecordService.getPaymentRecordsWithCustomerId(data);
 });
+ipcMain.handle('db:getPaymentRecordsWithVendorId', async (event, data) => {
+  return PaymentRecordService.getPaymentRecordsWithVendorId(data);
+});
 ipcMain.handle('db:updatePaymentRecord', async (event, data) => {
   return PaymentRecordService.updatePaymentRecord(data);
+});
+
+ipcMain.handle('db:createPurchaseData', async (event, data) => {
+  return PurchaseService.createPurchase(data);
+});
+ipcMain.handle('db:getPurchases', async () => {
+  return PurchaseService.getPurchases();
+});
+ipcMain.handle('db:getPurchaseByVendor', async (event, data) => {
+  return PurchaseService.getPurchaseByVendor(data);
+});
+ipcMain.handle('db:getPurchaseDetail', async (event, id) => {
+  return PurchaseService.getPurchaseDetail(id);
+});
+ipcMain.handle('db:updatePurchase', async (event, data) => {
+  return PurchaseService.updatePurchase(data);
 });
 
 // ---------------------------

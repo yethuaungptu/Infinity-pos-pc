@@ -25,8 +25,12 @@ declare global {
       login: (data: any) => Promise<any[]>;
       logout: () => Promise<any[]>;
       getProducts: () => Promise<any[]>;
+      getProductDetail: (id: string) => Promise<any>;
       createProductData: (data: any) => Promise<any>;
       getVendors: () => Promise<any[]>;
+      getVendorDetail: (id: string) => Promise<any>;
+      updateVendor: (data: any) => Promise<any>;
+      incrementVendorCredit: (id: string, amount: number) => Promise<any>;
       updateProductData: (data: any) => Promise<any>;
       getTodaySalesSummary: () => Promise<any>;
       createVendorData: (data: any) => Promise<any>;
@@ -41,8 +45,15 @@ declare global {
       updateStaff: (data: any) => Promise<any>;
       getPaymentRecord: () => Promise<any[]>;
       getPaymentRecordsWithCustomerId: (id: string) => Promise<any>;
+      getPaymentRecordsWithVendorId: (id: string) => Promise<any>;
       createPaymentRecordData: (data: any) => Promise<any>;
       updatePaymentRecord: (data: any) => Promise<any>;
+      getPurchases: () => Promise<any[]>;
+      getPurchaseByVendor: (id: string) => Promise<any[]>;
+      getPurchaseDetail: (id: any) => Promise<any>;
+      createPurchaseData: (data: any) => Promise<any>;
+      updatePurchase: (data: any) => Promise<any>;
+      getTransactions: () => Promise<any[]>;
     };
   }
 }

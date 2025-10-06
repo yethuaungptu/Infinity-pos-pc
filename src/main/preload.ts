@@ -9,6 +9,7 @@ import {
   Staff,
   PaymentRecord,
 } from '../generated/prisma';
+import { get } from 'lodash';
 
 export type Channels = 'ipc-example';
 
@@ -39,6 +40,8 @@ contextBridge.exposeInMainWorld('api', {
   logout: () => ipcRenderer.invoke('auth:logout'),
   check: () => ipcRenderer.invoke('auth:check'),
   getProducts: () => ipcRenderer.invoke('db:getProducts'),
+  getProductDetail: (id: string) =>
+    ipcRenderer.invoke('db:getProductDetail', id),
   getTodaySalesSummary: () => ipcRenderer.invoke('db:getTodaySalesSummary'),
   createProductData: (product: Product) =>
     ipcRenderer.invoke('db:createProductData', product),
@@ -47,8 +50,11 @@ contextBridge.exposeInMainWorld('api', {
   createVendorData: (vendor: Vendor) =>
     ipcRenderer.invoke('db:createVendorData', vendor),
   getVendors: () => ipcRenderer.invoke('db:getVendors'),
+  getVendorDetail: (id: string) => ipcRenderer.invoke('db:getVendorDetail', id),
   updateVendor: (vendor: Vendor) =>
     ipcRenderer.invoke('db:updateVendor', vendor),
+  incrementVendorCredit: (id: string, amount: number) =>
+    ipcRenderer.invoke('db:incrementVendorCredit', { id, amount }),
   createCustomerData: (customer: Customer) =>
     ipcRenderer.invoke('db:createCustomerData', customer),
   getCustomers: () => ipcRenderer.invoke('db:getCustomers'),
@@ -72,8 +78,19 @@ contextBridge.exposeInMainWorld('api', {
   getPaymentRecords: () => ipcRenderer.invoke('db:getPaymentRecords'),
   getPaymentRecordsWithCustomerId: (id: string) =>
     ipcRenderer.invoke('db:getPaymentRecordsWithCustomerId', id),
+  getPaymentRecordsWithVendorId: (id: string) =>
+    ipcRenderer.invoke('db:getPaymentRecordsWithVendorId', id),
   updatePaymentRecord: (paymentRecord: PaymentRecord) =>
     ipcRenderer.invoke('db:updatePaymentRecord', paymentRecord),
+  createPurchaseData: (purchase: any) =>
+    ipcRenderer.invoke('db:createPurchaseData', purchase),
+  getPurchases: () => ipcRenderer.invoke('db:getPurchases'),
+  getPurchaseByVendor: (id: string) =>
+    ipcRenderer.invoke('db:getPurchaseByVendor', id),
+  getPurchaseDetail: (id: string) =>
+    ipcRenderer.invoke('db:getPurchaseDetail', id),
+  updatePurchase: (purchase: any) =>
+    ipcRenderer.invoke('db:updatePurchase', purchase),
 });
 
 export type ElectronHandler = typeof electronHandler;

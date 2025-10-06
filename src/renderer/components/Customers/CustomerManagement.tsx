@@ -543,7 +543,7 @@ const CustomerManagement: React.FC<{ onViewCustomer: (id: any) => void }> = ({
                 <select
                   value={formData.type || 'FARMER'}
                   onChange={(e) =>
-                    setFormData((prev) => ({
+                    setFormData((prev: any) => ({
                       ...prev,
                       type: e.target.value ? e.target.value : 'FARMER',
                     }))
@@ -691,7 +691,7 @@ const CustomerManagement: React.FC<{ onViewCustomer: (id: any) => void }> = ({
                   <select
                     value={formData.creditStatus || 'CURRENT'}
                     onChange={(e) =>
-                      setFormData((prev) => ({
+                      setFormData((prev: any) => ({
                         ...prev,
                         creditStatus: e.target.value
                           ? e.target.value
@@ -793,7 +793,7 @@ const CustomerManagement: React.FC<{ onViewCustomer: (id: any) => void }> = ({
                     <select
                       value={formData.collectionSchedule || 'DAILY'}
                       onChange={(e) =>
-                        setFormData((prev) => ({
+                        setFormData((prev: any) => ({
                           ...prev,
                           collectionSchedule: e.target.value
                             ? e.target.value

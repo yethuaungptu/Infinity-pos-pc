@@ -17,7 +17,15 @@ export class TransactionServiceClass {
   }
   async getTransactions(): Promise<Transaction[]> {
     try {
-      const transactions = await databaseService.findMany('transaction');
+      const transactions = await databaseService.findMany('transaction', {
+        include: {
+          customer: true,
+          staff: true,
+          vendor: true,
+          items: true,
+          paymentRecords: true,
+        },
+      });
       return transactions as Transaction[];
     } catch (error) {
       console.error('Failed to fetch transactions', error);

@@ -29,14 +29,20 @@ import EggCollectionComponent from './components/EggCollection/EggCollection';
 import FinancialDashboard from './components/Financial/FinancialDashboard';
 import LoginPage from './components/Login/LoginPage';
 import CustomerDetail from './components/Customers/CustomerDetail';
+import PurchaseOrderList from './components/Inventory/PurchaseOrderList';
+import ReceiveShipment from './components/Inventory/ReceiveShipment';
+import VendorDetail from './components/Vendors/VendorDetail';
 
 type TabType =
   | 'pos'
   | 'inventory'
+  | 'purchaseOrders' // Add this
+  | 'receiveShipment' // Add this
   | 'reports'
   | 'customers'
   | 'customerDetail'
   | 'vendors'
+  | 'vendorDetail'
   | 'staff'
   | 'eggs'
   | 'financial'
@@ -59,6 +65,8 @@ interface AppState {
     permissions: string[];
   };
   selectedCustomerId?: string; // 👈 add this
+  selectedPurchaseOrderId?: string;
+  selectedVendorId?: string; // 👈 add this
 }
 
 const App: React.FC = () => {
@@ -264,7 +272,35 @@ const App: React.FC = () => {
       case 'pos':
         return <EnhancedPOSInterface onDataChanged={fetchSalesSummary} />;
       case 'inventory':
-        return <ProductManagement />;
+        return (
+          <ProductManagement
+            onNavigateToPurchaseOrders={() =>
+              setAppState((prev) => ({ ...prev, activeTab: 'purchaseOrders' }))
+            }
+          />
+        );
+      case 'purchaseOrders':
+        return (
+          <PurchaseOrderList
+            onNavigateToReceiveShipment={(orderId) =>
+              setAppState((prev) => ({
+                ...prev,
+                activeTab: 'receiveShipment',
+                selectedPurchaseOrderId: orderId,
+              }))
+            }
+          />
+        );
+      case 'receiveShipment':
+        return (
+          <ReceiveShipment
+            onBack={() =>
+              setAppState((prev) => ({ ...prev, activeTab: 'purchaseOrders' }))
+            }
+            orderId={appState.selectedPurchaseOrderId!}
+            onDataChanged={fetchSalesSummary}
+          />
+        );
       case 'customers':
         return (
           <CustomerManagement
@@ -287,7 +323,26 @@ const App: React.FC = () => {
           />
         );
       case 'vendors':
-        return <VendorManagement />;
+        return (
+          <VendorManagement
+            onViewVendor={(id) =>
+              setAppState((prev: any) => ({
+                ...prev,
+                activeTab: 'vendorDetail',
+                selectedVendorId: id,
+              }))
+            }
+          />
+        );
+      case 'vendorDetail':
+        return (
+          <VendorDetail
+            vendorId={appState.selectedVendorId!}
+            onBack={() =>
+              setAppState((prev) => ({ ...prev, activeTab: 'vendors' }))
+            }
+          />
+        );
       case 'eggs':
         return <EggCollectionComponent />;
       case 'financial':
@@ -334,9 +389,12 @@ const App: React.FC = () => {
     const tabNames: Record<string, string> = {
       pos: 'Point of Sale',
       inventory: 'Inventory Management',
+      purchaseOrders: 'Purchase Orders',
+      receiveShipment: 'Receive Shipment',
       customers: 'Customer Management',
       customerDetail: 'Customer Detail',
       vendors: 'Vendor Management',
+      vendorDetail: 'Vendor Detail',
       eggs: 'Egg Collection',
       financial: 'Financial Dashboard',
       reports: 'Transaction Reports',
@@ -494,7 +552,7 @@ const App: React.FC = () => {
             </div>
             <div className="text-center">
               <div className="font-semibold text-red-600">
-                ${(dailyStats.creditOutstanding / 1000).toFixed(1)}k
+                {salesSummary.creditOutToday.toLocaleString()} MMK
               </div>
               <div className="text-gray-600">Credit Out</div>
             </div>

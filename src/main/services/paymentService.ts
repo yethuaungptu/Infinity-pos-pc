@@ -39,6 +39,20 @@ export class PaymentRecordServiceClass {
       throw new Error('Failed to fetch vendors');
     }
   }
+  async getPaymentRecordsWithVendorId(id: string): Promise<any> {
+    try {
+      const paymentRecord = await databaseService.findMany('paymentRecord', {
+        where: { vendorId: id },
+        include: {
+          staff: true,
+        },
+      });
+      return paymentRecord as PaymentRecord;
+    } catch (error) {
+      console.error('Failed to fetch paymentRecords', error);
+      throw new Error('Failed to fetch vendors');
+    }
+  }
   async updatePaymentRecord(data: any): Promise<any> {
     try {
       const paymentRecord = await databaseService.update(

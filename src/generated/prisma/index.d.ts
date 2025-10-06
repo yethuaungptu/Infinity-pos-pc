@@ -16055,10 +16055,10 @@ export namespace Prisma {
     readonly orderDate: FieldRef<"PurchaseOrder", 'DateTime'>
     readonly expectedDate: FieldRef<"PurchaseOrder", 'DateTime'>
     readonly receivedDate: FieldRef<"PurchaseOrder", 'DateTime'>
-    readonly subtotal: FieldRef<"PurchaseOrder", 'Float'>
-    readonly tax: FieldRef<"PurchaseOrder", 'Float'>
-    readonly shipping: FieldRef<"PurchaseOrder", 'Float'>
-    readonly total: FieldRef<"PurchaseOrder", 'Float'>
+    readonly subtotal: FieldRef<"PurchaseOrder", 'Int'>
+    readonly tax: FieldRef<"PurchaseOrder", 'Int'>
+    readonly shipping: FieldRef<"PurchaseOrder", 'Int'>
+    readonly total: FieldRef<"PurchaseOrder", 'Int'>
     readonly status: FieldRef<"PurchaseOrder", 'PurchaseOrderStatus'>
     readonly orderedBy: FieldRef<"PurchaseOrder", 'String'>
     readonly receivedBy: FieldRef<"PurchaseOrder", 'String'>
@@ -25169,10 +25169,10 @@ export namespace Prisma {
     orderDate?: DateTimeFilter<"PurchaseOrder"> | Date | string
     expectedDate?: DateTimeNullableFilter<"PurchaseOrder"> | Date | string | null
     receivedDate?: DateTimeNullableFilter<"PurchaseOrder"> | Date | string | null
-    subtotal?: FloatFilter<"PurchaseOrder"> | number
-    tax?: FloatFilter<"PurchaseOrder"> | number
-    shipping?: FloatFilter<"PurchaseOrder"> | number
-    total?: FloatFilter<"PurchaseOrder"> | number
+    subtotal?: IntFilter<"PurchaseOrder"> | number
+    tax?: IntFilter<"PurchaseOrder"> | number
+    shipping?: IntFilter<"PurchaseOrder"> | number
+    total?: IntFilter<"PurchaseOrder"> | number
     status?: EnumPurchaseOrderStatusFilter<"PurchaseOrder"> | $Enums.PurchaseOrderStatus
     orderedBy?: StringFilter<"PurchaseOrder"> | string
     receivedBy?: StringNullableFilter<"PurchaseOrder"> | string | null
@@ -25218,10 +25218,10 @@ export namespace Prisma {
     orderDate?: DateTimeFilter<"PurchaseOrder"> | Date | string
     expectedDate?: DateTimeNullableFilter<"PurchaseOrder"> | Date | string | null
     receivedDate?: DateTimeNullableFilter<"PurchaseOrder"> | Date | string | null
-    subtotal?: FloatFilter<"PurchaseOrder"> | number
-    tax?: FloatFilter<"PurchaseOrder"> | number
-    shipping?: FloatFilter<"PurchaseOrder"> | number
-    total?: FloatFilter<"PurchaseOrder"> | number
+    subtotal?: IntFilter<"PurchaseOrder"> | number
+    tax?: IntFilter<"PurchaseOrder"> | number
+    shipping?: IntFilter<"PurchaseOrder"> | number
+    total?: IntFilter<"PurchaseOrder"> | number
     status?: EnumPurchaseOrderStatusFilter<"PurchaseOrder"> | $Enums.PurchaseOrderStatus
     orderedBy?: StringFilter<"PurchaseOrder"> | string
     receivedBy?: StringNullableFilter<"PurchaseOrder"> | string | null
@@ -25269,10 +25269,10 @@ export namespace Prisma {
     orderDate?: DateTimeWithAggregatesFilter<"PurchaseOrder"> | Date | string
     expectedDate?: DateTimeNullableWithAggregatesFilter<"PurchaseOrder"> | Date | string | null
     receivedDate?: DateTimeNullableWithAggregatesFilter<"PurchaseOrder"> | Date | string | null
-    subtotal?: FloatWithAggregatesFilter<"PurchaseOrder"> | number
-    tax?: FloatWithAggregatesFilter<"PurchaseOrder"> | number
-    shipping?: FloatWithAggregatesFilter<"PurchaseOrder"> | number
-    total?: FloatWithAggregatesFilter<"PurchaseOrder"> | number
+    subtotal?: IntWithAggregatesFilter<"PurchaseOrder"> | number
+    tax?: IntWithAggregatesFilter<"PurchaseOrder"> | number
+    shipping?: IntWithAggregatesFilter<"PurchaseOrder"> | number
+    total?: IntWithAggregatesFilter<"PurchaseOrder"> | number
     status?: EnumPurchaseOrderStatusWithAggregatesFilter<"PurchaseOrder"> | $Enums.PurchaseOrderStatus
     orderedBy?: StringWithAggregatesFilter<"PurchaseOrder"> | string
     receivedBy?: StringNullableWithAggregatesFilter<"PurchaseOrder"> | string | null
@@ -27427,10 +27427,10 @@ export namespace Prisma {
     orderDate?: DateTimeFieldUpdateOperationsInput | Date | string
     expectedDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     receivedDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    subtotal?: FloatFieldUpdateOperationsInput | number
-    tax?: FloatFieldUpdateOperationsInput | number
-    shipping?: FloatFieldUpdateOperationsInput | number
-    total?: FloatFieldUpdateOperationsInput | number
+    subtotal?: IntFieldUpdateOperationsInput | number
+    tax?: IntFieldUpdateOperationsInput | number
+    shipping?: IntFieldUpdateOperationsInput | number
+    total?: IntFieldUpdateOperationsInput | number
     status?: EnumPurchaseOrderStatusFieldUpdateOperationsInput | $Enums.PurchaseOrderStatus
     receivedBy?: NullableStringFieldUpdateOperationsInput | string | null
     notes?: NullableStringFieldUpdateOperationsInput | string | null
@@ -27449,10 +27449,10 @@ export namespace Prisma {
     orderDate?: DateTimeFieldUpdateOperationsInput | Date | string
     expectedDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     receivedDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    subtotal?: FloatFieldUpdateOperationsInput | number
-    tax?: FloatFieldUpdateOperationsInput | number
-    shipping?: FloatFieldUpdateOperationsInput | number
-    total?: FloatFieldUpdateOperationsInput | number
+    subtotal?: IntFieldUpdateOperationsInput | number
+    tax?: IntFieldUpdateOperationsInput | number
+    shipping?: IntFieldUpdateOperationsInput | number
+    total?: IntFieldUpdateOperationsInput | number
     status?: EnumPurchaseOrderStatusFieldUpdateOperationsInput | $Enums.PurchaseOrderStatus
     orderedBy?: StringFieldUpdateOperationsInput | string
     receivedBy?: NullableStringFieldUpdateOperationsInput | string | null
@@ -27489,10 +27489,10 @@ export namespace Prisma {
     orderDate?: DateTimeFieldUpdateOperationsInput | Date | string
     expectedDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     receivedDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    subtotal?: FloatFieldUpdateOperationsInput | number
-    tax?: FloatFieldUpdateOperationsInput | number
-    shipping?: FloatFieldUpdateOperationsInput | number
-    total?: FloatFieldUpdateOperationsInput | number
+    subtotal?: IntFieldUpdateOperationsInput | number
+    tax?: IntFieldUpdateOperationsInput | number
+    shipping?: IntFieldUpdateOperationsInput | number
+    total?: IntFieldUpdateOperationsInput | number
     status?: EnumPurchaseOrderStatusFieldUpdateOperationsInput | $Enums.PurchaseOrderStatus
     receivedBy?: NullableStringFieldUpdateOperationsInput | string | null
     notes?: NullableStringFieldUpdateOperationsInput | string | null
@@ -27508,10 +27508,10 @@ export namespace Prisma {
     orderDate?: DateTimeFieldUpdateOperationsInput | Date | string
     expectedDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     receivedDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    subtotal?: FloatFieldUpdateOperationsInput | number
-    tax?: FloatFieldUpdateOperationsInput | number
-    shipping?: FloatFieldUpdateOperationsInput | number
-    total?: FloatFieldUpdateOperationsInput | number
+    subtotal?: IntFieldUpdateOperationsInput | number
+    tax?: IntFieldUpdateOperationsInput | number
+    shipping?: IntFieldUpdateOperationsInput | number
+    total?: IntFieldUpdateOperationsInput | number
     status?: EnumPurchaseOrderStatusFieldUpdateOperationsInput | $Enums.PurchaseOrderStatus
     orderedBy?: StringFieldUpdateOperationsInput | string
     receivedBy?: NullableStringFieldUpdateOperationsInput | string | null
@@ -32268,10 +32268,10 @@ export namespace Prisma {
     orderDate?: DateTimeFilter<"PurchaseOrder"> | Date | string
     expectedDate?: DateTimeNullableFilter<"PurchaseOrder"> | Date | string | null
     receivedDate?: DateTimeNullableFilter<"PurchaseOrder"> | Date | string | null
-    subtotal?: FloatFilter<"PurchaseOrder"> | number
-    tax?: FloatFilter<"PurchaseOrder"> | number
-    shipping?: FloatFilter<"PurchaseOrder"> | number
-    total?: FloatFilter<"PurchaseOrder"> | number
+    subtotal?: IntFilter<"PurchaseOrder"> | number
+    tax?: IntFilter<"PurchaseOrder"> | number
+    shipping?: IntFilter<"PurchaseOrder"> | number
+    total?: IntFilter<"PurchaseOrder"> | number
     status?: EnumPurchaseOrderStatusFilter<"PurchaseOrder"> | $Enums.PurchaseOrderStatus
     orderedBy?: StringFilter<"PurchaseOrder"> | string
     receivedBy?: StringNullableFilter<"PurchaseOrder"> | string | null
@@ -35011,10 +35011,10 @@ export namespace Prisma {
     orderDate?: DateTimeFieldUpdateOperationsInput | Date | string
     expectedDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     receivedDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    subtotal?: FloatFieldUpdateOperationsInput | number
-    tax?: FloatFieldUpdateOperationsInput | number
-    shipping?: FloatFieldUpdateOperationsInput | number
-    total?: FloatFieldUpdateOperationsInput | number
+    subtotal?: IntFieldUpdateOperationsInput | number
+    tax?: IntFieldUpdateOperationsInput | number
+    shipping?: IntFieldUpdateOperationsInput | number
+    total?: IntFieldUpdateOperationsInput | number
     status?: EnumPurchaseOrderStatusFieldUpdateOperationsInput | $Enums.PurchaseOrderStatus
     receivedBy?: NullableStringFieldUpdateOperationsInput | string | null
     notes?: NullableStringFieldUpdateOperationsInput | string | null
@@ -35032,10 +35032,10 @@ export namespace Prisma {
     orderDate?: DateTimeFieldUpdateOperationsInput | Date | string
     expectedDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     receivedDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    subtotal?: FloatFieldUpdateOperationsInput | number
-    tax?: FloatFieldUpdateOperationsInput | number
-    shipping?: FloatFieldUpdateOperationsInput | number
-    total?: FloatFieldUpdateOperationsInput | number
+    subtotal?: IntFieldUpdateOperationsInput | number
+    tax?: IntFieldUpdateOperationsInput | number
+    shipping?: IntFieldUpdateOperationsInput | number
+    total?: IntFieldUpdateOperationsInput | number
     status?: EnumPurchaseOrderStatusFieldUpdateOperationsInput | $Enums.PurchaseOrderStatus
     orderedBy?: StringFieldUpdateOperationsInput | string
     receivedBy?: NullableStringFieldUpdateOperationsInput | string | null
@@ -36021,10 +36021,10 @@ export namespace Prisma {
     orderDate?: DateTimeFieldUpdateOperationsInput | Date | string
     expectedDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     receivedDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    subtotal?: FloatFieldUpdateOperationsInput | number
-    tax?: FloatFieldUpdateOperationsInput | number
-    shipping?: FloatFieldUpdateOperationsInput | number
-    total?: FloatFieldUpdateOperationsInput | number
+    subtotal?: IntFieldUpdateOperationsInput | number
+    tax?: IntFieldUpdateOperationsInput | number
+    shipping?: IntFieldUpdateOperationsInput | number
+    total?: IntFieldUpdateOperationsInput | number
     status?: EnumPurchaseOrderStatusFieldUpdateOperationsInput | $Enums.PurchaseOrderStatus
     receivedBy?: NullableStringFieldUpdateOperationsInput | string | null
     notes?: NullableStringFieldUpdateOperationsInput | string | null
@@ -36042,10 +36042,10 @@ export namespace Prisma {
     orderDate?: DateTimeFieldUpdateOperationsInput | Date | string
     expectedDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     receivedDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    subtotal?: FloatFieldUpdateOperationsInput | number
-    tax?: FloatFieldUpdateOperationsInput | number
-    shipping?: FloatFieldUpdateOperationsInput | number
-    total?: FloatFieldUpdateOperationsInput | number
+    subtotal?: IntFieldUpdateOperationsInput | number
+    tax?: IntFieldUpdateOperationsInput | number
+    shipping?: IntFieldUpdateOperationsInput | number
+    total?: IntFieldUpdateOperationsInput | number
     status?: EnumPurchaseOrderStatusFieldUpdateOperationsInput | $Enums.PurchaseOrderStatus
     receivedBy?: NullableStringFieldUpdateOperationsInput | string | null
     notes?: NullableStringFieldUpdateOperationsInput | string | null
@@ -36062,10 +36062,10 @@ export namespace Prisma {
     orderDate?: DateTimeFieldUpdateOperationsInput | Date | string
     expectedDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     receivedDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    subtotal?: FloatFieldUpdateOperationsInput | number
-    tax?: FloatFieldUpdateOperationsInput | number
-    shipping?: FloatFieldUpdateOperationsInput | number
-    total?: FloatFieldUpdateOperationsInput | number
+    subtotal?: IntFieldUpdateOperationsInput | number
+    tax?: IntFieldUpdateOperationsInput | number
+    shipping?: IntFieldUpdateOperationsInput | number
+    total?: IntFieldUpdateOperationsInput | number
     status?: EnumPurchaseOrderStatusFieldUpdateOperationsInput | $Enums.PurchaseOrderStatus
     receivedBy?: NullableStringFieldUpdateOperationsInput | string | null
     notes?: NullableStringFieldUpdateOperationsInput | string | null
@@ -36608,10 +36608,10 @@ export namespace Prisma {
     orderDate?: DateTimeFieldUpdateOperationsInput | Date | string
     expectedDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     receivedDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    subtotal?: FloatFieldUpdateOperationsInput | number
-    tax?: FloatFieldUpdateOperationsInput | number
-    shipping?: FloatFieldUpdateOperationsInput | number
-    total?: FloatFieldUpdateOperationsInput | number
+    subtotal?: IntFieldUpdateOperationsInput | number
+    tax?: IntFieldUpdateOperationsInput | number
+    shipping?: IntFieldUpdateOperationsInput | number
+    total?: IntFieldUpdateOperationsInput | number
     status?: EnumPurchaseOrderStatusFieldUpdateOperationsInput | $Enums.PurchaseOrderStatus
     receivedBy?: NullableStringFieldUpdateOperationsInput | string | null
     notes?: NullableStringFieldUpdateOperationsInput | string | null
@@ -36628,10 +36628,10 @@ export namespace Prisma {
     orderDate?: DateTimeFieldUpdateOperationsInput | Date | string
     expectedDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     receivedDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    subtotal?: FloatFieldUpdateOperationsInput | number
-    tax?: FloatFieldUpdateOperationsInput | number
-    shipping?: FloatFieldUpdateOperationsInput | number
-    total?: FloatFieldUpdateOperationsInput | number
+    subtotal?: IntFieldUpdateOperationsInput | number
+    tax?: IntFieldUpdateOperationsInput | number
+    shipping?: IntFieldUpdateOperationsInput | number
+    total?: IntFieldUpdateOperationsInput | number
     status?: EnumPurchaseOrderStatusFieldUpdateOperationsInput | $Enums.PurchaseOrderStatus
     orderedBy?: StringFieldUpdateOperationsInput | string
     receivedBy?: NullableStringFieldUpdateOperationsInput | string | null
@@ -36648,10 +36648,10 @@ export namespace Prisma {
     orderDate?: DateTimeFieldUpdateOperationsInput | Date | string
     expectedDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     receivedDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    subtotal?: FloatFieldUpdateOperationsInput | number
-    tax?: FloatFieldUpdateOperationsInput | number
-    shipping?: FloatFieldUpdateOperationsInput | number
-    total?: FloatFieldUpdateOperationsInput | number
+    subtotal?: IntFieldUpdateOperationsInput | number
+    tax?: IntFieldUpdateOperationsInput | number
+    shipping?: IntFieldUpdateOperationsInput | number
+    total?: IntFieldUpdateOperationsInput | number
     status?: EnumPurchaseOrderStatusFieldUpdateOperationsInput | $Enums.PurchaseOrderStatus
     orderedBy?: StringFieldUpdateOperationsInput | string
     receivedBy?: NullableStringFieldUpdateOperationsInput | string | null

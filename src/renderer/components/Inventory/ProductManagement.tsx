@@ -1,149 +1,116 @@
+// ProductManagement.tsx - Main Component
+// Place AddProductModal.tsx and ImportVendorModal.tsx in the same directory
+
 import React, { useState, useEffect } from 'react';
 import {
   PlusIcon,
   PencilIcon,
   TrashIcon,
   MagnifyingGlassIcon,
-  QrCodeIcon,
   PhotoIcon,
+  TruckIcon,
 } from '@heroicons/react/24/outline';
 import { Product } from '../../types/core';
-
-// interface Product {
-//   id: string;
-//   sku: string;
-//   name: string;
-//   description?: string;
-//   sellingPrice: number;
-//   costPrice: number;
-//   stock: number;
-//   category: string;
-//   supplier?: string;
-//   barcode?: string;
-//   image?: string;
-//   lastUpdated: Date;
-//   active: boolean;
-// }
+import AddProductModal from './AddProductModal';
+import ImportVendorModal from './ImportVendorModal';
 
 interface TypeData {
   id: string;
   name: string;
-  description?: string;
-}
-enum ProductType {
-  FEED,
-  MEDICINE,
-  EQUIPMENT,
-  EGGS,
-  SUPPLIES,
-  OTHER,
 }
 
-const ProductManagement: React.FC = () => {
+interface ProductManagementProps {
+  onNavigateToPurchaseOrders?: () => void;
+}
+
+const ProductManagement: React.FC<ProductManagementProps> = ({
+  onNavigateToPurchaseOrders,
+}) => {
   const [vendors, setVendors] = useState<any[]>([]);
   const [products, setProducts] = useState<Product[]>([]);
-  const [typeData, setTypeData] = useState<TypeData[]>([]);
+  const [typeData] = useState<TypeData[]>([
+    { id: '1', name: 'FEED' },
+    { id: '2', name: 'MEDICINE' },
+    { id: '3', name: 'EQUIPMENT' },
+    { id: '4', name: 'EGGS' },
+    { id: '5', name: 'SUPPLIES' },
+    { id: '6', name: 'OTHER' },
+  ]);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedType, setSelectedType] = useState<string>('all');
   const [showModal, setShowModal] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [sortBy, setSortBy] = useState<keyof Product>('name');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
+  const [staffId, setStaffId] = useState('');
 
-  // Form state
+  const [shippingFee, setShippingFee] = useState(0);
+  const [showImportModal, setShowImportModal] = useState(false);
+  const [selectedVendor, setSelectedVendor] = useState<string>('');
+  const [vendorProducts, setVendorProducts] = useState<Product[]>([]);
+  const [importItems, setImportItems] = useState<
+    Array<{
+      productId: string;
+      productName: string;
+      productSku: string;
+      quantity: number;
+      unitCost: number;
+      totalCost: number;
+    }>
+  >([]);
+  const [purchaseOrderNotes, setPurchaseOrderNotes] = useState('');
+
   const [formData, setFormData] = useState<Partial<Product>>({
     sku: '',
     name: '',
     description: '',
-    type: 'FEED', // must be selected by user
+    type: 'FEED',
     category: '',
-
-    // Pricing
     costPrice: 0,
     sellingPrice: 0,
     wholesalePrice: 0,
-
-    // Inventory
     stock: 0,
     unit: '',
     minimumStock: 0,
-
-    // Attributes
     expiryDate: new Date(),
     batchNumber: '',
     manufacturer: '',
-
-    // Medicine
     requiresPrescription: false,
     activeIngredient: '',
     dosage: '',
-
-    // Feed
     animalType: '',
     nutritionInfo: '',
     feedType: '',
-
-    // Vendor
     primaryVendorId: '',
     alternateVendors: [''],
-
-    // Other
     active: true,
   });
 
-  // Mock data - replace with actual API calls
   useEffect(() => {
     const fetchProducts = async () => {
       try {
         const products = await window.api.getProducts();
-        console.log('Fetched products from InventoryService:', products);
-        setProducts(products); // Replace with allProducts when backend is ready
+        setProducts(products);
+        const staff: any = await window.api.check();
+        setStaffId(staff.id);
       } catch (error) {
         console.error('Error fetching products:', error);
-        setProducts([]); // Fallback to mock data on error
+        setProducts([]);
       }
     };
     fetchProducts();
+
     const fetchVendors = async () => {
       try {
         const allVendors = await window.api.getVendors();
         setVendors(allVendors);
-        console.log('Fetched vendors from VendorService:', allVendors);
       } catch (error) {
         console.error('Error fetching vendors:', error);
-        setVendors([]); // Fallback to empty array on error
+        setVendors([]);
       }
     };
+
     fetchVendors();
-    const mockType: TypeData[] = [
-      { id: '1', name: 'FEED', description: 'Coffee, tea, and drinks' },
-      {
-        id: '2',
-        name: 'MEDICINE',
-        description: 'Cups, mugs, and equipment',
-      },
-      { id: '3', name: 'EQUIPMENT', description: 'Milk and dairy products' },
-      {
-        id: '4',
-        name: 'EGGS',
-        description: 'Sugar, sweeteners, and flavorings',
-      },
-      {
-        id: '5',
-        name: 'SUPPLIES',
-        description: 'Sugar, sweeteners, and flavorings',
-      },
-      {
-        id: '6',
-        name: 'OTHER',
-        description: 'Sugar, sweeteners, and flavorings',
-      },
-    ];
-
-    // const mockProducts: Product[] = [];
-
-    setTypeData(mockType);
-    // setProducts(mockProducts);
   }, []);
 
   const openModal = (product?: Product) => {
@@ -156,39 +123,25 @@ const ProductManagement: React.FC = () => {
         sku: '',
         name: '',
         description: '',
-        type: 'FEED', // must be selected by user
+        type: 'FEED',
         category: '',
-
-        // Pricing
         costPrice: 0,
         sellingPrice: 0,
         wholesalePrice: 0,
-
-        // Inventory
         stock: 0,
         unit: '',
         minimumStock: 0,
-
-        // Attributes
         expiryDate: new Date(),
         batchNumber: '',
         manufacturer: '',
-
-        // Medicine
         requiresPrescription: false,
         activeIngredient: '',
         dosage: '',
-
-        // Feed
         animalType: '',
         nutritionInfo: '',
         feedType: '',
-
-        // Vendor
         primaryVendorId: '',
         alternateVendors: [''],
-
-        // Other
         active: true,
       });
     }
@@ -198,51 +151,35 @@ const ProductManagement: React.FC = () => {
   const closeModal = () => {
     setShowModal(false);
     setEditingProduct(null);
-    setFormData({});
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
     try {
       if (editingProduct) {
-        // Update existing product
         const updateFormData = formData;
         const { primaryVendorId } = updateFormData;
         delete updateFormData.primaryVendorId;
         const updatedProduct = {
           ...updateFormData,
-          primaryVendor: {
-            connect: { id: primaryVendorId },
-          },
+          primaryVendor: { connect: { id: primaryVendorId } },
           updatedAt: new Date(),
         } as Product;
-
         setProducts((prev) =>
           prev.map((p) => (p.id === editingProduct.id ? updatedProduct : p)),
         );
         await window.api.updateProductData(updatedProduct);
       } else {
-        // Create new product
         const { primaryVendorId, alternateVendors, ...rest } = formData;
-
         const newProduct: any = {
           ...rest,
-          // Vendor relation
-          primaryVendor: {
-            connect: { id: primaryVendorId },
-          },
-
-          // Optional JSON field
+          primaryVendor: { connect: { id: primaryVendorId } },
           alternateVendors: alternateVendors?.length ? alternateVendors : [],
         };
-        const createdProduct = await window.api.createProductData(newProduct);
+        await window.api.createProductData(newProduct);
         setProducts((prev) => [...prev, newProduct]);
-        console.log('Created product:', newProduct);
       }
-
       closeModal();
-      // Show success message
       alert(
         editingProduct
           ? 'Product updated successfully!'
@@ -258,7 +195,6 @@ const ProductManagement: React.FC = () => {
     if (window.confirm('Are you sure you want to delete this product?')) {
       try {
         setProducts((prev) => prev.filter((p) => p.id !== productId));
-        console.log('Deleted product:', productId);
         alert('Product deleted successfully!');
       } catch (error) {
         console.error('Error deleting product:', error);
@@ -275,9 +211,115 @@ const ProductManagement: React.FC = () => {
     setFormData((prev) => ({ ...prev, sku: `PROD${timestamp}${randomNum}` }));
   };
 
-  const generateBarcode = () => {
-    const barcode = Math.floor(Math.random() * 9000000000000) + 1000000000000;
-    setFormData((prev) => ({ ...prev, barcode: barcode.toString() }));
+  const openImportModal = () => {
+    setShowImportModal(true);
+    setSelectedVendor('');
+    setVendorProducts([]);
+    setImportItems([]);
+    setPurchaseOrderNotes('');
+    setShippingFee(0); // Add this line
+  };
+
+  const handleVendorSelect = (vendorId: string) => {
+    setSelectedVendor(vendorId);
+    if (vendorId) {
+      const productsFromVendor = products.filter(
+        (p) => p.primaryVendorId === vendorId,
+      );
+      setVendorProducts(productsFromVendor);
+    } else {
+      setVendorProducts([]);
+    }
+  };
+
+  const addImportItem = (product: Product) => {
+    if (importItems.find((item) => item.productId === product.id)) {
+      alert('Product already added to import list');
+      return;
+    }
+    setImportItems((prev) => [
+      ...prev,
+      {
+        productId: product.id,
+        productName: product.name,
+        productSku: product.sku,
+        quantity: 1,
+        unitCost: product.costPrice,
+        totalCost: product.costPrice,
+      },
+    ]);
+  };
+
+  const updateImportItem = (
+    productId: string,
+    field: 'quantity' | 'unitCost',
+    value: number,
+  ) => {
+    setImportItems((prev) =>
+      prev.map((item) => {
+        if (item.productId === productId) {
+          const updated = { ...item, [field]: value };
+          updated.totalCost = updated.quantity * updated.unitCost;
+          return updated;
+        }
+        return item;
+      }),
+    );
+  };
+
+  const removeImportItem = (productId: string) => {
+    setImportItems((prev) =>
+      prev.filter((item) => item.productId !== productId),
+    );
+  };
+
+  const handleSubmitPurchaseOrder = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!selectedVendor || importItems.length === 0) {
+      alert('Please select a vendor and add products');
+      return;
+    }
+    try {
+      const subtotal = importItems.reduce(
+        (sum, item) => sum + item.totalCost,
+        0,
+      );
+      const purchaseOrder = {
+        orderNumber: `PO-${Date.now()}`,
+        vendor: {
+          connect: { id: selectedVendor },
+        },
+        orderDate: new Date(),
+        expectedDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+        subtotal,
+        tax: 0,
+        shipping: shippingFee,
+        total: subtotal + shippingFee,
+        status: 'PENDING',
+        staff: { connect: { id: staffId } },
+        notes: purchaseOrderNotes || undefined,
+        items: {
+          create: importItems.map((item) => ({
+            product: {
+              connect: { id: item.productId },
+            },
+            productName: item.productName,
+            productSku: item.productSku,
+            quantityOrdered: item.quantity,
+            quantityReceived: 0,
+            unitCost: item.unitCost,
+            totalCost: item.totalCost,
+          })),
+        },
+      };
+      console.log('Creating purchase order:', purchaseOrder);
+      await window.api.createPurchaseData(purchaseOrder);
+      alert('Purchase order created successfully!');
+      setShowImportModal(false);
+    } catch (error) {
+      console.error('Error creating purchase order:', error);
+      alert('Failed to create purchase order. Please try again.');
+    }
   };
 
   const filteredProducts = products
@@ -292,19 +334,19 @@ const ProductManagement: React.FC = () => {
     .sort((a, b) => {
       const aValue = a[sortBy] || '';
       const bValue = b[sortBy] || '';
-
-      if (sortOrder === 'asc') {
-        return aValue > bValue ? 1 : -1;
-      } else {
-        return aValue < bValue ? 1 : -1;
-      }
+      return sortOrder === 'asc'
+        ? aValue > bValue
+          ? 1
+          : -1
+        : aValue < bValue
+          ? 1
+          : -1;
     });
 
   const lowStockCount = products.filter((p) => p.stock <= 10).length;
 
   return (
     <div className="p-6 bg-gray-50 min-h-screen">
-      {/* Header */}
       <div className="mb-6">
         <div className="flex items-center justify-between mb-4">
           <div>
@@ -315,16 +357,34 @@ const ProductManagement: React.FC = () => {
               Manage your inventory and product catalog
             </p>
           </div>
-          <button
-            onClick={() => openModal()}
-            className="bg-blue-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-blue-700 flex items-center"
-          >
-            <PlusIcon className="w-5 h-5 mr-2" />
-            Add Product
-          </button>
+          <div className="flex space-x-3">
+            <button
+              onClick={
+                onNavigateToPurchaseOrders ||
+                (() => (window.location.href = '/purchaseOrders'))
+              }
+              className="bg-purple-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-purple-700 flex items-center"
+            >
+              <TruckIcon className="w-5 h-5 mr-2" />
+              View Purchase Orders
+            </button>
+            <button
+              onClick={openImportModal}
+              className="bg-green-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-green-700 flex items-center"
+            >
+              <TruckIcon className="w-5 h-5 mr-2" />
+              Import from Vendor
+            </button>
+            <button
+              onClick={() => openModal()}
+              className="bg-blue-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-blue-700 flex items-center"
+            >
+              <PlusIcon className="w-5 h-5 mr-2" />
+              Add Product
+            </button>
+          </div>
         </div>
 
-        {/* Stats */}
         <div className="grid grid-cols-4 gap-4 mb-6">
           <div className="bg-white p-4 rounded-lg shadow">
             <h3 className="text-lg font-semibold text-gray-900">
@@ -348,11 +408,10 @@ const ProductManagement: React.FC = () => {
             <h3 className="text-lg font-semibold text-blue-600">
               {typeData.length}
             </h3>
-            <p className="text-gray-600">Product Type</p>
+            <p className="text-gray-600">Product Types</p>
           </div>
         </div>
 
-        {/* Search and Filter */}
         <div className="flex gap-4">
           <div className="flex-1 relative">
             <MagnifyingGlassIcon className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
@@ -369,10 +428,10 @@ const ProductManagement: React.FC = () => {
             onChange={(e) => setSelectedType(e.target.value)}
             className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
           >
-            <option value="">Select Type</option>
+            <option value="all">All Types</option>
             {typeData.map((type) => (
               <option key={type.id} value={type.name}>
-                {type.name.charAt(0).toUpperCase() + type.name.slice(1)}
+                {type.name}
               </option>
             ))}
           </select>
@@ -387,15 +446,12 @@ const ProductManagement: React.FC = () => {
           >
             <option value="name-asc">Name (A-Z)</option>
             <option value="name-desc">Name (Z-A)</option>
-            <option value="price-asc">Price (Low-High)</option>
-            <option value="price-desc">Price (High-Low)</option>
             <option value="stock-asc">Stock (Low-High)</option>
             <option value="stock-desc">Stock (High-Low)</option>
           </select>
         </div>
       </div>
 
-      {/* Products Table */}
       <div className="bg-white rounded-lg shadow overflow-hidden">
         <div className="overflow-x-auto">
           <table className="min-w-full divide-y divide-gray-200">
@@ -464,13 +520,7 @@ const ProductManagement: React.FC = () => {
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <span
-                      className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                        product.stock <= 5
-                          ? 'bg-red-100 text-red-800'
-                          : product.stock <= 10
-                            ? 'bg-yellow-100 text-yellow-800'
-                            : 'bg-green-100 text-green-800'
-                      }`}
+                      className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${product.stock <= 5 ? 'bg-red-100 text-red-800' : product.stock <= 10 ? 'bg-yellow-100 text-yellow-800' : 'bg-green-100 text-green-800'}`}
                     >
                       {product.stock} {product.unit}
                     </span>
@@ -481,11 +531,7 @@ const ProductManagement: React.FC = () => {
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <span
-                      className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                        product.active
-                          ? 'bg-green-100 text-green-800'
-                          : 'bg-red-100 text-red-800'
-                      }`}
+                      className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${product.active ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}
                     >
                       {product.active ? 'Active' : 'Inactive'}
                     </span>
@@ -511,469 +557,34 @@ const ProductManagement: React.FC = () => {
         </div>
       </div>
 
-      {/* Modal */}
-      {showModal && (
-        <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
-          <div className="relative top-20 mx-auto p-5 border w-3/4 shadow-lg rounded-md bg-white">
-            <div className="mt-3">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-medium text-gray-900">
-                  {editingProduct ? 'Edit Product' : 'Add New Product'}
-                </h3>
-                <button
-                  onClick={closeModal}
-                  className="text-gray-400 hover:text-gray-600"
-                >
-                  ×
-                </button>
-              </div>
+      <AddProductModal
+        showModal={showModal}
+        editingProduct={editingProduct}
+        formData={formData}
+        vendors={vendors}
+        onClose={closeModal}
+        onSubmit={handleSubmit}
+        setFormData={setFormData}
+        generateSKU={generateSKU}
+      />
 
-              <form onSubmit={handleSubmit} className="space-y-4">
-                {/* SKU + Generate */}
-                <div className="flex gap-2">
-                  <div className="flex-1">
-                    <label className="block text-sm font-medium text-gray-700">
-                      SKU
-                    </label>
-                    <input
-                      type="text"
-                      value={formData.sku || ''}
-                      onChange={(e) =>
-                        setFormData((p) => ({ ...p, sku: e.target.value }))
-                      }
-                      className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2"
-                      required
-                    />
-                  </div>
-                  <button
-                    type="button"
-                    onClick={generateSKU}
-                    className="mt-6 px-3 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300"
-                  >
-                    Generate
-                  </button>
-                </div>
-
-                {/* Basic Info */}
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700">
-                      Name
-                    </label>
-                    <input
-                      type="text"
-                      value={formData.name || ''}
-                      onChange={(e) =>
-                        setFormData((p) => ({ ...p, name: e.target.value }))
-                      }
-                      className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2"
-                      required
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700">
-                      Type
-                    </label>
-                    <select
-                      value={formData.type || ''}
-                      onChange={(e) =>
-                        setFormData((p: any) => ({
-                          ...p,
-                          type: e.target.value,
-                        }))
-                      }
-                      className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2"
-                      required
-                    >
-                      <option value="">Select type</option>
-                      <option value="FEED">Feed</option>
-                      <option value="MEDICINE">Medicine</option>
-                      <option value="EQUIPMENT">Equipment</option>
-                      <option value="EGGS">Eggs</option>
-                      <option value="SUPPLIES">Supplies</option>
-                      <option value="OTHER">Other</option>
-                    </select>
-                  </div>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">
-                    Description
-                  </label>
-                  <textarea
-                    value={formData.description || ''}
-                    onChange={(e) =>
-                      setFormData((p) => ({
-                        ...p,
-                        description: e.target.value,
-                      }))
-                    }
-                    rows={3}
-                    className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2"
-                  />
-                </div>
-
-                {/* Pricing */}
-                <div className="grid grid-cols-3 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700">
-                      Cost Price
-                    </label>
-                    <input
-                      type="number"
-                      min={0}
-                      value={formData.costPrice || ''}
-                      onChange={(e) =>
-                        setFormData((p) => ({
-                          ...p,
-                          costPrice: parseFloat(e.target.value) || 0,
-                        }))
-                      }
-                      className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2"
-                      required
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700">
-                      Selling Price
-                    </label>
-                    <input
-                      type="number"
-                      min={0}
-                      value={formData.sellingPrice || ''}
-                      onChange={(e) =>
-                        setFormData((p) => ({
-                          ...p,
-                          sellingPrice: parseFloat(e.target.value) || 0,
-                        }))
-                      }
-                      className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2"
-                      required
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700">
-                      Wholesale Price
-                    </label>
-                    <input
-                      type="number"
-                      min={0}
-                      value={formData.wholesalePrice || ''}
-                      onChange={(e) =>
-                        setFormData((p) => ({
-                          ...p,
-                          wholesalePrice: parseFloat(e.target.value) || 0,
-                        }))
-                      }
-                      className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2"
-                    />
-                  </div>
-                </div>
-
-                {/* Inventory */}
-                <div className="grid grid-cols-3 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700">
-                      Stock
-                    </label>
-                    <input
-                      type="number"
-                      value={formData.stock || ''}
-                      onChange={(e) =>
-                        setFormData((p) => ({
-                          ...p,
-                          stock: parseInt(e.target.value) || 0,
-                        }))
-                      }
-                      className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2"
-                      required
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700">
-                      Unit
-                    </label>
-                    <select
-                      value={formData.unit || ''}
-                      onChange={(e) =>
-                        setFormData((p) => ({ ...p, unit: e.target.value }))
-                      }
-                      className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2"
-                      required
-                    >
-                      <option value="">Select unit</option>
-                      <option value="kg">Kg</option>
-                      <option value="bags">Bags</option>
-                      <option value="pieces">Pieces</option>
-                      <option value="dozens">Dozens</option>
-                    </select>
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700">
-                      Minimum Stock
-                    </label>
-                    <input
-                      type="number"
-                      value={formData.minimumStock || 0}
-                      onChange={(e) =>
-                        setFormData((p) => ({
-                          ...p,
-                          minimumStock: parseInt(e.target.value) || 0,
-                        }))
-                      }
-                      className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2"
-                    />
-                  </div>
-                </div>
-
-                {/* Optional Fields */}
-                <div className="grid grid-cols-3 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700">
-                      Expiry Date
-                    </label>
-                    <input
-                      type="date"
-                      value={
-                        formData.expiryDate
-                          ? new Date(formData.expiryDate)
-                              .toISOString()
-                              .split('T')[0]
-                          : ''
-                      }
-                      onChange={(e) =>
-                        setFormData((p) => ({
-                          ...p,
-                          expiryDate: e.target.value
-                            ? new Date(e.target.value)
-                            : p.expiryDate,
-                        }))
-                      }
-                      className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700">
-                      Batch No
-                    </label>
-                    <input
-                      type="text"
-                      value={formData.batchNumber || ''}
-                      onChange={(e) =>
-                        setFormData((p) => ({
-                          ...p,
-                          batchNumber: e.target.value,
-                        }))
-                      }
-                      className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700">
-                      Manufacturer
-                    </label>
-                    <input
-                      type="text"
-                      value={formData.manufacturer || ''}
-                      onChange={(e) =>
-                        setFormData((p) => ({
-                          ...p,
-                          manufacturer: e.target.value,
-                        }))
-                      }
-                      className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2"
-                    />
-                  </div>
-                </div>
-
-                {/* Medicine-specific */}
-                {formData.type === 'MEDICINE' && (
-                  <div className="space-y-2 border p-3 rounded-md">
-                    <h4 className="font-medium">Medicine Details</h4>
-                    <div className="grid grid-cols-2 gap-4">
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700">
-                          Active Ingredient
-                        </label>
-                        <input
-                          type="text"
-                          value={formData.activeIngredient || ''}
-                          onChange={(e) =>
-                            setFormData((p) => ({
-                              ...p,
-                              activeIngredient: e.target.value,
-                            }))
-                          }
-                          className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2"
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700">
-                          Dosage
-                        </label>
-                        <input
-                          type="text"
-                          value={formData.dosage || ''}
-                          onChange={(e) =>
-                            setFormData((p) => ({
-                              ...p,
-                              dosage: e.target.value,
-                            }))
-                          }
-                          className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2"
-                        />
-                      </div>
-                    </div>
-                    <div className="flex items-center">
-                      <input
-                        type="checkbox"
-                        id="prescription"
-                        checked={formData.requiresPrescription || false}
-                        onChange={(e) =>
-                          setFormData((p) => ({
-                            ...p,
-                            requiresPrescription: e.target.checked,
-                          }))
-                        }
-                        className="h-4 w-4 text-blue-600 border-gray-300 rounded"
-                      />
-                      <label htmlFor="prescription" className="ml-2 text-sm">
-                        Requires Prescription
-                      </label>
-                    </div>
-                  </div>
-                )}
-
-                {/* Feed-specific */}
-                {formData.type === 'FEED' && (
-                  <div className="space-y-2 border p-3 rounded-md">
-                    <h4 className="font-medium">Feed Details</h4>
-                    <div className="grid grid-cols-3 gap-4">
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700">
-                          Animal Type
-                        </label>
-
-                        <select
-                          value={formData.animalType || ''}
-                          onChange={(e) =>
-                            setFormData((p) => ({
-                              ...p,
-                              animalType: e.target.value,
-                            }))
-                          }
-                          className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2"
-                          required
-                        >
-                          <option value="">Select Animal Type</option>
-                          <option value="poultry">Poultry</option>
-                          <option value="cattle">Cattle</option>
-                          <option value="dairy">Dairy</option>
-                        </select>
-                      </div>
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700">
-                          Feed Type
-                        </label>
-                        <select
-                          value={formData.feedType || ''}
-                          onChange={(e) =>
-                            setFormData((p) => ({
-                              ...p,
-                              feedType: e.target.value,
-                            }))
-                          }
-                          className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2"
-                          required
-                        >
-                          <option value="">Select Feed Type</option>
-                          <option value="starter">Starter</option>
-                          <option value="grower">Grower</option>
-                          <option value="layer">Layer</option>
-                        </select>
-                      </div>
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700">
-                          Nutrition Info
-                        </label>
-                        <input
-                          type="text"
-                          value={formData.nutritionInfo || ''}
-                          onChange={(e) =>
-                            setFormData((p) => ({
-                              ...p,
-                              nutritionInfo: e.target.value,
-                            }))
-                          }
-                          className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2"
-                        />
-                      </div>
-                    </div>
-                  </div>
-                )}
-
-                {/* Vendor */}
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">
-                    Primary Vendor ID
-                  </label>
-
-                  <select
-                    value={formData.primaryVendorId || ''}
-                    onChange={(e) =>
-                      setFormData((p) => ({
-                        ...p,
-                        primaryVendorId: e.target.value,
-                      }))
-                    }
-                    className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2"
-                    required
-                  >
-                    <option value="">Select Primary Vendor</option>
-                    {vendors.map((vendor) => (
-                      <option key={vendor.id} value={vendor.id}>
-                        {vendor.companyName}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                <div className="flex items-center">
-                  <input
-                    type="checkbox"
-                    id="active"
-                    checked={formData.active || false}
-                    onChange={(e) =>
-                      setFormData((p) => ({ ...p, active: e.target.checked }))
-                    }
-                    className="h-4 w-4 text-blue-600 border-gray-300 rounded"
-                  />
-                  <label htmlFor="active" className="ml-2 text-sm">
-                    Product is active
-                  </label>
-                </div>
-
-                {/* Actions */}
-                <div className="flex justify-end space-x-3 pt-4">
-                  <button
-                    type="button"
-                    onClick={closeModal}
-                    className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50"
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    type="submit"
-                    className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
-                  >
-                    {editingProduct ? 'Update Product' : 'Create Product'}
-                  </button>
-                </div>
-              </form>
-            </div>
-          </div>
-        </div>
-      )}
+      <ImportVendorModal
+        showModal={showImportModal}
+        vendors={vendors}
+        selectedVendor={selectedVendor}
+        vendorProducts={vendorProducts}
+        importItems={importItems}
+        purchaseOrderNotes={purchaseOrderNotes}
+        shippingFee={shippingFee} // Add this
+        onClose={() => setShowImportModal(false)}
+        onVendorSelect={handleVendorSelect}
+        onAddItem={addImportItem}
+        onUpdateItem={updateImportItem}
+        onRemoveItem={removeImportItem}
+        onSubmit={handleSubmitPurchaseOrder}
+        setPurchaseOrderNotes={setPurchaseOrderNotes}
+        setShippingFee={setShippingFee} // Add this
+      />
     </div>
   );
 };
