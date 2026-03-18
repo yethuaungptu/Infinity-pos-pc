@@ -134,7 +134,7 @@ export class EggCollectionService {
       'customers',
       request.farmerId,
     );
-    if (!farmer || farmer.type !== 'farmer') {
+    if (!farmer || farmer.type !== 'FARMER') {
       throw new Error('Invalid farmer ID');
     }
 
