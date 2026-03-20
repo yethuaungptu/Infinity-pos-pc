@@ -97,6 +97,9 @@ ipcMain.handle('db:createCustomerData', async (event, data) => {
 ipcMain.handle('db:getCustomers', async () => {
   return CustomerService.getCustomers();
 });
+ipcMain.handle('db:getCustomerByType', async (event, type) => {
+  return CustomerService.getCustomerByType(type);
+});
 ipcMain.handle('db:getCustomerDetail', async (event, id) => {
   return CustomerService.getCustomerById(id);
 });

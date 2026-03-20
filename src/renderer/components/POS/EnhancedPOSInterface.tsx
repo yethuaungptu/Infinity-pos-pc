@@ -37,6 +37,7 @@ declare global {
       getCustomers: () => Promise<any[]>;
       createCustomerData: (data: any) => Promise<any>;
       getCustomerDetail: (id: string) => Promise<any>;
+      getCustomerByType: (type: string) => Promise<any[]>;
       getCustomerTransactions: (id: string) => Promise<any>;
       createTransactionData: (data: any) => Promise<any>;
       updateCustomer: (data: any) => Promise<any>;

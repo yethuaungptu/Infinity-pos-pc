@@ -54,6 +54,17 @@ export class CustomerServiceClass {
       throw new Error('Failed to fetch vendors');
     }
   }
+  async getCustomerByType(type: string): Promise<Customer[]> {
+    try {
+      const customers = await databaseService.findMany('customer', {
+        where: { type: type },
+      });
+      return customers as Customer[];
+    } catch (error) {
+      console.error('Failed to fetch customers by type', error);
+      throw new Error('Failed to fetch customers by type');
+    }
+  }
 }
 
 // Export singleton instance

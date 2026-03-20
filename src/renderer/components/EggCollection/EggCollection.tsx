@@ -1,12 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import {
   PlusIcon,
-  MapPinIcon,
-  CheckCircleIcon,
-  ClockIcon,
   TruckIcon,
   EyeIcon,
-  CalendarIcon,
   CurrencyDollarIcon,
 } from '@heroicons/react/24/outline';
 import {
@@ -16,10 +12,8 @@ import {
   Staff,
 } from '../../types/core';
 
-import { posService } from '../../services/posService';
 import { eggCollectionService } from '../../services/eggCollectionService';
-import { notificationService } from '../../services/notificationService';
-import { printService } from '../../services/printService';
+import { databaseService } from '../../services/database';
 
 const EggCollectionComponent: React.FC = () => {
   const [collections, setCollections] = useState<EggCollection[]>([]);
@@ -34,6 +28,9 @@ const EggCollectionComponent: React.FC = () => {
   const [showModal, setShowModal] = useState(false);
   const [editingCollection, setEditingCollection] =
     useState<EggCollection | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [loadingCollections, setLoadingCollections] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   // Form state for new collection
   const [formData, setFormData] = useState({
@@ -64,138 +61,107 @@ const EggCollectionComponent: React.FC = () => {
     duckEggs: 4.0,
   });
 
-  // Mock data - replace with actual API calls
   useEffect(() => {
-    const mockFarmers: Customer[] = [
-      {
-        id: '1',
-        type: 'FARMER',
-        contactPerson: 'John Farm',
-        businessName: 'Happy Hen Farm',
-        phone: '+1-555-0301',
-        creditLimit: 10000,
-        creditBalance: 2500,
-        paymentTerms: 30,
-        creditStatus: 'CURRENT',
-        farmSize: 50,
-        animalTypes: ['poultry'],
-        eggProduction: {
-          henEggs: 120,
-          duckEggs: 30,
-          collectionSchedule: 'daily',
-        },
-        totalPurchases: 25000,
-        createdAt: new Date('2023-01-15'),
-        updatedAt: new Date(),
-        active: true,
-      },
-      {
-        id: '2',
-        type: 'farmer',
-        contactPerson: 'Sarah Poultry',
-        businessName: 'Golden Egg Ranch',
-        phone: '+1-555-0302',
-        creditLimit: 15000,
-        creditBalance: 3200,
-        paymentTerms: 45,
-        creditStatus: 'current',
-        farmSize: 75,
-        animalTypes: ['poultry'],
-        eggProduction: {
-          henEggs: 180,
-          duckEggs: 45,
-          collectionSchedule: 'daily',
-        },
-        totalPurchases: 35000,
-        createdAt: new Date('2023-02-10'),
-        updatedAt: new Date(),
-        active: true,
-      },
-    ];
+    let isMounted = true;
 
-    const mockRoutes: CollectionRoute[] = [
-      {
-        id: '1',
-        name: 'North Route',
-        description: 'Northern farms collection route',
-        farmerIds: ['1'],
-        estimatedTime: 180, // 3 hours
-        distance: 25,
-        staffId: 'staff3',
-        schedule: 'daily',
-        active: true,
-      },
-      {
-        id: '2',
-        name: 'South Route',
-        description: 'Southern farms collection route',
-        farmerIds: ['2'],
-        estimatedTime: 240, // 4 hours
-        distance: 35,
-        staffId: 'staff3',
-        schedule: 'daily',
-        active: true,
-      },
-    ];
+    const loadInitialData = async () => {
+      setLoading(true);
+      setErrorMessage(null);
+      try {
+        const [farmerResults, routeResults, staffResults, prices] =
+          await Promise.all([
+            window.api.getCustomerByType('FARMER'),
+            databaseService.findMany<CollectionRoute>('collection_routes', {
+              where: { active: true },
+              orderBy: { name: 'asc' },
+            }),
+            databaseService.findMany<Staff>('staff', {
+              where: { active: true },
+              orderBy: { firstName: 'asc' },
+            }),
+            eggCollectionService.getMarketPrices(),
+          ]);
 
-    const mockStaff: Staff[] = [
-      {
-        id: 'staff3',
-        employeeId: 'EMP003',
-        firstName: 'Mike',
-        lastName: 'Collector',
-        position: 'collector',
-        department: 'collection',
-        hireDate: new Date('2023-05-10'),
-        salary: 2800,
-        permissions: ['egg_collection'],
-        username: 'mike.collector',
-        active: true,
-        createdAt: new Date('2023-05-10'),
-        updatedAt: new Date(),
-      },
-    ];
+        if (!isMounted) return;
+        console.log('//', farmerResults);
+        setFarmers(farmerResults);
+        setRoutes(routeResults);
+        setStaff(staffResults);
+        setMarketPrices({
+          henEggs: prices.henEggs.large,
+          duckEggs: prices.duckEggs.large,
+        });
+      } catch (error) {
+        console.error('Failed to load egg collection data:', error);
+        if (isMounted) {
+          setErrorMessage('Failed to load egg collection data.');
+        }
+      } finally {
+        if (isMounted) {
+          setLoading(false);
+        }
+      }
+    };
 
-    const mockCollections: EggCollection[] = [
-      {
-        id: '1',
-        farmerId: '1',
-        collectionDate: new Date(),
-        routeId: '1',
-        staffId: 'staff3',
-        henEggs: {
-          small: 24,
-          medium: 48,
-          large: 36,
-          extraLarge: 12,
-          damaged: 6,
-        },
-        duckEggs: {
-          small: 12,
-          medium: 18,
-          large: 6,
-          damaged: 2,
-        },
-        henEggPrice: 2.5,
-        duckEggPrice: 4.0,
-        totalHenEggs: 120,
-        totalDuckEggs: 36,
-        totalValue: 37.0,
-        qualityNotes: 'Good quality, minimal damage',
-        synced: true,
-      },
-    ];
+    loadInitialData();
 
-    setFarmers(mockFarmers);
-    setRoutes(mockRoutes);
-    setStaff(mockStaff);
-    setCollections(mockCollections);
+    return () => {
+      isMounted = false;
+    };
   }, []);
+
+  useEffect(() => {
+    let isMounted = true;
+
+    const loadCollections = async () => {
+      setLoadingCollections(true);
+      setErrorMessage(null);
+
+      const startOfDay = new Date(`${selectedDate}T00:00:00`);
+      const endOfDay = new Date(`${selectedDate}T23:59:59`);
+
+      try {
+        const results = await databaseService.findMany<EggCollection>(
+          'egg_collections',
+          {
+            where: {
+              collectionDate: { gte: startOfDay, lte: endOfDay },
+              ...(selectedRoute !== 'all' && { routeId: selectedRoute }),
+              ...(selectedStaff !== 'all' && { staffId: selectedStaff }),
+            },
+            orderBy: { collectionDate: 'desc' },
+          },
+        );
+
+        if (!isMounted) return;
+
+        const normalized = results.map((collection) => ({
+          ...collection,
+          collectionDate: new Date(collection.collectionDate),
+        }));
+        setCollections(normalized);
+      } catch (error) {
+        console.error('Failed to load collections:', error);
+        if (isMounted) {
+          setErrorMessage('Failed to load collections for the selected date.');
+        }
+      } finally {
+        if (isMounted) {
+          setLoadingCollections(false);
+        }
+      }
+    };
+
+    loadCollections();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [selectedDate, selectedRoute, selectedStaff]);
 
   const openModal = (collection?: EggCollection) => {
     if (collection) {
       setEditingCollection(collection);
-      const farmer = farmers.find((f) => f.id === collection.farmerId);
       setFormData({
         farmerId: collection.farmerId,
         routeId: collection.routeId || '',
@@ -264,49 +230,37 @@ const EggCollectionComponent: React.FC = () => {
 
     try {
       if (editingCollection) {
-        // Update existing collection
-        const updatedCollection: EggCollection = {
-          ...editingCollection,
-          ...formData,
-          totalHenEggs: totals.totalHenEggs,
-          totalDuckEggs: totals.totalDuckEggs,
-          totalValue: totals.totalValue,
-        };
+        const updatedCollection = await databaseService.update<EggCollection>(
+          'egg_collections',
+          editingCollection.id,
+          {
+            ...formData,
+            totalHenEggs: totals.totalHenEggs,
+            totalDuckEggs: totals.totalDuckEggs,
+            totalValue: totals.totalValue,
+          },
+        );
 
         setCollections((prev) =>
           prev.map((c) =>
             c.id === editingCollection.id ? updatedCollection : c,
           ),
         );
-        console.log('Updated collection:', updatedCollection);
       } else {
-        // Create new collection
-        const newCollection: EggCollection = {
-          id: Date.now().toString(),
-          ...formData,
-          collectionDate: new Date(),
-          totalHenEggs: totals.totalHenEggs,
-          totalDuckEggs: totals.totalDuckEggs,
-          totalValue: totals.totalValue,
-          synced: false,
-        };
+        const collectionDate = new Date(`${selectedDate}T00:00:00`);
+        const newCollection = await eggCollectionService.recordCollection({
+          farmerId: formData.farmerId,
+          routeId: formData.routeId || undefined,
+          staffId: formData.staffId,
+          collectionDate,
+          henEggs: formData.henEggs,
+          duckEggs: formData.duckEggs,
+          henEggPrice: formData.henEggPrice,
+          duckEggPrice: formData.duckEggPrice,
+          qualityNotes: formData.qualityNotes,
+        });
 
-        setCollections((prev) => [...prev, newCollection]);
-        console.log('Created collection:', newCollection);
-
-        // Update farmer's account (add credit for eggs)
-        const farmer = farmers.find((f) => f.id === formData.farmerId);
-        if (farmer) {
-          const updatedFarmer = {
-            ...farmer,
-            creditBalance: farmer.creditBalance - totals.totalValue, // Reduce debt
-            totalEggSales: (farmer.totalEggSales || 0) + totals.totalValue,
-            updatedAt: new Date(),
-          };
-          setFarmers((prev) =>
-            prev.map((f) => (f.id === farmer.id ? updatedFarmer : f)),
-          );
-        }
+        setCollections((prev) => [newCollection, ...prev]);
       }
 
       closeModal();
@@ -488,6 +442,18 @@ const EggCollectionComponent: React.FC = () => {
           </div>
         </div>
       </div>
+
+      {errorMessage && (
+        <div className="mb-4 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+          {errorMessage}
+        </div>
+      )}
+
+      {(loading || loadingCollections) && (
+        <div className="mb-4 rounded-lg border border-blue-200 bg-blue-50 px-4 py-3 text-sm text-blue-700">
+          Loading egg collection data...
+        </div>
+      )}
 
       {/* Collections Table */}
       <div className="bg-white rounded-lg shadow overflow-hidden">
@@ -679,7 +645,7 @@ const EggCollectionComponent: React.FC = () => {
                     >
                       <option value="">Select Farm</option>
                       {farmers
-                        .filter((f) => f.type === 'farmer')
+                        .filter((f) => f.type === 'FARMER')
                         .map((farmer) => (
                           <option key={farmer.id} value={farmer.id}>
                             {farmer.businessName || farmer.contactPerson}

@@ -9,7 +9,6 @@ import {
   Staff,
   PaymentRecord,
 } from '../generated/prisma';
-import { get } from 'lodash';
 
 export type Channels = 'ipc-example';
 
@@ -60,6 +59,8 @@ contextBridge.exposeInMainWorld('api', {
   getCustomers: () => ipcRenderer.invoke('db:getCustomers'),
   getCustomerDetail: (id: string) =>
     ipcRenderer.invoke('db:getCustomerDetail', id),
+  getCustomerByType: (type: string) =>
+    ipcRenderer.invoke('db:getCustomerByType', type),
   getCustomerTransactions: (id: string) =>
     ipcRenderer.invoke('db:getCustomerTransactions', id),
   updateCustomer: (customer: Customer) =>

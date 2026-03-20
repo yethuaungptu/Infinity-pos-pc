@@ -181,11 +181,9 @@ export class EggCollectionService {
     }
 
     // Check for reasonable quantities (basic validation)
-    const farmerProduction = farmer.eggProduction;
-    if (farmerProduction) {
-      const expectedHenEggs = farmerProduction.henEggs || 0;
-      const expectedDuckEggs = farmerProduction.duckEggs || 0;
-
+    const expectedHenEggs = farmer.henEggsDailyProduction || 0;
+    const expectedDuckEggs = farmer.duckEggsDailyProduction || 0;
+    if (expectedHenEggs > 0 || expectedDuckEggs > 0) {
       if (this.calculateTotalEggs(request.henEggs) > expectedHenEggs * 1.5) {
         console.warn(
           `Hen egg collection (${this.calculateTotalEggs(request.henEggs)}) exceeds expected production (${expectedHenEggs})`,
@@ -235,11 +233,10 @@ export class EggCollectionService {
 
       // Update farmer record with latest stats
       await databaseService.update<Customer>('customers', farmerId, {
-        eggProduction: {
-          ...farmer.eggProduction,
-          henEggs: Math.round(totalHenEggs / recentCollections.length) || 0,
-          duckEggs: Math.round(totalDuckEggs / recentCollections.length) || 0,
-        },
+        henEggsDailyProduction:
+          Math.round(totalHenEggs / recentCollections.length) || 0,
+        duckEggsDailyProduction:
+          Math.round(totalDuckEggs / recentCollections.length) || 0,
         totalEggSales: (farmer.totalEggSales || 0) + collection.totalValue,
         updatedAt: new Date(),
       });
@@ -272,13 +269,15 @@ export class EggCollectionService {
         'customers',
         collection.farmerId,
       );
-      if (farmer?.eggProduction) {
-        const expectedHen = farmer.eggProduction.henEggs;
-        const expectedDuck = farmer.eggProduction.duckEggs;
+      if (farmer) {
+        const expectedHen = farmer.henEggsDailyProduction || 0;
+        const expectedDuck = farmer.duckEggsDailyProduction || 0;
 
         if (
-          totalHenEggs < expectedHen * 0.5 ||
-          totalDuckEggs < expectedDuck * 0.5
+          expectedHen > 0 &&
+          expectedDuck > 0 &&
+          (totalHenEggs < expectedHen * 0.5 ||
+            totalDuckEggs < expectedDuck * 0.5)
         ) {
           await notificationService.sendProductionAlert({
             farmerId: collection.farmerId,
@@ -573,11 +572,11 @@ export class EggCollectionService {
         .sort((a, b) => {
           // Prioritize high-production farms first
           const aProduction =
-            (a!.eggProduction?.henEggs || 0) +
-            (a!.eggProduction?.duckEggs || 0);
+            (a!.henEggsDailyProduction || 0) +
+            (a!.duckEggsDailyProduction || 0);
           const bProduction =
-            (b!.eggProduction?.henEggs || 0) +
-            (b!.eggProduction?.duckEggs || 0);
+            (b!.henEggsDailyProduction || 0) +
+            (b!.duckEggsDailyProduction || 0);
           return bProduction - aProduction;
         })
         .map((f) => f!.id);
@@ -946,7 +945,7 @@ export class EggCollectionService {
         errors.push('Farmer not found');
       } else if (!farmer.active) {
         errors.push('Farmer account is inactive');
-      } else if (farmer.type !== 'farmer') {
+      } else if (farmer.type !== 'FARMER') {
         errors.push('Customer is not a farmer');
       }
 
