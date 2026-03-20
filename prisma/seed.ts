@@ -3,14 +3,14 @@
 
 import { PrismaClient } from '@prisma/client';
 import {
-  CustomerType,
+  StaffPermission,
   ProductType,
+  CustomerType,
+  CreditStatus,
+  PaymentMethod,
   StaffPosition,
   StaffDepartment,
-  StaffPermission,
-  PaymentMethod,
-  CreditStatus,
-} from '@prisma/client';
+} from '../src/renderer/utils/constant';
 
 const prisma = new PrismaClient();
 

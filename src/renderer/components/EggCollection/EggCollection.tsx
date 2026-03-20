@@ -69,14 +69,14 @@ const EggCollectionComponent: React.FC = () => {
     const mockFarmers: Customer[] = [
       {
         id: '1',
-        type: 'farmer',
+        type: 'FARMER',
         contactPerson: 'John Farm',
         businessName: 'Happy Hen Farm',
         phone: '+1-555-0301',
         creditLimit: 10000,
         creditBalance: 2500,
         paymentTerms: 30,
-        creditStatus: 'current',
+        creditStatus: 'CURRENT',
         farmSize: 50,
         animalTypes: ['poultry'],
         eggProduction: {

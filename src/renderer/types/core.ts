@@ -288,7 +288,8 @@ export type StaffPermission =
   | 'credit_approve' // Can approve credit transactions
   | 'settings_manage' // Can change system settings
   | 'staff_manage' // Can manage other staff
-  | 'cash_handle'; // Can handle cash transactions
+  | 'cash_handle' // Can handle cash transactions
+  | 'refund_process';
 
 // Financial interfaces
 export interface PaymentRecord {
