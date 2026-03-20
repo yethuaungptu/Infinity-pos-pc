@@ -12,9 +12,6 @@ import {
   Staff,
 } from '../../types/core';
 
-import { eggCollectionService } from '../../services/eggCollectionService';
-import { databaseService } from '../../services/database';
-
 const EggCollectionComponent: React.FC = () => {
   const [collections, setCollections] = useState<EggCollection[]>([]);
   const [farmers, setFarmers] = useState<Customer[]>([]);
@@ -28,9 +25,25 @@ const EggCollectionComponent: React.FC = () => {
   const [showModal, setShowModal] = useState(false);
   const [editingCollection, setEditingCollection] =
     useState<EggCollection | null>(null);
+  const [showRouteModal, setShowRouteModal] = useState(false);
+  const [editingRoute, setEditingRoute] = useState<CollectionRoute | null>(
+    null,
+  );
+  const [routeSaving, setRouteSaving] = useState(false);
   const [loading, setLoading] = useState(false);
   const [loadingCollections, setLoadingCollections] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
+  const [routeForm, setRouteForm] = useState({
+    name: '',
+    description: '',
+    farmerIds: [] as string[],
+    estimatedTime: 0,
+    distance: 0,
+    staffId: '',
+    schedule: 'DAILY' as CollectionRoute['schedule'],
+    active: true,
+  });
 
   // Form state for new collection
   const [formData, setFormData] = useState({
@@ -71,19 +84,12 @@ const EggCollectionComponent: React.FC = () => {
         const [farmerResults, routeResults, staffResults, prices] =
           await Promise.all([
             window.api.getCustomerByType('FARMER'),
-            databaseService.findMany<CollectionRoute>('collection_routes', {
-              where: { active: true },
-              orderBy: { name: 'asc' },
-            }),
-            databaseService.findMany<Staff>('staff', {
-              where: { active: true },
-              orderBy: { firstName: 'asc' },
-            }),
-            eggCollectionService.getMarketPrices(),
+            window.api.getCollectionRoutes(),
+            window.api.getStaffs(),
+            window.api.getMarketPrices(),
           ]);
 
         if (!isMounted) return;
-        console.log('//', farmerResults);
         setFarmers(farmerResults);
         setRoutes(routeResults);
         setStaff(staffResults);
@@ -121,17 +127,12 @@ const EggCollectionComponent: React.FC = () => {
       const endOfDay = new Date(`${selectedDate}T23:59:59`);
 
       try {
-        const results = await databaseService.findMany<EggCollection>(
-          'egg_collections',
-          {
-            where: {
-              collectionDate: { gte: startOfDay, lte: endOfDay },
-              ...(selectedRoute !== 'all' && { routeId: selectedRoute }),
-              ...(selectedStaff !== 'all' && { staffId: selectedStaff }),
-            },
-            orderBy: { collectionDate: 'desc' },
-          },
-        );
+        const results = await window.api.getEggCollections({
+          startDate: startOfDay.toISOString(),
+          endDate: endOfDay.toISOString(),
+          routeId: selectedRoute !== 'all' ? selectedRoute : undefined,
+          staffId: selectedStaff !== 'all' ? selectedStaff : undefined,
+        });
 
         if (!isMounted) return;
 
@@ -139,6 +140,7 @@ const EggCollectionComponent: React.FC = () => {
           ...collection,
           collectionDate: new Date(collection.collectionDate),
         }));
+        console.log('Loaded collections:', normalized);
         setCollections(normalized);
       } catch (error) {
         console.error('Failed to load collections:', error);
@@ -193,6 +195,84 @@ const EggCollectionComponent: React.FC = () => {
     setEditingCollection(null);
   };
 
+  const openRouteModal = (route?: CollectionRoute) => {
+    if (route) {
+      setEditingRoute(route);
+      setRouteForm({
+        name: route.name,
+        description: route.description || '',
+        farmerIds: route.farmerIds || [],
+        estimatedTime: route.estimatedTime,
+        distance: route.distance,
+        staffId: route.staffId || '',
+        schedule: route.schedule,
+        active: route.active,
+      });
+    } else {
+      setEditingRoute(null);
+      setRouteForm({
+        name: '',
+        description: '',
+        farmerIds: [],
+        estimatedTime: 0,
+        distance: 0,
+        staffId: '',
+        schedule: 'DAILY',
+        active: true,
+      });
+    }
+    setShowRouteModal(true);
+  };
+
+  const closeRouteModal = () => {
+    setShowRouteModal(false);
+    setEditingRoute(null);
+  };
+
+  const handleRouteSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setRouteSaving(true);
+    setErrorMessage(null);
+    try {
+      if (editingRoute) {
+        const updated = await window.api.updateCollectionRoute({
+          ...routeForm,
+          id: editingRoute.id,
+        });
+        setRoutes((prev) =>
+          prev.map((route) => (route.id === updated.id ? updated : route)),
+        );
+      } else {
+        const created = await window.api.createCollectionRoute(routeForm);
+        setRoutes((prev) => [...prev, created]);
+      }
+      closeRouteModal();
+    } catch (error) {
+      console.error('Failed to save collection route:', error);
+      setErrorMessage('Failed to save collection route.');
+    } finally {
+      setRouteSaving(false);
+    }
+  };
+
+  const handleRouteDelete = async (routeId: string) => {
+    const confirmed = window.confirm(
+      'Are you sure you want to delete this route?',
+    );
+    if (!confirmed) return;
+    setErrorMessage(null);
+    try {
+      await window.api.deleteCollectionRoute(routeId);
+      setRoutes((prev) => prev.filter((route) => route.id !== routeId));
+      if (selectedRoute === routeId) {
+        setSelectedRoute('all');
+      }
+    } catch (error) {
+      console.error('Failed to delete route:', error);
+      setErrorMessage('Failed to delete collection route.');
+    }
+  };
+
   const calculateTotals = () => {
     const totalHenEggs = Object.values(formData.henEggs).reduce(
       (sum, count) => sum + count,
@@ -230,16 +310,14 @@ const EggCollectionComponent: React.FC = () => {
 
     try {
       if (editingCollection) {
-        const updatedCollection = await databaseService.update<EggCollection>(
-          'egg_collections',
-          editingCollection.id,
-          {
-            ...formData,
-            totalHenEggs: totals.totalHenEggs,
-            totalDuckEggs: totals.totalDuckEggs,
-            totalValue: totals.totalValue,
-          },
-        );
+        const updatedCollection = await window.api.updateEggCollection({
+          ...editingCollection,
+          ...formData,
+          collectionDate: editingCollection.collectionDate,
+          totalHenEggs: totals.totalHenEggs,
+          totalDuckEggs: totals.totalDuckEggs,
+          totalValue: totals.totalValue,
+        });
 
         setCollections((prev) =>
           prev.map((c) =>
@@ -248,11 +326,11 @@ const EggCollectionComponent: React.FC = () => {
         );
       } else {
         const collectionDate = new Date(`${selectedDate}T00:00:00`);
-        const newCollection = await eggCollectionService.recordCollection({
+        const newCollection = await window.api.createEggCollection({
           farmerId: formData.farmerId,
           routeId: formData.routeId || undefined,
           staffId: formData.staffId,
-          collectionDate,
+          collectionDate: collectionDate.toISOString(),
           henEggs: formData.henEggs,
           duckEggs: formData.duckEggs,
           henEggPrice: formData.henEggPrice,
@@ -280,13 +358,16 @@ const EggCollectionComponent: React.FC = () => {
       .toISOString()
       .split('T')[0];
     const matchesDate = collectionDate === selectedDate;
+
     const matchesRoute =
       selectedRoute === 'all' || collection.routeId === selectedRoute;
     const matchesStaff =
       selectedStaff === 'all' || collection.staffId === selectedStaff;
 
-    return matchesDate && matchesRoute && matchesStaff;
+    return matchesRoute && matchesStaff;
   });
+
+  console.log('Filtered Collections:', filteredCollections);
 
   const dailyTotals = filteredCollections.reduce(
     (totals, collection) => ({
@@ -315,6 +396,13 @@ const EggCollectionComponent: React.FC = () => {
           >
             <PlusIcon className="w-5 h-5 mr-2" />
             Record Collection
+          </button>
+          <button
+            onClick={() => openRouteModal()}
+            className="bg-green-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-green-700 flex items-center"
+          >
+            <PlusIcon className="w-5 h-5 mr-2" />
+            Add New Collection Route
           </button>
         </div>
 
@@ -432,7 +520,7 @@ const EggCollectionComponent: React.FC = () => {
             >
               <option value="all">All Collectors</option>
               {staff
-                .filter((s) => s.permissions.includes('egg_collection'))
+                .filter((s) => s.department === 'COLLECTION')
                 .map((member) => (
                   <option key={member.id} value={member.id}>
                     {member.firstName} {member.lastName}
@@ -454,6 +542,120 @@ const EggCollectionComponent: React.FC = () => {
           Loading egg collection data...
         </div>
       )}
+
+      {/* Collection Routes */}
+      <div className="bg-white rounded-lg shadow overflow-hidden mb-6">
+        <div className="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
+          <h2 className="text-lg font-semibold text-gray-900">
+            Collection Routes
+          </h2>
+          <button
+            onClick={() => openRouteModal()}
+            className="bg-green-600 text-white px-3 py-2 rounded-lg text-sm font-medium hover:bg-green-700 flex items-center"
+          >
+            <PlusIcon className="w-4 h-4 mr-2" />
+            Add Route
+          </button>
+        </div>
+        <div className="overflow-x-auto">
+          <table className="min-w-full divide-y divide-gray-200">
+            <thead className="bg-gray-50">
+              <tr>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Route
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Schedule
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Farms
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Collector
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Status
+                </th>
+                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Actions
+                </th>
+              </tr>
+            </thead>
+            <tbody className="bg-white divide-y divide-gray-200">
+              {routes.length === 0 && (
+                <tr>
+                  <td
+                    colSpan={6}
+                    className="px-6 py-6 text-center text-sm text-gray-500"
+                  >
+                    No routes created yet.
+                  </td>
+                </tr>
+              )}
+              {routes.map((route) => {
+                const collector = staff.find((s) => s.id === route.staffId);
+                const farmNames = route.farmerIds
+                  .map(
+                    (id) =>
+                      farmers.find((f) => f.id === id)?.businessName ||
+                      farmers.find((f) => f.id === id)?.contactPerson,
+                  )
+                  .filter(Boolean)
+                  .join(', ');
+
+                return (
+                  <tr key={route.id} className="hover:bg-gray-50">
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="text-sm font-medium text-gray-900">
+                        {route.name}
+                      </div>
+                      <div className="text-xs text-gray-500">
+                        {route.description || 'No description'}
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                      {route.schedule}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                      {farmNames || 'No farms'}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                      {collector
+                        ? `${collector.firstName} ${collector.lastName}`
+                        : 'Unassigned'}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <span
+                        className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                          route.active
+                            ? 'bg-green-100 text-green-800'
+                            : 'bg-gray-100 text-gray-800'
+                        }`}
+                      >
+                        {route.active ? 'Active' : 'Inactive'}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-2">
+                      <button
+                        onClick={() => openRouteModal(route)}
+                        className="text-indigo-600 hover:text-indigo-900"
+                      >
+                        Edit
+                      </button>
+                      <button
+                        onClick={() => handleRouteDelete(route.id)}
+                        className="text-red-600 hover:text-red-900"
+                      >
+                        Delete
+                      </button>
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+      </div>
 
       {/* Collections Table */}
       <div className="bg-white rounded-lg shadow overflow-hidden">
@@ -692,7 +894,7 @@ const EggCollectionComponent: React.FC = () => {
                     >
                       <option value="">Select Collector</option>
                       {staff
-                        .filter((s) => s.permissions.includes('egg_collection'))
+                        .filter((s) => s.department === 'COLLECTION')
                         .map((member) => (
                           <option key={member.id} value={member.id}>
                             {member.firstName} {member.lastName}
@@ -1004,6 +1206,229 @@ const EggCollectionComponent: React.FC = () => {
                     {editingCollection
                       ? 'Update Collection'
                       : 'Record Collection'}
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Route Modal */}
+      {showRouteModal && (
+        <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
+          <div className="relative top-10 mx-auto p-5 border w-[700px] shadow-lg rounded-md bg-white">
+            <div className="mt-3">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-lg font-medium text-gray-900">
+                  {editingRoute ? 'Edit Route' : 'Add New Route'}
+                </h3>
+                <button
+                  onClick={closeRouteModal}
+                  className="text-gray-400 hover:text-gray-600 text-2xl"
+                >
+                  ×
+                </button>
+              </div>
+
+              <form onSubmit={handleRouteSubmit} className="space-y-6">
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700">
+                      Route Name *
+                    </label>
+                    <input
+                      type="text"
+                      value={routeForm.name}
+                      onChange={(e) =>
+                        setRouteForm((prev) => ({
+                          ...prev,
+                          name: e.target.value,
+                        }))
+                      }
+                      className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-500"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700">
+                      Schedule *
+                    </label>
+                    <select
+                      value={routeForm.schedule}
+                      onChange={(e) =>
+                        setRouteForm((prev) => ({
+                          ...prev,
+                          schedule: e.target
+                            .value as CollectionRoute['schedule'],
+                        }))
+                      }
+                      className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-500"
+                      required
+                    >
+                      <option value="DAILY">Daily</option>
+                      <option value="ALTERNATE">Alternate</option>
+                      <option value="WEEKLY">Weekly</option>
+                      <option value="CUSTOM">Custom</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">
+                    Description
+                  </label>
+                  <textarea
+                    value={routeForm.description}
+                    onChange={(e) =>
+                      setRouteForm((prev) => ({
+                        ...prev,
+                        description: e.target.value,
+                      }))
+                    }
+                    rows={2}
+                    className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-500"
+                  />
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700">
+                      Estimated Time (minutes)
+                    </label>
+                    <input
+                      type="number"
+                      min={0}
+                      value={routeForm.estimatedTime}
+                      onChange={(e) =>
+                        setRouteForm((prev) => ({
+                          ...prev,
+                          estimatedTime: parseInt(e.target.value) || 0,
+                        }))
+                      }
+                      className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-500"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700">
+                      Estimated Distance (km)
+                    </label>
+                    <input
+                      type="number"
+                      min={0}
+                      step="0.1"
+                      value={routeForm.distance}
+                      onChange={(e) =>
+                        setRouteForm((prev) => ({
+                          ...prev,
+                          distance: parseFloat(e.target.value) || 0,
+                        }))
+                      }
+                      className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-500"
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700">
+                      Collector
+                    </label>
+                    <select
+                      value={routeForm.staffId}
+                      onChange={(e) =>
+                        setRouteForm((prev) => ({
+                          ...prev,
+                          staffId: e.target.value,
+                        }))
+                      }
+                      className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-500"
+                    >
+                      <option value="">Unassigned</option>
+                      {staff
+                        .filter((s) => s.department === 'COLLECTION')
+                        .map((member) => (
+                          <option key={member.id} value={member.id}>
+                            {member.firstName} {member.lastName}
+                          </option>
+                        ))}
+                    </select>
+                  </div>
+                  <div className="flex items-center">
+                    <label className="flex items-center space-x-2 mt-6">
+                      <input
+                        type="checkbox"
+                        checked={routeForm.active}
+                        onChange={(e) =>
+                          setRouteForm((prev) => ({
+                            ...prev,
+                            active: e.target.checked,
+                          }))
+                        }
+                        className="h-4 w-4 text-blue-600"
+                      />
+                      <span className="text-sm text-gray-700">Active</span>
+                    </label>
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Assign Farms
+                  </label>
+                  <div className="max-h-48 overflow-y-auto border border-gray-200 rounded-md p-3 space-y-2">
+                    {farmers.length === 0 && (
+                      <p className="text-sm text-gray-500">
+                        No farmers available.
+                      </p>
+                    )}
+                    {farmers.map((farmer) => (
+                      <label
+                        key={farmer.id}
+                        className="flex items-center space-x-2 text-sm text-gray-700"
+                      >
+                        <input
+                          type="checkbox"
+                          checked={routeForm.farmerIds.includes(farmer.id)}
+                          onChange={(e) => {
+                            const checked = e.target.checked;
+                            setRouteForm((prev) => ({
+                              ...prev,
+                              farmerIds: checked
+                                ? [...prev.farmerIds, farmer.id]
+                                : prev.farmerIds.filter(
+                                    (id) => id !== farmer.id,
+                                  ),
+                            }));
+                          }}
+                          className="h-4 w-4 text-blue-600"
+                        />
+                        <span>
+                          {farmer.businessName || farmer.contactPerson}
+                        </span>
+                      </label>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="flex justify-end space-x-3 pt-4">
+                  <button
+                    type="button"
+                    onClick={closeRouteModal}
+                    className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={routeSaving}
+                    className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 disabled:opacity-50"
+                  >
+                    {routeSaving
+                      ? 'Saving...'
+                      : editingRoute
+                        ? 'Update Route'
+                        : 'Create Route'}
                   </button>
                 </div>
               </form>

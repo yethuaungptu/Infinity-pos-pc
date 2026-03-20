@@ -9,6 +9,7 @@ import {
   GlobeAltIcon,
   DevicePhoneMobileIcon,
   CheckIcon,
+  CurrencyDollarIcon,
 } from '@heroicons/react/24/outline';
 
 interface StoreSettings {
@@ -64,13 +65,33 @@ interface NotificationSettings {
   salesTargets: boolean;
 }
 
+interface MarketPriceSettings {
+  henEggs: {
+    small: number;
+    medium: number;
+    large: number;
+    extraLarge: number;
+  };
+  duckEggs: {
+    small: number;
+    medium: number;
+    large: number;
+  };
+}
+
 const SettingsManagement: React.FC = () => {
   const [activeTab, setActiveTab] = useState<
-    'store' | 'payment' | 'printer' | 'sync' | 'notifications'
+    'store' | 'payment' | 'printer' | 'sync' | 'notifications' | 'market'
   >('store');
   const [saveStatus, setSaveStatus] = useState<
     'idle' | 'saving' | 'saved' | 'error'
   >('idle');
+  const [marketStatus, setMarketStatus] = useState<
+    'idle' | 'loading' | 'saving' | 'saved' | 'error'
+  >('idle');
+  const [marketStatusMessage, setMarketStatusMessage] = useState<string | null>(
+    null,
+  );
 
   // Store Settings
   const [storeSettings, setStoreSettings] = useState<StoreSettings>({
@@ -131,6 +152,73 @@ const SettingsManagement: React.FC = () => {
       salesTargets: false,
     });
 
+  const [marketPrices, setMarketPrices] = useState<MarketPriceSettings>({
+    henEggs: {
+      small: 2.0,
+      medium: 2.25,
+      large: 2.5,
+      extraLarge: 3.0,
+    },
+    duckEggs: {
+      small: 3.2,
+      medium: 4.0,
+      large: 4.8,
+    },
+  });
+
+  const [marketPricesUpdatedAt, setMarketPricesUpdatedAt] =
+    useState<Date | null>(null);
+
+  useEffect(() => {
+    let isMounted = true;
+
+    const loadMarketPrices = async () => {
+      setMarketStatus('loading');
+      setMarketStatusMessage(null);
+      try {
+        const prices = await window.api.getMarketPrices();
+        if (!isMounted) return;
+        setMarketPrices({
+          henEggs: prices.henEggs,
+          duckEggs: prices.duckEggs,
+        });
+        setMarketPricesUpdatedAt(new Date(prices.lastUpdated));
+        setMarketStatus('idle');
+      } catch (error) {
+        console.error('Failed to load market prices:', error);
+        if (isMounted) {
+          setMarketStatus('error');
+          setMarketStatusMessage('Failed to load market prices.');
+        }
+      }
+    };
+
+    loadMarketPrices();
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
+  const saveMarketPrices = async () => {
+    setMarketStatus('saving');
+    setMarketStatusMessage(null);
+    try {
+      const updated = await window.api.updateMarketPrices({
+        ...marketPrices,
+        lastUpdated: new Date(),
+      });
+      setMarketPricesUpdatedAt(new Date(updated.lastUpdated));
+      setMarketStatus('saved');
+      setTimeout(() => setMarketStatus('idle'), 2000);
+    } catch (error) {
+      console.error('Failed to update market prices:', error);
+      setMarketStatus('error');
+      setMarketStatusMessage('Failed to update market prices.');
+      setTimeout(() => setMarketStatus('idle'), 3000);
+    }
+  };
+
   const saveSettings = async () => {
     setSaveStatus('saving');
 
@@ -145,6 +233,12 @@ const SettingsManagement: React.FC = () => {
       };
 
       console.log('Saving settings:', allSettings);
+
+      await window.api.updateMarketPrices({
+        ...marketPrices,
+        lastUpdated: new Date(),
+      });
+      setMarketPricesUpdatedAt(new Date());
 
       // Simulate API call
       await new Promise((resolve) => setTimeout(resolve, 1000));
@@ -192,6 +286,7 @@ const SettingsManagement: React.FC = () => {
       printer: printerSettings,
       sync: syncSettings,
       notifications: notificationSettings,
+      marketPrices,
     };
 
     const blob = new Blob([JSON.stringify(settings, null, 2)], {
@@ -220,6 +315,8 @@ const SettingsManagement: React.FC = () => {
         if (importedSettings.sync) setSyncSettings(importedSettings.sync);
         if (importedSettings.notifications)
           setNotificationSettings(importedSettings.notifications);
+        if (importedSettings.marketPrices)
+          setMarketPrices(importedSettings.marketPrices);
 
         alert('Settings imported successfully!');
       } catch (error) {
@@ -235,6 +332,7 @@ const SettingsManagement: React.FC = () => {
     { id: 'printer', name: 'Printer', icon: PrinterIcon },
     { id: 'sync', name: 'Sync & Backup', icon: CloudIcon },
     { id: 'notifications', name: 'Notifications', icon: BellIcon },
+    { id: 'market', name: 'Market Prices', icon: CurrencyDollarIcon },
   ];
 
   return (
@@ -1163,6 +1261,216 @@ const SettingsManagement: React.FC = () => {
                       />
                       <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
                     </label>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Market Prices Settings */}
+            {activeTab === 'market' && (
+              <div>
+                <div className="flex items-center justify-between mb-6">
+                  <h2 className="text-xl font-semibold flex items-center">
+                    <CurrencyDollarIcon className="w-6 h-6 mr-2" />
+                    Market Prices
+                  </h2>
+                  <button
+                    onClick={saveMarketPrices}
+                    disabled={marketStatus === 'saving'}
+                    className={`px-4 py-2 rounded-lg font-medium flex items-center ${
+                      marketStatus === 'saved'
+                        ? 'bg-green-600 text-white'
+                        : 'bg-blue-600 text-white hover:bg-blue-700'
+                    } disabled:opacity-50`}
+                  >
+                    {marketStatus === 'saving' && (
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                    )}
+                    {marketStatus === 'saved' && (
+                      <CheckIcon className="w-4 h-4 mr-2" />
+                    )}
+                    {marketStatus === 'saving'
+                      ? 'Saving...'
+                      : marketStatus === 'saved'
+                        ? 'Saved!'
+                        : 'Save Market Prices'}
+                  </button>
+                </div>
+
+                {marketStatusMessage && (
+                  <div className="mb-4 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+                    {marketStatusMessage}
+                  </div>
+                )}
+
+                {marketStatus === 'loading' && (
+                  <div className="mb-4 rounded-lg border border-blue-200 bg-blue-50 px-4 py-3 text-sm text-blue-700">
+                    Loading market prices...
+                  </div>
+                )}
+
+                {marketPricesUpdatedAt && (
+                  <div className="mb-4 text-sm text-gray-600">
+                    Last updated:{' '}
+                    {marketPricesUpdatedAt.toLocaleString()}
+                  </div>
+                )}
+
+                <div className="space-y-6">
+                  <div className="border border-gray-200 rounded-lg p-4">
+                    <h3 className="font-medium text-gray-900 mb-3">
+                      Hen Eggs (per dozen)
+                    </h3>
+                    <div className="grid grid-cols-4 gap-4">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          Small
+                        </label>
+                        <input
+                          type="number"
+                          step="0.01"
+                          value={marketPrices.henEggs.small}
+                          onChange={(e) =>
+                            setMarketPrices((prev) => ({
+                              ...prev,
+                              henEggs: {
+                                ...prev.henEggs,
+                                small: parseFloat(e.target.value) || 0,
+                              },
+                            }))
+                          }
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          Medium
+                        </label>
+                        <input
+                          type="number"
+                          step="0.01"
+                          value={marketPrices.henEggs.medium}
+                          onChange={(e) =>
+                            setMarketPrices((prev) => ({
+                              ...prev,
+                              henEggs: {
+                                ...prev.henEggs,
+                                medium: parseFloat(e.target.value) || 0,
+                              },
+                            }))
+                          }
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          Large
+                        </label>
+                        <input
+                          type="number"
+                          step="0.01"
+                          value={marketPrices.henEggs.large}
+                          onChange={(e) =>
+                            setMarketPrices((prev) => ({
+                              ...prev,
+                              henEggs: {
+                                ...prev.henEggs,
+                                large: parseFloat(e.target.value) || 0,
+                              },
+                            }))
+                          }
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          Extra Large
+                        </label>
+                        <input
+                          type="number"
+                          step="0.01"
+                          value={marketPrices.henEggs.extraLarge}
+                          onChange={(e) =>
+                            setMarketPrices((prev) => ({
+                              ...prev,
+                              henEggs: {
+                                ...prev.henEggs,
+                                extraLarge: parseFloat(e.target.value) || 0,
+                              },
+                            }))
+                          }
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="border border-gray-200 rounded-lg p-4">
+                    <h3 className="font-medium text-gray-900 mb-3">
+                      Duck Eggs (per dozen)
+                    </h3>
+                    <div className="grid grid-cols-3 gap-4">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          Small
+                        </label>
+                        <input
+                          type="number"
+                          step="0.01"
+                          value={marketPrices.duckEggs.small}
+                          onChange={(e) =>
+                            setMarketPrices((prev) => ({
+                              ...prev,
+                              duckEggs: {
+                                ...prev.duckEggs,
+                                small: parseFloat(e.target.value) || 0,
+                              },
+                            }))
+                          }
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          Medium
+                        </label>
+                        <input
+                          type="number"
+                          step="0.01"
+                          value={marketPrices.duckEggs.medium}
+                          onChange={(e) =>
+                            setMarketPrices((prev) => ({
+                              ...prev,
+                              duckEggs: {
+                                ...prev.duckEggs,
+                                medium: parseFloat(e.target.value) || 0,
+                              },
+                            }))
+                          }
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          Large
+                        </label>
+                        <input
+                          type="number"
+                          step="0.01"
+                          value={marketPrices.duckEggs.large}
+                          onChange={(e) =>
+                            setMarketPrices((prev) => ({
+                              ...prev,
+                              duckEggs: {
+                                ...prev.duckEggs,
+                                large: parseFloat(e.target.value) || 0,
+                              },
+                            }))
+                          }
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                        />
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>

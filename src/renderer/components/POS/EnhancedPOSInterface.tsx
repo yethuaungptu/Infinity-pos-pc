@@ -55,6 +55,11 @@ declare global {
       createPurchaseData: (data: any) => Promise<any>;
       updatePurchase: (data: any) => Promise<any>;
       getTransactions: () => Promise<any[]>;
+      getCollectionRoutes: () => Promise<any[]>;
+      getMarketPrices: () => Promise<any[]>;
+      getEggCollections: (query: any) => Promise<any[]>;
+      createEggCollection: (data: any) => Promise<any>;
+      updateEggCollection: (data: any) => Promise<any>;
     };
   }
 }

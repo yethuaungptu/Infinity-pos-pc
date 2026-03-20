@@ -18,6 +18,7 @@ import { AuthService } from './services/authService';
 import { IndexService } from './services/indexService';
 import { PaymentRecordService } from './services/paymentService';
 import { PurchaseService } from './services/purchaseService';
+import { EggCollectionService } from './services/eggCollectionService';
 
 class AppUpdater {
   constructor() {
@@ -160,6 +161,42 @@ ipcMain.handle('db:getPurchaseDetail', async (event, id) => {
 });
 ipcMain.handle('db:updatePurchase', async (event, data) => {
   return PurchaseService.updatePurchase(data);
+});
+
+ipcMain.handle('db:getCollectionRoutes', async () => {
+  return EggCollectionService.getCollectionRoutes();
+});
+
+ipcMain.handle('db:getMarketPrices', async () => {
+  return EggCollectionService.getMarketPrices();
+});
+
+ipcMain.handle('db:updateMarketPrices', async (event, data) => {
+  return EggCollectionService.updateMarketPrices(data);
+});
+
+ipcMain.handle('db:getEggCollections', async (event, data) => {
+  return EggCollectionService.getEggCollections(data);
+});
+
+ipcMain.handle('db:createEggCollection', async (event, data) => {
+  return EggCollectionService.createEggCollection(data);
+});
+
+ipcMain.handle('db:updateEggCollection', async (event, data) => {
+  return EggCollectionService.updateEggCollection(data);
+});
+
+ipcMain.handle('db:createCollectionRoute', async (event, data) => {
+  return EggCollectionService.createCollectionRoute(data);
+});
+
+ipcMain.handle('db:updateCollectionRoute', async (event, data) => {
+  return EggCollectionService.updateCollectionRoute(data);
+});
+
+ipcMain.handle('db:deleteCollectionRoute', async (event, id) => {
+  return EggCollectionService.deleteCollectionRoute(id);
 });
 
 // ---------------------------

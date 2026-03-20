@@ -315,7 +315,7 @@ export interface CollectionRoute {
   estimatedTime: number; // minutes
   distance: number; // km
   staffId?: string; // Assigned collector
-  schedule: 'daily' | 'alternate' | 'weekly';
+  schedule: 'DAILY' | 'ALTERNATE' | 'WEEKLY' | 'CUSTOM';
   active: boolean;
 }
 
