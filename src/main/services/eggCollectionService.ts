@@ -91,6 +91,8 @@ const mapDbToEggCollection = (record: any): EggCollection => ({
   totalDuckEggs: record.totalDuckEggs || 0,
   totalValue: record.totalValue || 0,
   qualityNotes: record.qualityNotes || undefined,
+  paid: !!record.paid,
+  paymentDate: record.paymentDate ? new Date(record.paymentDate) : undefined,
   synced: !!record.synced,
 });
 
@@ -177,8 +179,17 @@ export class EggCollectionServiceClass {
 
   async updateMarketPrices(prices: MarketPrices): Promise<MarketPrices> {
     const payload = {
-      henEggs: prices.henEggs,
-      duckEggs: prices.duckEggs,
+      henEggs: {
+        small: Math.round(prices.henEggs.small),
+        medium: Math.round(prices.henEggs.medium),
+        large: Math.round(prices.henEggs.large),
+        extraLarge: Math.round(prices.henEggs.extraLarge),
+      },
+      duckEggs: {
+        small: Math.round(prices.duckEggs.small),
+        medium: Math.round(prices.duckEggs.medium),
+        large: Math.round(prices.duckEggs.large),
+      },
     };
 
     const existing = await databaseService.findMany('systemSetting', {
@@ -202,7 +213,8 @@ export class EggCollectionServiceClass {
     }
 
     this.currentMarketPrices = {
-      ...prices,
+      henEggs: payload.henEggs,
+      duckEggs: payload.duckEggs,
       lastUpdated: new Date(),
     };
 
@@ -239,9 +251,10 @@ export class EggCollectionServiceClass {
     const totalHenEggs = calculateTotalEggs(request.henEggs);
     const totalDuckEggs = calculateTotalEggs(request.duckEggs);
 
-    const totalValue =
+    const totalValue = Math.round(
       (totalHenEggs / 12) * request.henEggPrice +
-      (totalDuckEggs / 12) * request.duckEggPrice;
+        (totalDuckEggs / 12) * request.duckEggPrice,
+    );
 
     const collectionDate = request.collectionDate
       ? new Date(request.collectionDate)
@@ -314,9 +327,10 @@ export class EggCollectionServiceClass {
   async updateEggCollection(data: EggCollection): Promise<EggCollection> {
     const totalHenEggs = calculateTotalEggs(data.henEggs);
     const totalDuckEggs = calculateTotalEggs(data.duckEggs);
-    const totalValue =
+    const totalValue = Math.round(
       (totalHenEggs / 12) * data.henEggPrice +
-      (totalDuckEggs / 12) * data.duckEggPrice;
+        (totalDuckEggs / 12) * data.duckEggPrice,
+    );
 
     const record = await databaseService.update('eggCollection', data.id, {
       farmerId: data.farmerId,
@@ -340,6 +354,14 @@ export class EggCollectionServiceClass {
       qualityNotes: data.qualityNotes || null,
     });
 
+    return mapDbToEggCollection(record);
+  }
+
+  async markCollectionPaid(id: string): Promise<EggCollection> {
+    const record = await databaseService.update('eggCollection', id, {
+      paid: true,
+      paymentDate: new Date(),
+    });
     return mapDbToEggCollection(record);
   }
 

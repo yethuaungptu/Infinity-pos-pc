@@ -187,6 +187,10 @@ ipcMain.handle('db:updateEggCollection', async (event, data) => {
   return EggCollectionService.updateEggCollection(data);
 });
 
+ipcMain.handle('db:markEggCollectionPaid', async (event, id) => {
+  return EggCollectionService.markCollectionPaid(id);
+});
+
 ipcMain.handle('db:createCollectionRoute', async (event, data) => {
   return EggCollectionService.createCollectionRoute(data);
 });

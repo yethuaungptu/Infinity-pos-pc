@@ -142,7 +142,7 @@ const TransactionHistory: React.FC = () => {
 
     const refundAmount = amount || transaction.total;
     const confirmed = window.confirm(
-      `Are you sure you want to refund $${refundAmount.toFixed(2)} for transaction ${transaction.receiptNumber}?`,
+      `Are you sure you want to refund ${Math.round(refundAmount).toLocaleString()} MMK for transaction ${transaction.receiptNumber}?`,
     );
 
     if (confirmed) {
@@ -158,7 +158,9 @@ const TransactionHistory: React.FC = () => {
         setTransactions((prev) =>
           prev.map((t) => (t.id === transactionId ? updatedTransaction : t)),
         );
-        alert(`Refund of $${refundAmount.toFixed(2)} processed successfully!`);
+        alert(
+          `Refund of ${Math.round(refundAmount).toLocaleString()} MMK processed successfully!`,
+        );
       } catch (error) {
         console.error('Refund failed:', error);
         alert('Refund failed. Please try again.');
@@ -416,7 +418,7 @@ const TransactionHistory: React.FC = () => {
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                       <div className="font-medium">{transaction.total} MMK</div>
                       {/* <div className="text-gray-500">
-                        Tax: ${transaction.tax.toFixed(2)}
+                        Tax: ${Math.round(transaction.tax).toLocaleString()} MMK
                       </div> */}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
@@ -514,7 +516,7 @@ const TransactionHistory: React.FC = () => {
                                   <div className="flex justify-between text-red-600">
                                     <dt>Refunded:</dt>
                                     <dd>
-                                      -${transaction.refundAmount.toFixed(2)}
+                                      -${Math.round(transaction.refundAmount).toLocaleString()} MMK
                                     </dd>
                                   </div>
                                 )}

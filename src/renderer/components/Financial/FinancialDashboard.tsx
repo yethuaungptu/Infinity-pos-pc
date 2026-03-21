@@ -246,7 +246,7 @@ const FinancialDashboard: React.FC = () => {
             <div className="ml-4 flex-1">
               <p className="text-sm font-medium text-gray-600">Total Revenue</p>
               <p className="text-2xl font-bold text-gray-900">
-                ${financialData.revenue.total.toLocaleString()}
+                {financialData.revenue.total.toLocaleString()} MMK
               </p>
               <div className="flex items-center mt-1">
                 {financialData.comparison.revenueChange > 0 ? (
@@ -277,7 +277,7 @@ const FinancialDashboard: React.FC = () => {
             <div className="ml-4 flex-1">
               <p className="text-sm font-medium text-gray-600">Gross Profit</p>
               <p className="text-2xl font-bold text-gray-900">
-                ${financialData.profit.gross.toLocaleString()}
+                {financialData.profit.gross.toLocaleString()} MMK
               </p>
               <p className="text-sm text-gray-500 mt-1">
                 {(
@@ -298,7 +298,7 @@ const FinancialDashboard: React.FC = () => {
             <div className="ml-4 flex-1">
               <p className="text-sm font-medium text-gray-600">Net Profit</p>
               <p className="text-2xl font-bold text-gray-900">
-                ${financialData.profit.net.toLocaleString()}
+                {financialData.profit.net.toLocaleString()} MMK
               </p>
               <div className="flex items-center mt-1">
                 <ArrowTrendingUpIcon className="h-4 w-4 text-green-500" />
@@ -344,7 +344,7 @@ const FinancialDashboard: React.FC = () => {
                 </div>
                 <div className="text-right">
                   <div className="font-medium">
-                    ${financialData.revenue.farmerSales.toLocaleString()}
+                    {financialData.revenue.farmerSales.toLocaleString()} MMK
                   </div>
                   <div className="text-sm text-gray-500">
                     {(
@@ -364,7 +364,7 @@ const FinancialDashboard: React.FC = () => {
                 </div>
                 <div className="text-right">
                   <div className="font-medium">
-                    ${financialData.revenue.regularSales.toLocaleString()}
+                    {financialData.revenue.regularSales.toLocaleString()} MMK
                   </div>
                   <div className="text-sm text-gray-500">
                     {(
@@ -384,7 +384,7 @@ const FinancialDashboard: React.FC = () => {
                 </div>
                 <div className="text-right">
                   <div className="font-medium">
-                    ${financialData.revenue.eggSales.toLocaleString()}
+                    {financialData.revenue.eggSales.toLocaleString()} MMK
                   </div>
                   <div className="text-sm text-gray-500">
                     {(
@@ -421,7 +421,7 @@ const FinancialDashboard: React.FC = () => {
                 </div>
                 <div className="text-right">
                   <div className="font-medium">
-                    ${financialData.costs.feedPurchases.toLocaleString()}
+                    {financialData.costs.feedPurchases.toLocaleString()} MMK
                   </div>
                   <div className="text-sm text-gray-500">
                     {(
@@ -441,7 +441,7 @@ const FinancialDashboard: React.FC = () => {
                 </div>
                 <div className="text-right">
                   <div className="font-medium">
-                    ${financialData.costs.medicinePurchases.toLocaleString()}
+                    {financialData.costs.medicinePurchases.toLocaleString()} MMK
                   </div>
                   <div className="text-sm text-gray-500">
                     {(
@@ -461,7 +461,7 @@ const FinancialDashboard: React.FC = () => {
                 </div>
                 <div className="text-right">
                   <div className="font-medium">
-                    ${financialData.costs.eggPurchases.toLocaleString()}
+                    {financialData.costs.eggPurchases.toLocaleString()} MMK
                   </div>
                   <div className="text-sm text-gray-500">
                     {(
@@ -481,11 +481,10 @@ const FinancialDashboard: React.FC = () => {
                 </div>
                 <div className="text-right">
                   <div className="font-medium">
-                    $
                     {(
                       financialData.costs.salaries +
                       financialData.costs.operating
-                    ).toLocaleString()}
+                    ).toLocaleString()} MMK
                   </div>
                   <div className="text-sm text-gray-500">
                     {(
@@ -528,27 +527,27 @@ const FinancialDashboard: React.FC = () => {
                 <div className="flex justify-between">
                   <span className="text-gray-600">Customer Payments</span>
                   <span className="font-medium text-green-600">
-                    $
-                    {cashFlowData.expectedInflows.customerPayments.toLocaleString()}
+                    {cashFlowData.expectedInflows.customerPayments.toLocaleString()}{' '}
+                    MMK
                   </span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-600">Egg Sales</span>
                   <span className="font-medium text-green-600">
-                    ${cashFlowData.expectedInflows.eggSales.toLocaleString()}
+                    {cashFlowData.expectedInflows.eggSales.toLocaleString()} MMK
                   </span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-600">Cash Sales</span>
                   <span className="font-medium text-green-600">
-                    ${cashFlowData.expectedInflows.cashSales.toLocaleString()}
+                    {cashFlowData.expectedInflows.cashSales.toLocaleString()} MMK
                   </span>
                 </div>
                 <hr className="border-gray-200" />
                 <div className="flex justify-between font-bold">
                   <span>Total Inflows</span>
                   <span className="text-green-600">
-                    ${cashFlowData.expectedInflows.total.toLocaleString()}
+                    {cashFlowData.expectedInflows.total.toLocaleString()} MMK
                   </span>
                 </div>
               </div>
@@ -564,35 +563,35 @@ const FinancialDashboard: React.FC = () => {
                 <div className="flex justify-between">
                   <span className="text-gray-600">Vendor Payments</span>
                   <span className="font-medium text-red-600">
-                    $
-                    {cashFlowData.expectedOutflows.vendorPayments.toLocaleString()}
+                    {cashFlowData.expectedOutflows.vendorPayments.toLocaleString()}{' '}
+                    MMK
                   </span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-600">Egg Purchases</span>
                   <span className="font-medium text-red-600">
-                    $
-                    {cashFlowData.expectedOutflows.eggPurchases.toLocaleString()}
+                    {cashFlowData.expectedOutflows.eggPurchases.toLocaleString()}{' '}
+                    MMK
                   </span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-600">Salaries</span>
                   <span className="font-medium text-red-600">
-                    ${cashFlowData.expectedOutflows.salaries.toLocaleString()}
+                    {cashFlowData.expectedOutflows.salaries.toLocaleString()} MMK
                   </span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-600">Operating Expenses</span>
                   <span className="font-medium text-red-600">
-                    $
-                    {cashFlowData.expectedOutflows.operatingExpenses.toLocaleString()}
+                    {cashFlowData.expectedOutflows.operatingExpenses.toLocaleString()}{' '}
+                    MMK
                   </span>
                 </div>
                 <hr className="border-gray-200" />
                 <div className="flex justify-between font-bold">
                   <span>Total Outflows</span>
                   <span className="text-red-600">
-                    ${cashFlowData.expectedOutflows.total.toLocaleString()}
+                    {cashFlowData.expectedOutflows.total.toLocaleString()} MMK
                   </span>
                 </div>
               </div>
@@ -608,7 +607,7 @@ const FinancialDashboard: React.FC = () => {
                 <div className="flex justify-between">
                   <span className="text-gray-600">Opening Balance</span>
                   <span className="font-medium">
-                    ${cashFlowData.openingBalance.toLocaleString()}
+                    {cashFlowData.openingBalance.toLocaleString()} MMK
                   </span>
                 </div>
                 <div className="flex justify-between">
@@ -620,7 +619,7 @@ const FinancialDashboard: React.FC = () => {
                         : 'text-red-600'
                     }`}
                   >
-                    ${cashFlowData.netCashFlow.toLocaleString()}
+                    {cashFlowData.netCashFlow.toLocaleString()} MMK
                   </span>
                 </div>
                 <hr className="border-gray-200" />
@@ -633,7 +632,7 @@ const FinancialDashboard: React.FC = () => {
                         : 'text-red-600'
                     }
                   >
-                    ${cashFlowData.closingBalance.toLocaleString()}
+                    {cashFlowData.closingBalance.toLocaleString()} MMK
                   </span>
                 </div>
 

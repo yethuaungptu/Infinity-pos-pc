@@ -156,7 +156,7 @@ export class NotificationService {
     return await this.sendNotification({
       type: 'info',
       title: 'Large Transaction',
-      message: `High-value transaction processed: $${transaction.total.toLocaleString()} (${transaction.receiptNumber})`,
+      message: `High-value transaction processed: ${Math.round(transaction.total).toLocaleString()} MMK (${transaction.receiptNumber})`,
       priority: 'medium',
       category: 'sales',
       actionRequired: false,
@@ -178,7 +178,7 @@ export class NotificationService {
     return await this.sendNotification({
       type: 'error',
       title: 'Payment Overdue',
-      message: `${customer.businessName || customer.contactPerson} has overdue payment of $${overdueAmount.toLocaleString()} (${daysPastDue} days past due)`,
+      message: `${customer.businessName || customer.contactPerson} has overdue payment of ${Math.round(overdueAmount).toLocaleString()} MMK (${daysPastDue} days past due)`,
       priority: severity,
       category: 'financial',
       actionRequired: true,
@@ -206,7 +206,7 @@ export class NotificationService {
     return await this.sendNotification({
       type: isPastDue ? 'error' : 'warning',
       title: isPastDue ? 'Payment Overdue' : 'Payment Due Soon',
-      message: `Payment to ${vendorName}: $${amount.toLocaleString()} ${
+      message: `Payment to ${vendorName}: ${Math.round(amount).toLocaleString()} MMK ${
         isPastDue
           ? `overdue by ${Math.abs(daysUntilDue)} days`
           : `due in ${daysUntilDue} days`
@@ -338,7 +338,7 @@ export class NotificationService {
     return await this.sendNotification({
       type: 'warning',
       title: 'Cash Flow Alert',
-      message: `Projected cash balance in ${daysAhead} days: ${projectedBalance < 0 ? '-' : ''}$${Math.abs(projectedBalance).toLocaleString()}`,
+      message: `Projected cash balance in ${daysAhead} days: ${projectedBalance < 0 ? '-' : ''}${Math.round(Math.abs(projectedBalance)).toLocaleString()} MMK`,
       priority: severity,
       category: 'financial',
       actionRequired: severity === 'critical',

@@ -147,7 +147,9 @@ const POSInterface: React.FC = () => {
       setCustomerInfo('');
 
       // Show success message
-      alert(`Payment processed successfully! Total: $${total.toFixed(2)}`);
+      alert(
+        `Payment processed successfully! Total: ${Math.round(total).toLocaleString()} MMK`,
+      );
     } catch (error) {
       console.error('Payment failed:', error);
       alert('Payment failed. Please try again.');
@@ -236,7 +238,7 @@ const POSInterface: React.FC = () => {
               <p className="text-sm text-gray-600 mb-2">SKU: {product.sku}</p>
               <div className="flex items-center justify-between">
                 <span className="text-lg font-bold text-blue-600">
-                  ${product.price.toFixed(2)}
+                  {Math.round(product.price).toLocaleString()} MMK
                 </span>
                 <span
                   className={`text-sm px-2 py-1 rounded ${
@@ -307,7 +309,9 @@ const POSInterface: React.FC = () => {
                       +
                     </button>
                   </div>
-                  <span className="font-medium">${item.total.toFixed(2)}</span>
+                  <span className="font-medium">
+                    {Math.round(item.total).toLocaleString()} MMK
+                  </span>
                 </div>
               </div>
             ))}
@@ -319,15 +323,15 @@ const POSInterface: React.FC = () => {
           <div className="space-y-2">
             <div className="flex justify-between">
               <span>Subtotal:</span>
-              <span>${subtotal.toFixed(2)}</span>
+              <span>{Math.round(subtotal).toLocaleString()} MMK</span>
             </div>
             <div className="flex justify-between">
               <span>Tax:</span>
-              <span>${tax.toFixed(2)}</span>
+              <span>{Math.round(tax).toLocaleString()} MMK</span>
             </div>
             <div className="flex justify-between text-lg font-bold">
               <span>Total:</span>
-              <span>${total.toFixed(2)}</span>
+              <span>{Math.round(total).toLocaleString()} MMK</span>
             </div>
           </div>
         </div>

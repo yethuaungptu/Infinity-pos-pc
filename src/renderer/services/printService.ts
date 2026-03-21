@@ -254,8 +254,8 @@ export class PrintService {
       commands.push(...[0x0a]);
 
       // Quantity, price, total
-      const qtyLine = `${item.quantity} ${item.unit} @ $${item.price.toFixed(2)}`;
-      const totalText = `$${item.total.toFixed(2)}`;
+      const qtyLine = `${item.quantity} ${item.unit} @ ${Math.round(item.price).toLocaleString()} MMK`;
+      const totalText = `${Math.round(item.total).toLocaleString()} MMK`;
       const spacesNeeded =
         charactersPerLine - qtyLine.length - totalText.length;
       const itemLine =
@@ -271,7 +271,7 @@ export class PrintService {
     // Totals
     commands.push(
       ...this.rightAlignText(
-        `Subtotal: $${receiptData.totals.subtotal.toFixed(2)}`,
+        `Subtotal: ${Math.round(receiptData.totals.subtotal).toLocaleString()} MMK`,
         charactersPerLine,
       ),
     );
@@ -280,7 +280,7 @@ export class PrintService {
     if (receiptData.totals.discount > 0) {
       commands.push(
         ...this.rightAlignText(
-          `Discount: -$${receiptData.totals.discount.toFixed(2)}`,
+          `Discount: -${Math.round(receiptData.totals.discount).toLocaleString()} MMK`,
           charactersPerLine,
         ),
       );
@@ -289,7 +289,7 @@ export class PrintService {
 
     commands.push(
       ...this.rightAlignText(
-        `Tax: $${receiptData.totals.tax.toFixed(2)}`,
+        `Tax: ${Math.round(receiptData.totals.tax).toLocaleString()} MMK`,
         charactersPerLine,
       ),
     );
@@ -299,7 +299,7 @@ export class PrintService {
     commands.push(...[0x1b, 0x21, 0x08]); // Bold
     commands.push(
       ...this.rightAlignText(
-        `TOTAL: $${receiptData.totals.total.toFixed(2)}`,
+        `TOTAL: ${Math.round(receiptData.totals.total).toLocaleString()} MMK`,
         charactersPerLine,
       ),
     );
@@ -320,7 +320,7 @@ export class PrintService {
     if (receiptData.payment.method === 'credit') {
       commands.push(
         ...this.textToBytes(
-          `Amount Due: $${receiptData.payment.balanceAmount.toFixed(2)}`,
+          `Amount Due: ${Math.round(receiptData.payment.balanceAmount).toLocaleString()} MMK`,
         ),
       );
       commands.push(...[0x0a]);
@@ -336,7 +336,7 @@ export class PrintService {
     } else {
       commands.push(
         ...this.textToBytes(
-          `Paid: $${receiptData.payment.paidAmount.toFixed(2)}`,
+          `Paid: ${Math.round(receiptData.payment.paidAmount).toLocaleString()} MMK`,
         ),
       );
       commands.push(...[0x0a]);

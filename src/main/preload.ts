@@ -102,6 +102,8 @@ contextBridge.exposeInMainWorld('api', {
     ipcRenderer.invoke('db:createEggCollection', data),
   updateEggCollection: (data: any) =>
     ipcRenderer.invoke('db:updateEggCollection', data),
+  markEggCollectionPaid: (id: string) =>
+    ipcRenderer.invoke('db:markEggCollectionPaid', id),
   createCollectionRoute: (data: any) =>
     ipcRenderer.invoke('db:createCollectionRoute', data),
   updateCollectionRoute: (data: any) =>

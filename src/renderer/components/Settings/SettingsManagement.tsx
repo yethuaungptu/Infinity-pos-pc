@@ -101,7 +101,7 @@ const SettingsManagement: React.FC = () => {
     email: 'info@mycoffeeshop.com',
     website: 'https://mycoffeeshop.com',
     taxRate: 8.25,
-    currency: 'USD',
+    currency: 'MMK',
     timezone: 'America/Los_Angeles',
     receiptHeader: 'Thank you for visiting!',
     receiptFooter: 'Please visit us again!',
@@ -543,10 +543,7 @@ const SettingsManagement: React.FC = () => {
                         }
                         className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
                       >
-                        <option value="USD">USD ($)</option>
-                        <option value="EUR">EUR (€)</option>
-                        <option value="GBP">GBP (£)</option>
-                        <option value="CAD">CAD ($)</option>
+                        <option value="MMK">MMK (Kyat)</option>
                       </select>
                     </div>
                     <div>
@@ -1328,14 +1325,14 @@ const SettingsManagement: React.FC = () => {
                         </label>
                         <input
                           type="number"
-                          step="0.01"
+                          step="1"
                           value={marketPrices.henEggs.small}
                           onChange={(e) =>
                             setMarketPrices((prev) => ({
                               ...prev,
                               henEggs: {
                                 ...prev.henEggs,
-                                small: parseFloat(e.target.value) || 0,
+                                small: Math.round(parseFloat(e.target.value)) || 0,
                               },
                             }))
                           }
@@ -1348,14 +1345,14 @@ const SettingsManagement: React.FC = () => {
                         </label>
                         <input
                           type="number"
-                          step="0.01"
+                          step="1"
                           value={marketPrices.henEggs.medium}
                           onChange={(e) =>
                             setMarketPrices((prev) => ({
                               ...prev,
                               henEggs: {
                                 ...prev.henEggs,
-                                medium: parseFloat(e.target.value) || 0,
+                                medium: Math.round(parseFloat(e.target.value)) || 0,
                               },
                             }))
                           }
@@ -1368,14 +1365,14 @@ const SettingsManagement: React.FC = () => {
                         </label>
                         <input
                           type="number"
-                          step="0.01"
+                          step="1"
                           value={marketPrices.henEggs.large}
                           onChange={(e) =>
                             setMarketPrices((prev) => ({
                               ...prev,
                               henEggs: {
                                 ...prev.henEggs,
-                                large: parseFloat(e.target.value) || 0,
+                                large: Math.round(parseFloat(e.target.value)) || 0,
                               },
                             }))
                           }
@@ -1388,14 +1385,14 @@ const SettingsManagement: React.FC = () => {
                         </label>
                         <input
                           type="number"
-                          step="0.01"
+                          step="1"
                           value={marketPrices.henEggs.extraLarge}
                           onChange={(e) =>
                             setMarketPrices((prev) => ({
                               ...prev,
                               henEggs: {
                                 ...prev.henEggs,
-                                extraLarge: parseFloat(e.target.value) || 0,
+                                extraLarge: Math.round(parseFloat(e.target.value)) || 0,
                               },
                             }))
                           }
@@ -1416,14 +1413,14 @@ const SettingsManagement: React.FC = () => {
                         </label>
                         <input
                           type="number"
-                          step="0.01"
+                          step="1"
                           value={marketPrices.duckEggs.small}
                           onChange={(e) =>
                             setMarketPrices((prev) => ({
                               ...prev,
                               duckEggs: {
                                 ...prev.duckEggs,
-                                small: parseFloat(e.target.value) || 0,
+                                small: Math.round(parseFloat(e.target.value)) || 0,
                               },
                             }))
                           }
@@ -1436,14 +1433,14 @@ const SettingsManagement: React.FC = () => {
                         </label>
                         <input
                           type="number"
-                          step="0.01"
+                          step="1"
                           value={marketPrices.duckEggs.medium}
                           onChange={(e) =>
                             setMarketPrices((prev) => ({
                               ...prev,
                               duckEggs: {
                                 ...prev.duckEggs,
-                                medium: parseFloat(e.target.value) || 0,
+                                medium: Math.round(parseFloat(e.target.value)) || 0,
                               },
                             }))
                           }
@@ -1456,14 +1453,14 @@ const SettingsManagement: React.FC = () => {
                         </label>
                         <input
                           type="number"
-                          step="0.01"
+                          step="1"
                           value={marketPrices.duckEggs.large}
                           onChange={(e) =>
                             setMarketPrices((prev) => ({
                               ...prev,
                               duckEggs: {
                                 ...prev.duckEggs,
-                                large: parseFloat(e.target.value) || 0,
+                                large: Math.round(parseFloat(e.target.value)) || 0,
                               },
                             }))
                           }

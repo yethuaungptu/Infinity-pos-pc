@@ -273,6 +273,21 @@ const EggCollectionComponent: React.FC = () => {
     }
   };
 
+  const handleMarkPaid = async (collectionId: string) => {
+    setErrorMessage(null);
+    try {
+      const updated = await window.api.markEggCollectionPaid(collectionId);
+      setCollections((prev) =>
+        prev.map((collection) =>
+          collection.id === updated.id ? updated : collection,
+        ),
+      );
+    } catch (error) {
+      console.error('Failed to mark collection as paid:', error);
+      setErrorMessage('Failed to mark collection as paid.');
+    }
+  };
+
   const calculateTotals = () => {
     const totalHenEggs = Object.values(formData.henEggs).reduce(
       (sum, count) => sum + count,
@@ -288,8 +303,8 @@ const EggCollectionComponent: React.FC = () => {
     const duckDozens = totalDuckEggs / 12;
 
     // Calculate value
-    const henValue = henDozens * formData.henEggPrice;
-    const duckValue = duckDozens * formData.duckEggPrice;
+    const henValue = Math.round(henDozens * formData.henEggPrice);
+    const duckValue = Math.round(duckDozens * formData.duckEggPrice);
     const totalValue = henValue + duckValue;
 
     return {
@@ -415,13 +430,13 @@ const EggCollectionComponent: React.FC = () => {
             <div className="flex justify-between">
               <span className="text-yellow-700">Hen Eggs:</span>
               <span className="font-medium text-yellow-800">
-                ${marketPrices.henEggs}/dozen
+                {Math.round(marketPrices.henEggs).toLocaleString()} MMK/dozen
               </span>
             </div>
             <div className="flex justify-between">
               <span className="text-yellow-700">Duck Eggs:</span>
               <span className="font-medium text-yellow-800">
-                ${marketPrices.duckEggs}/dozen
+                {Math.round(marketPrices.duckEggs).toLocaleString()} MMK/dozen
               </span>
             </div>
           </div>
@@ -460,7 +475,7 @@ const EggCollectionComponent: React.FC = () => {
               <CurrencyDollarIcon className="h-8 w-8 text-green-600 mr-3" />
               <div>
                 <h3 className="text-2xl font-bold text-green-600">
-                  ${dailyTotals.totalValue.toFixed(2)}
+                  {Math.round(dailyTotals.totalValue).toLocaleString()} MMK
                 </h3>
                 <p className="text-gray-600">Total Value</p>
               </div>
@@ -764,11 +779,13 @@ const EggCollectionComponent: React.FC = () => {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="text-sm font-medium text-green-600">
-                        ${collection.totalValue.toFixed(2)}
+                        {Math.round(collection.totalValue).toLocaleString()} MMK
                       </div>
                       <div className="text-xs text-gray-500">
-                        H: ${collection.henEggPrice}/dz | D: $
-                        {collection.duckEggPrice}/dz
+                        H: {Math.round(collection.henEggPrice).toLocaleString()}
+                        MMK/dz | D:{' '}
+                        {Math.round(collection.duckEggPrice).toLocaleString()}
+                        MMK/dz
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
@@ -783,15 +800,24 @@ const EggCollectionComponent: React.FC = () => {
                     <td className="px-6 py-4 whitespace-nowrap">
                       <span
                         className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                          collection.synced
+                          collection.paid
                             ? 'bg-green-100 text-green-800'
                             : 'bg-yellow-100 text-yellow-800'
                         }`}
                       >
-                        {collection.synced ? 'Synced' : 'Pending'}
+                        {collection.paid ? 'Paid' : 'Unpaid'}
                       </span>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-2">
+                      {!collection.paid && (
+                        <button
+                          onClick={() => handleMarkPaid(collection.id)}
+                          className="text-green-600 hover:text-green-900"
+                          title="Mark as Paid"
+                        >
+                          Mark Paid
+                        </button>
+                      )}
                       <button
                         onClick={() => openModal(collection)}
                         className="text-indigo-600 hover:text-indigo-900"
@@ -909,7 +935,7 @@ const EggCollectionComponent: React.FC = () => {
                   <h4 className="font-medium text-gray-900 mb-3 flex items-center">
                     🐔 Hen Eggs Collection
                     <span className="ml-2 text-sm font-normal text-gray-600">
-                      (Price: ${formData.henEggPrice}/dozen)
+                      (Price: {formData.henEggPrice.toLocaleString()} MMK/dozen)
                     </span>
                   </h4>
                   <div className="grid grid-cols-5 gap-4">
@@ -1016,7 +1042,7 @@ const EggCollectionComponent: React.FC = () => {
                   <h4 className="font-medium text-gray-900 mb-3 flex items-center">
                     🦆 Duck Eggs Collection
                     <span className="ml-2 text-sm font-normal text-gray-600">
-                      (Price: ${formData.duckEggPrice}/dozen)
+                      (Price: {formData.duckEggPrice.toLocaleString()} MMK/dozen)
                     </span>
                   </h4>
                   <div className="grid grid-cols-4 gap-4">
@@ -1103,16 +1129,16 @@ const EggCollectionComponent: React.FC = () => {
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-700">
-                      Hen Egg Price (per dozen)
+                      Hen Egg Price (per dozen, MMK)
                     </label>
                     <input
                       type="number"
-                      step="0.01"
+                      step="1"
                       value={formData.henEggPrice}
                       onChange={(e) =>
                         setFormData((prev) => ({
                           ...prev,
-                          henEggPrice: parseFloat(e.target.value) || 0,
+                          henEggPrice: Math.round(parseFloat(e.target.value)) || 0,
                         }))
                       }
                       className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-500"
@@ -1120,16 +1146,16 @@ const EggCollectionComponent: React.FC = () => {
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700">
-                      Duck Egg Price (per dozen)
+                      Duck Egg Price (per dozen, MMK)
                     </label>
                     <input
                       type="number"
-                      step="0.01"
+                      step="1"
                       value={formData.duckEggPrice}
                       onChange={(e) =>
                         setFormData((prev) => ({
                           ...prev,
-                          duckEggPrice: parseFloat(e.target.value) || 0,
+                          duckEggPrice: Math.round(parseFloat(e.target.value)) || 0,
                         }))
                       }
                       className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-500"
@@ -1169,7 +1195,7 @@ const EggCollectionComponent: React.FC = () => {
                         {calculateTotals().henDozens} dozen)
                       </div>
                       <div className="text-green-600">
-                        ${calculateTotals().henValue.toFixed(2)}
+                        {calculateTotals().henValue.toLocaleString()} MMK
                       </div>
                     </div>
                     <div>
@@ -1179,13 +1205,13 @@ const EggCollectionComponent: React.FC = () => {
                         {calculateTotals().duckDozens} dozen)
                       </div>
                       <div className="text-green-600">
-                        ${calculateTotals().duckValue.toFixed(2)}
+                        {calculateTotals().duckValue.toLocaleString()} MMK
                       </div>
                     </div>
                     <div>
                       <span className="text-gray-600">Total Value:</span>
                       <div className="text-lg font-bold text-green-600">
-                        ${calculateTotals().totalValue.toFixed(2)}
+                        {calculateTotals().totalValue.toLocaleString()} MMK
                       </div>
                     </div>
                   </div>

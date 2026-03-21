@@ -745,12 +745,12 @@ const EnhancedPOSInterface: React.FC<{ onDataChanged: () => void }> = ({
                       </div>
                       <div className="text-right text-sm">
                         <div className="text-gray-600">
-                          Credit: ${customer.creditLimit.toLocaleString()}
+                          Credit: {customer.creditLimit.toLocaleString()} MMK
                         </div>
                         <div
                           className={`${customer.creditBalance > 0 ? 'text-red-600' : 'text-green-600'}`}
                         >
-                          Balance: ${customer.creditBalance.toLocaleString()}
+                          Balance: {customer.creditBalance.toLocaleString()} MMK
                         </div>
                       </div>
                     </div>

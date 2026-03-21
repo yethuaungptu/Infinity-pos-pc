@@ -116,7 +116,7 @@ export class EggCollectionService {
       );
 
       console.log(
-        `Egg collection recorded: ${collection.id} - Value: $${totalValue.toFixed(2)}`,
+        `Egg collection recorded: ${collection.id} - Value: ${Math.round(totalValue).toLocaleString()} MMK`,
       );
       return collection;
     } catch (error: any) {
@@ -315,7 +315,7 @@ export class EggCollectionService {
 
       // Update route statistics (stored in route record or separate metrics table)
       console.log(
-        `Route ${route.name} performance - Collections: ${todaysCollections.length}, Value: $${totalValue}`,
+        `Route ${route.name} performance - Collections: ${todaysCollections.length}, Value: ${Math.round(totalValue).toLocaleString()} MMK`,
       );
     } catch (error) {
       console.error('Failed to update route metrics:', error);
@@ -804,7 +804,7 @@ export class EggCollectionService {
       }
 
       console.log(
-        `Batch payment processed: ${processed} collections, ${totalAmount.toFixed(2)}`,
+        `Batch payment processed: ${processed} collections, ${Math.round(totalAmount).toLocaleString()} MMK`,
       );
 
       return {

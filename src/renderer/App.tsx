@@ -568,7 +568,7 @@ const App: React.FC = () => {
                     Payments Due
                   </div>
                   <div className="text-yellow-700">
-                    ${dailyStats.vendorPaymentsDue.toLocaleString()}
+                    {Math.round(dailyStats.vendorPaymentsDue).toLocaleString()} MMK
                   </div>
                 </div>
               </div>

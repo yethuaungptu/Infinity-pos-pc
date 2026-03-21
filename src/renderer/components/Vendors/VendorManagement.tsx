@@ -482,7 +482,7 @@ const VendorManagement: React.FC<VendorManagementProps> = ({
                       On-time: {vendor.onTimePaymentRate}%
                     </div>
                     <div className="text-gray-500">
-                      Total: ${vendor.totalPurchases.toLocaleString()}
+                      Total: {vendor.totalPurchases.toLocaleString()} MMK
                     </div>
                     <div className="text-gray-500">
                       Last order:{' '}
@@ -882,12 +882,13 @@ const VendorManagement: React.FC<VendorManagementProps> = ({
                             Early Payment Discount Available!
                           </div>
                           <div className="text-green-600 text-sm">
-                            Save $
-                            {(
+                            Save{' '}
+                            {Math.round(
                               (paymentAmount *
                                 selectedVendorForPayment.earlyPaymentDiscount) /
-                              100
-                            ).toFixed(2)}
+                                100,
+                            ).toLocaleString()}{' '}
+                            MMK
                             ({selectedVendorForPayment.earlyPaymentDiscount}%)
                           </div>
                         </div>

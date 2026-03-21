@@ -233,7 +233,7 @@ export class POSService {
 
     if (saleAmount > availableCredit) {
       throw new Error(
-        `Credit limit exceeded. Available credit: $${availableCredit.toFixed(2)}, Sale amount: $${saleAmount.toFixed(2)}`,
+        `Credit limit exceeded. Available credit: ${Math.round(availableCredit).toLocaleString()} MMK, Sale amount: ${Math.round(saleAmount).toLocaleString()} MMK`,
       );
     }
 
@@ -395,7 +395,7 @@ export class POSService {
       await databaseService.update<Transaction>('transactions', transactionId, {
         status:
           refundAmount === originalTransaction.total ? 'refunded' : 'completed',
-        notes: `${originalTransaction.notes || ''}\nPartial refund processed: $${refundAmount}`,
+        notes: `${originalTransaction.notes || ''}\nPartial refund processed: ${Math.round(refundAmount).toLocaleString()} MMK`,
       });
 
       // Restore inventory
@@ -421,7 +421,7 @@ export class POSService {
       }
 
       console.log(
-        `Refund processed: $${refundAmount} for transaction ${originalTransaction.receiptNumber}`,
+        `Refund processed: ${Math.round(refundAmount).toLocaleString()} MMK for transaction ${originalTransaction.receiptNumber}`,
       );
       return refundTransaction;
     } catch (error: any) {

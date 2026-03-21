@@ -237,6 +237,10 @@ export interface EggCollection {
   // Quality notes
   qualityNotes?: string;
 
+  // Payment status
+  paid?: boolean;
+  paymentDate?: Date;
+
   synced: boolean;
 }
 
