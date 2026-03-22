@@ -10,7 +10,7 @@ import {
   PaymentMethod,
   StaffPosition,
   StaffDepartment,
-} from '../src/renderer/utils/constant';
+} from '../src/renderer/utils/constant.js';
 
 const prisma = new PrismaClient();
 

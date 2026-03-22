@@ -6,9 +6,9 @@ import path from 'path';
 import webpack from 'webpack';
 import { BundleAnalyzerPlugin } from 'webpack-bundle-analyzer';
 import { merge } from 'webpack-merge';
-import checkNodeEnv from '../scripts/check-node-env';
-import baseConfig from './webpack.config.base';
-import webpackPaths from './webpack.paths';
+import checkNodeEnv from '../scripts/check-node-env.js';
+import baseConfig from './webpack.config.base.js';
+import webpackPaths from './webpack.paths.js';
 
 // When an ESLint server is running, we can't set the NODE_ENV so we'll check if it's
 // at the dev webpack config is not accidentally run in a production environment
@@ -30,7 +30,7 @@ const configuration: webpack.Configuration = {
 
   output: {
     path: webpackPaths.dllPath,
-    filename: '[name].bundle.dev.js',
+    filename: '[name].bundle.dev.cjs',
     library: {
       type: 'umd',
     },

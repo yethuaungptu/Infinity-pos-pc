@@ -21,6 +21,7 @@
     "url": "git+https://github.com/electron-react-boilerplate/electron-react-boilerplate.git"
   },
   "license": "MIT",
+  "type": "module",
   "author": {
     "name": "Electron React Boilerplate Maintainers",
     "email": "electronreactboilerplate@gmail.com",
@@ -33,22 +34,27 @@
       "url": "https://github.com/amilajack"
     }
   ],
-  "main": "./.erb/dll/main.bundle.dev.js",
+  "main": "./.erb/dll/main.bundle.dev.cjs",
   "scripts": {
     "build": "concurrently \"npm run build:main\" \"npm run build:renderer\"",
-    "build:dll": "cross-env NODE_ENV=development TS_NODE_TRANSPILE_ONLY=true NODE_OPTIONS=\"-r ts-node/register --no-warnings\" webpack --config ./.erb/configs/webpack.config.renderer.dev.dll.ts",
-    "build:main": "cross-env NODE_ENV=production TS_NODE_TRANSPILE_ONLY=true NODE_OPTIONS=\"-r ts-node/register --no-warnings\" webpack --config ./.erb/configs/webpack.config.main.prod.ts",
-    "build:renderer": "cross-env NODE_ENV=production TS_NODE_TRANSPILE_ONLY=true NODE_OPTIONS=\"-r ts-node/register --no-warnings\" webpack --config ./.erb/configs/webpack.config.renderer.prod.ts",
+    "build:dll": "cross-env NODE_ENV=development TS_NODE_TRANSPILE_ONLY=true NODE_OPTIONS=\"--loader ts-node/esm --no-warnings\" webpack --config ./.erb/configs/webpack.config.renderer.dev.dll.ts",
+    "build:main": "cross-env NODE_ENV=production TS_NODE_TRANSPILE_ONLY=true NODE_OPTIONS=\"--loader ts-node/esm --no-warnings\" webpack --config ./.erb/configs/webpack.config.main.prod.ts",
+    "build:renderer": "cross-env NODE_ENV=production TS_NODE_TRANSPILE_ONLY=true NODE_OPTIONS=\"--loader ts-node/esm --no-warnings\" webpack --config ./.erb/configs/webpack.config.renderer.prod.ts",
     "postinstall": "ts-node .erb/scripts/check-native-dep.js && electron-builder install-app-deps && npm run build:dll",
     "lint": "cross-env NODE_ENV=development eslint . --ext .js,.jsx,.ts,.tsx",
     "lint:fix": "cross-env NODE_ENV=development eslint . --ext .js,.jsx,.ts,.tsx --fix",
     "package": "ts-node ./.erb/scripts/clean.js dist && npm run build && electron-builder build --publish never && npm run build:dll",
     "rebuild": "electron-rebuild --parallel --types prod,dev,optional --module-dir release/app",
-    "prestart": "cross-env NODE_ENV=development TS_NODE_TRANSPILE_ONLY=true NODE_OPTIONS=\"-r ts-node/register --no-warnings\" webpack --config ./.erb/configs/webpack.config.main.dev.ts",
+    "prestart": "cross-env NODE_ENV=development TS_NODE_TRANSPILE_ONLY=true NODE_OPTIONS=\"--loader ts-node/esm --no-warnings\" webpack --config ./.erb/configs/webpack.config.main.dev.ts",
     "start": "ts-node ./.erb/scripts/check-port-in-use.js && npm run prestart && npm run start:renderer",
-    "start:main": "concurrently -k -P \"cross-env NODE_ENV=development TS_NODE_TRANSPILE_ONLY=true webpack --watch --config ./.erb/configs/webpack.config.main.dev.ts\" \"electronmon . -- {@}\" --",
-    "start:preload": "cross-env NODE_ENV=development TS_NODE_TRANSPILE_ONLY=true NODE_OPTIONS=\"-r ts-node/register --no-warnings\" webpack --config ./.erb/configs/webpack.config.preload.dev.ts",
-    "start:renderer": "cross-env NODE_ENV=development TS_NODE_TRANSPILE_ONLY=true NODE_OPTIONS=\"-r ts-node/register --no-warnings\" webpack serve --config ./.erb/configs/webpack.config.renderer.dev.ts",
+    "start:main": "concurrently -k -P \"cross-env NODE_ENV=development TS_NODE_TRANSPILE_ONLY=true webpack --watch --config ./.erb/configs/webpack.config.main.dev.ts\" \"cross-env NODE_OPTIONS= electronmon . -- {@}\" --",
+    "start:preload": "cross-env NODE_ENV=development TS_NODE_TRANSPILE_ONLY=true NODE_OPTIONS=\"--loader ts-node/esm --no-warnings\" webpack --config ./.erb/configs/webpack.config.preload.dev.ts",
+    "start:renderer": "cross-env NODE_ENV=development TS_NODE_TRANSPILE_ONLY=true NODE_OPTIONS=\"--loader ts-node/esm --no-warnings\" webpack serve --config ./.erb/configs/webpack.config.renderer.dev.ts",
+    "migrate:local": "prisma migrate dev --config prisma.config.ts",
+    "migrate:cloud": "prisma migrate dev --config prisma.config.cloud.ts",
+    "deploy:cloud": "prisma migrate deploy --config prisma.config.cloud.ts",
+    "generate:local": "prisma generate --schema prisma/schema.prisma",
+    "generate:cloud": "prisma generate --schema prisma/schema.cloud.prisma",
     "test": "jest"
   },
   "browserslist": [
@@ -104,15 +110,17 @@
     "@electron/notarize": "^3.0.0",
     "@headlessui/react": "^2.2.8",
     "@heroicons/react": "^2.2.0",
-    "@prisma/client": "^6.16.2",
+    "@prisma/client": "^7.5.0",
     "@tailwindcss/forms": "^0.5.10",
     "@tailwindcss/typography": "^0.5.18",
     "@tanstack/react-query": "^5.90.2",
     "@tanstack/react-query-devtools": "^5.90.2",
     "@types/pg": "^8.15.5",
     "axios": "^1.12.2",
+    "baseline-browser-mapping": "^2.10.10",
     "bcryptjs": "^3.0.2",
     "better-sqlite3": "^12.4.1",
+    "caniuse-lite": "^1.0.30001781",
     "date-fns": "^4.1.0",
     "dexie": "^4.2.0",
     "electron-debug": "^4.1.0",
@@ -130,7 +138,7 @@
     "papaparse": "^5.5.3",
     "path": "^0.12.7",
     "pg": "^8.16.3",
-    "prisma": "^6.16.2",
+    "prisma": "^7.5.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-router-dom": "^7.3.0",
@@ -283,7 +291,7 @@
   "devEngines": {
     "runtime": {
       "name": "node",
-      "version": ">=14.x",
+      "version": ">=20.19",
       "onFail": "error"
     },
     "packageManager": {
@@ -299,8 +307,5 @@
       ".erb/dll/**"
     ],
     "logLevel": "quiet"
-  },
-  "prisma": {
-    "seed": "tsx prisma/seed.ts"
   }
 }

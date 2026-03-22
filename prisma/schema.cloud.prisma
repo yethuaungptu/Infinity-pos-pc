@@ -3,18 +3,12 @@
 
 generator client {
   provider = "prisma-client"
-  output   = "../src/generated/prisma"
+  output   = "../src/generated/prisma-cloud"
 }
 
 // Main database - PostgreSQL for production
-// datasource db {
-//   provider = "postgresql"
-//   url      = env("DATABASE_URL")
-// }
-
-// Local database - SQLite for offline mode
-datasource localdb {
-  provider = "sqlite"
+datasource db {
+  provider = "postgresql"
 }
 
 // ===== CORE BUSINESS MODELS =====

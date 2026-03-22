@@ -7,9 +7,9 @@ import webpack from 'webpack';
 import { merge } from 'webpack-merge';
 import TerserPlugin from 'terser-webpack-plugin';
 import { BundleAnalyzerPlugin } from 'webpack-bundle-analyzer';
-import baseConfig from './webpack.config.base';
-import webpackPaths from './webpack.paths';
-import checkNodeEnv from '../scripts/check-node-env';
+import baseConfig from './webpack.config.base.js';
+import webpackPaths from './webpack.paths.js';
+import checkNodeEnv from '../scripts/check-node-env.js';
 import deleteSourceMaps from '../scripts/delete-source-maps';
 
 checkNodeEnv('production');
@@ -29,7 +29,7 @@ const configuration: webpack.Configuration = {
 
   output: {
     path: webpackPaths.distMainPath,
-    filename: '[name].js',
+    filename: '[name].cjs',
     library: {
       type: 'umd',
     },
