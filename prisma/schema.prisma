@@ -139,6 +139,7 @@ model Customer {
   henEggsDailyProduction  Int                @default(0)
   duckEggsDailyProduction Int                @default(0)
   collectionSchedule      CollectionSchedule @default(DAILY)
+  farmerPayableBalance    Float              @default(0)
 
   // Regular customer fields
   isRetail      Boolean @default(false)

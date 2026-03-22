@@ -19,6 +19,7 @@ import { IndexService } from './services/indexService';
 import { PaymentRecordService } from './services/paymentService';
 import { PurchaseService } from './services/purchaseService';
 import { EggCollectionService } from './services/eggCollectionService';
+import { FinancialService } from './services/financialService';
 
 class AppUpdater {
   constructor() {
@@ -187,8 +188,8 @@ ipcMain.handle('db:updateEggCollection', async (event, data) => {
   return EggCollectionService.updateEggCollection(data);
 });
 
-ipcMain.handle('db:markEggCollectionPaid', async (event, id) => {
-  return EggCollectionService.markCollectionPaid(id);
+ipcMain.handle('db:markEggCollectionPaid', async (event, data) => {
+  return EggCollectionService.markCollectionPaid(data.id, data.staffId);
 });
 
 ipcMain.handle('db:createCollectionRoute', async (event, data) => {
@@ -201,6 +202,10 @@ ipcMain.handle('db:updateCollectionRoute', async (event, data) => {
 
 ipcMain.handle('db:deleteCollectionRoute', async (event, id) => {
   return EggCollectionService.deleteCollectionRoute(id);
+});
+
+ipcMain.handle('db:getFinancialDashboardData', async (event, data) => {
+  return FinancialService.getFinancialDashboardData(data.period, data.date);
 });
 
 // ---------------------------

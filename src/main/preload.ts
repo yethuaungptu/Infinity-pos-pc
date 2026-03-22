@@ -102,14 +102,16 @@ contextBridge.exposeInMainWorld('api', {
     ipcRenderer.invoke('db:createEggCollection', data),
   updateEggCollection: (data: any) =>
     ipcRenderer.invoke('db:updateEggCollection', data),
-  markEggCollectionPaid: (id: string) =>
-    ipcRenderer.invoke('db:markEggCollectionPaid', id),
+  markEggCollectionPaid: (data: { id: string; staffId: string }) =>
+    ipcRenderer.invoke('db:markEggCollectionPaid', data),
   createCollectionRoute: (data: any) =>
     ipcRenderer.invoke('db:createCollectionRoute', data),
   updateCollectionRoute: (data: any) =>
     ipcRenderer.invoke('db:updateCollectionRoute', data),
   deleteCollectionRoute: (id: string) =>
     ipcRenderer.invoke('db:deleteCollectionRoute', id),
+  getFinancialDashboardData: (data: { period: string; date: string }) =>
+    ipcRenderer.invoke('db:getFinancialDashboardData', data),
 });
 
 export type ElectronHandler = typeof electronHandler;

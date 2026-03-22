@@ -178,6 +178,7 @@ exports.Prisma.CustomerScalarFieldEnum = {
   henEggsDailyProduction: 'henEggsDailyProduction',
   duckEggsDailyProduction: 'duckEggsDailyProduction',
   collectionSchedule: 'collectionSchedule',
+  farmerPayableBalance: 'farmerPayableBalance',
   isRetail: 'isRetail',
   loyaltyPoints: 'loyaltyPoints',
   totalPurchases: 'totalPurchases',

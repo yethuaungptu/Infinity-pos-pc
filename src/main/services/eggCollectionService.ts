@@ -289,7 +289,6 @@ export class EggCollectionServiceClass {
     );
     if (farmer) {
       await databaseService.update('customer', request.farmerId, {
-        creditBalance: (farmer as any).creditBalance - totalValue,
         totalEggSales: ((farmer as any).totalEggSales || 0) + totalValue,
       });
 
@@ -357,11 +356,72 @@ export class EggCollectionServiceClass {
     return mapDbToEggCollection(record);
   }
 
-  async markCollectionPaid(id: string): Promise<EggCollection> {
+  async markCollectionPaid(
+    id: string,
+    staffId: string,
+  ): Promise<EggCollection> {
+    const collection = await databaseService.findById('eggCollection', id);
+    if (!collection) {
+      throw new Error('Egg collection not found');
+    }
+
+    const farmer = await databaseService.findById(
+      'customer',
+      (collection as any).farmerId,
+    );
+    if (!farmer) {
+      throw new Error('Farmer not found');
+    }
+
+    const totalValue = Math.round((collection as any).totalValue || 0);
+
     const record = await databaseService.update('eggCollection', id, {
       paid: true,
       paymentDate: new Date(),
     });
+
+    const currentCredit = Math.round((farmer as any).creditBalance || 0);
+    const currentPayable = Math.round(
+      (farmer as any).farmerPayableBalance || 0,
+    );
+    const nextCredit = currentCredit - totalValue;
+
+    await databaseService.update('customer', (collection as any).farmerId, {
+      creditBalance: nextCredit >= 0 ? nextCredit : 0,
+      farmerPayableBalance:
+        nextCredit >= 0 ? currentPayable : currentPayable + Math.abs(nextCredit),
+    });
+
+    const transaction = await databaseService.create('transaction', {
+      receiptNumber: `EGG-${Date.now()}`,
+      type: 'EGG_COLLECTION',
+      customerId: (collection as any).farmerId,
+      subtotal: totalValue,
+      tax: 0,
+      discount: 0,
+      total: totalValue,
+      paymentMethod: 'CASH',
+      paidAmount: totalValue,
+      balanceAmount: 0,
+      status: 'COMPLETED',
+      staffId,
+      timestamp: new Date(),
+      notes: `Egg collection payment for ${id}`,
+      synced: false,
+    });
+
+    await databaseService.create('paymentRecord', {
+      type: 'EGG_PAYMENT',
+      amount: totalValue,
+      customerId: (collection as any).farmerId,
+      transactionId: (transaction as any).id,
+      paymentMethod: 'CASH',
+      paymentDate: new Date(),
+      processedBy: staffId,
+      notes: `Egg collection payment for ${id}`,
+      synced: false,
+    });
+
     return mapDbToEggCollection(record);
   }
 

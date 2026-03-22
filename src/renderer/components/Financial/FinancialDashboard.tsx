@@ -54,85 +54,44 @@ const FinancialDashboard: React.FC = () => {
     null,
   );
   const [loading, setLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-  // Mock data - replace with actual API calls
   useEffect(() => {
-    const generateMockData = () => {
+    let isMounted = true;
+    const loadData = async () => {
       setLoading(true);
-
-      // Calculate date range
-      const endDate = new Date(selectedDate);
-      const startDate = new Date(selectedDate);
-
-      if (selectedPeriod === 'weekly') {
-        startDate.setDate(endDate.getDate() - 6);
-      } else {
-        startDate.setDate(1);
-        endDate.setMonth(endDate.getMonth() + 1, 0);
+      setErrorMessage(null);
+      try {
+        const response = await window.api.getFinancialDashboardData({
+          period: selectedPeriod,
+          date: selectedDate.toISOString(),
+        });
+        if (!isMounted) return;
+        setFinancialData({
+          ...response.summary,
+          startDate: new Date(response.summary.startDate),
+          endDate: new Date(response.summary.endDate),
+        });
+        setCashFlowData({
+          ...response.cashFlow,
+          startDate: new Date(response.cashFlow.startDate),
+          endDate: new Date(response.cashFlow.endDate),
+        });
+      } catch (error) {
+        console.error('Failed to load financial dashboard:', error);
+        if (isMounted) {
+          setErrorMessage('Failed to load financial dashboard data.');
+        }
+      } finally {
+        if (isMounted) setLoading(false);
       }
-
-      const mockData: FinancialSummary = {
-        period: selectedPeriod,
-        startDate,
-        endDate,
-        revenue: {
-          farmerSales: selectedPeriod === 'weekly' ? 25000 : 95000,
-          regularSales: selectedPeriod === 'weekly' ? 8000 : 28000,
-          eggSales: selectedPeriod === 'weekly' ? 6000 : 22000,
-          total: selectedPeriod === 'weekly' ? 39000 : 145000,
-        },
-        costs: {
-          feedPurchases: selectedPeriod === 'weekly' ? 18000 : 68000,
-          medicinePurchases: selectedPeriod === 'weekly' ? 5000 : 18000,
-          eggPurchases: selectedPeriod === 'weekly' ? 4000 : 14000,
-          salaries: selectedPeriod === 'weekly' ? 3000 : 12000,
-          operating: selectedPeriod === 'weekly' ? 2000 : 8000,
-          total: selectedPeriod === 'weekly' ? 32000 : 120000,
-        },
-        profit: {
-          gross: selectedPeriod === 'weekly' ? 17000 : 65000,
-          net: selectedPeriod === 'weekly' ? 7000 : 25000,
-          margin: selectedPeriod === 'weekly' ? 17.9 : 17.2,
-        },
-        comparison: {
-          revenueChange: selectedPeriod === 'weekly' ? 8.5 : 12.3,
-          profitChange: selectedPeriod === 'weekly' ? 15.2 : 18.7,
-        },
-      };
-
-      const mockCashFlow: CashFlowForecast = {
-        period: selectedPeriod === 'weekly' ? 'week' : 'month',
-        startDate: new Date(),
-        endDate: new Date(
-          Date.now() +
-            (selectedPeriod === 'weekly' ? 7 : 30) * 24 * 60 * 60 * 1000,
-        ),
-        expectedInflows: {
-          customerPayments: selectedPeriod === 'weekly' ? 35000 : 125000,
-          eggSales: selectedPeriod === 'weekly' ? 6500 : 24000,
-          cashSales: selectedPeriod === 'weekly' ? 12000 : 45000,
-          total: selectedPeriod === 'weekly' ? 53500 : 194000,
-        },
-        expectedOutflows: {
-          vendorPayments: selectedPeriod === 'weekly' ? 45000 : 165000,
-          eggPurchases: selectedPeriod === 'weekly' ? 4200 : 15000,
-          salaries: selectedPeriod === 'weekly' ? 3000 : 12000,
-          operatingExpenses: selectedPeriod === 'weekly' ? 2500 : 9000,
-          total: selectedPeriod === 'weekly' ? 54700 : 201000,
-        },
-        netCashFlow: selectedPeriod === 'weekly' ? -1200 : -7000,
-        openingBalance: 25000,
-        closingBalance: selectedPeriod === 'weekly' ? 23800 : 18000,
-      };
-
-      setTimeout(() => {
-        setFinancialData(mockData);
-        setCashFlowData(mockCashFlow);
-        setLoading(false);
-      }, 500);
     };
 
-    generateMockData();
+    loadData();
+
+    return () => {
+      isMounted = false;
+    };
   }, [selectedPeriod, selectedDate]);
 
   const exportReport = () => {
@@ -157,6 +116,19 @@ const FinancialDashboard: React.FC = () => {
     a.click();
     URL.revokeObjectURL(url);
   };
+
+  if (errorMessage && !loading) {
+    return (
+      <div className="p-6 bg-gray-50 min-h-screen">
+        <div className="max-w-xl mx-auto bg-white rounded-lg shadow p-6">
+          <h2 className="text-lg font-semibold text-gray-900 mb-2">
+            Financial Dashboard
+          </h2>
+          <p className="text-red-600">{errorMessage}</p>
+        </div>
+      </div>
+    );
+  }
 
   if (loading || !financialData || !cashFlowData) {
     return (
@@ -192,6 +164,12 @@ const FinancialDashboard: React.FC = () => {
             </button>
           </div>
         </div>
+
+        {errorMessage && (
+          <div className="mb-4 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+            {errorMessage}
+          </div>
+        )}
 
         {/* Period and Date Selection */}
         <div className="flex items-center space-x-4 mb-6">

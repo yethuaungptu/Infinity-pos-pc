@@ -5462,6 +5462,7 @@ export namespace Prisma {
     farmSize: number | null
     henEggsDailyProduction: number | null
     duckEggsDailyProduction: number | null
+    farmerPayableBalance: number | null
     loyaltyPoints: number | null
     totalPurchases: number | null
     totalEggSales: number | null
@@ -5474,6 +5475,7 @@ export namespace Prisma {
     farmSize: number | null
     henEggsDailyProduction: number | null
     duckEggsDailyProduction: number | null
+    farmerPayableBalance: number | null
     loyaltyPoints: number | null
     totalPurchases: number | null
     totalEggSales: number | null
@@ -5495,6 +5497,7 @@ export namespace Prisma {
     henEggsDailyProduction: number | null
     duckEggsDailyProduction: number | null
     collectionSchedule: $Enums.CollectionSchedule | null
+    farmerPayableBalance: number | null
     isRetail: boolean | null
     loyaltyPoints: number | null
     totalPurchases: number | null
@@ -5522,6 +5525,7 @@ export namespace Prisma {
     henEggsDailyProduction: number | null
     duckEggsDailyProduction: number | null
     collectionSchedule: $Enums.CollectionSchedule | null
+    farmerPayableBalance: number | null
     isRetail: boolean | null
     loyaltyPoints: number | null
     totalPurchases: number | null
@@ -5550,6 +5554,7 @@ export namespace Prisma {
     henEggsDailyProduction: number
     duckEggsDailyProduction: number
     collectionSchedule: number
+    farmerPayableBalance: number
     isRetail: number
     loyaltyPoints: number
     totalPurchases: number
@@ -5570,6 +5575,7 @@ export namespace Prisma {
     farmSize?: true
     henEggsDailyProduction?: true
     duckEggsDailyProduction?: true
+    farmerPayableBalance?: true
     loyaltyPoints?: true
     totalPurchases?: true
     totalEggSales?: true
@@ -5582,6 +5588,7 @@ export namespace Prisma {
     farmSize?: true
     henEggsDailyProduction?: true
     duckEggsDailyProduction?: true
+    farmerPayableBalance?: true
     loyaltyPoints?: true
     totalPurchases?: true
     totalEggSales?: true
@@ -5603,6 +5610,7 @@ export namespace Prisma {
     henEggsDailyProduction?: true
     duckEggsDailyProduction?: true
     collectionSchedule?: true
+    farmerPayableBalance?: true
     isRetail?: true
     loyaltyPoints?: true
     totalPurchases?: true
@@ -5630,6 +5638,7 @@ export namespace Prisma {
     henEggsDailyProduction?: true
     duckEggsDailyProduction?: true
     collectionSchedule?: true
+    farmerPayableBalance?: true
     isRetail?: true
     loyaltyPoints?: true
     totalPurchases?: true
@@ -5658,6 +5667,7 @@ export namespace Prisma {
     henEggsDailyProduction?: true
     duckEggsDailyProduction?: true
     collectionSchedule?: true
+    farmerPayableBalance?: true
     isRetail?: true
     loyaltyPoints?: true
     totalPurchases?: true
@@ -5773,6 +5783,7 @@ export namespace Prisma {
     henEggsDailyProduction: number
     duckEggsDailyProduction: number
     collectionSchedule: $Enums.CollectionSchedule
+    farmerPayableBalance: number
     isRetail: boolean
     loyaltyPoints: number
     totalPurchases: number
@@ -5820,6 +5831,7 @@ export namespace Prisma {
     henEggsDailyProduction?: boolean
     duckEggsDailyProduction?: boolean
     collectionSchedule?: boolean
+    farmerPayableBalance?: boolean
     isRetail?: boolean
     loyaltyPoints?: boolean
     totalPurchases?: boolean
@@ -5853,6 +5865,7 @@ export namespace Prisma {
     henEggsDailyProduction?: boolean
     duckEggsDailyProduction?: boolean
     collectionSchedule?: boolean
+    farmerPayableBalance?: boolean
     isRetail?: boolean
     loyaltyPoints?: boolean
     totalPurchases?: boolean
@@ -5881,6 +5894,7 @@ export namespace Prisma {
     henEggsDailyProduction?: boolean
     duckEggsDailyProduction?: boolean
     collectionSchedule?: boolean
+    farmerPayableBalance?: boolean
     isRetail?: boolean
     loyaltyPoints?: boolean
     totalPurchases?: boolean
@@ -5909,6 +5923,7 @@ export namespace Prisma {
     henEggsDailyProduction?: boolean
     duckEggsDailyProduction?: boolean
     collectionSchedule?: boolean
+    farmerPayableBalance?: boolean
     isRetail?: boolean
     loyaltyPoints?: boolean
     totalPurchases?: boolean
@@ -5920,7 +5935,7 @@ export namespace Prisma {
     updatedAt?: boolean
   }
 
-  export type CustomerOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "type" | "businessName" | "contactPerson" | "email" | "phone" | "address" | "creditLimit" | "creditBalance" | "paymentTerms" | "creditStatus" | "farmSize" | "animalTypes" | "henEggsDailyProduction" | "duckEggsDailyProduction" | "collectionSchedule" | "isRetail" | "loyaltyPoints" | "totalPurchases" | "totalEggSales" | "lastPurchase" | "lastEggCollection" | "active" | "createdAt" | "updatedAt", ExtArgs["result"]["customer"]>
+  export type CustomerOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "type" | "businessName" | "contactPerson" | "email" | "phone" | "address" | "creditLimit" | "creditBalance" | "paymentTerms" | "creditStatus" | "farmSize" | "animalTypes" | "henEggsDailyProduction" | "duckEggsDailyProduction" | "collectionSchedule" | "farmerPayableBalance" | "isRetail" | "loyaltyPoints" | "totalPurchases" | "totalEggSales" | "lastPurchase" | "lastEggCollection" | "active" | "createdAt" | "updatedAt", ExtArgs["result"]["customer"]>
   export type CustomerInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     transactions?: boolean | Customer$transactionsArgs<ExtArgs>
     eggCollections?: boolean | Customer$eggCollectionsArgs<ExtArgs>
@@ -5956,6 +5971,7 @@ export namespace Prisma {
       henEggsDailyProduction: number
       duckEggsDailyProduction: number
       collectionSchedule: $Enums.CollectionSchedule
+      farmerPayableBalance: number
       isRetail: boolean
       loyaltyPoints: number
       totalPurchases: number
@@ -6408,6 +6424,7 @@ export namespace Prisma {
     readonly henEggsDailyProduction: FieldRef<"Customer", 'Int'>
     readonly duckEggsDailyProduction: FieldRef<"Customer", 'Int'>
     readonly collectionSchedule: FieldRef<"Customer", 'CollectionSchedule'>
+    readonly farmerPayableBalance: FieldRef<"Customer", 'Float'>
     readonly isRetail: FieldRef<"Customer", 'Boolean'>
     readonly loyaltyPoints: FieldRef<"Customer", 'Int'>
     readonly totalPurchases: FieldRef<"Customer", 'Int'>
@@ -23345,6 +23362,7 @@ export namespace Prisma {
     henEggsDailyProduction: 'henEggsDailyProduction',
     duckEggsDailyProduction: 'duckEggsDailyProduction',
     collectionSchedule: 'collectionSchedule',
+    farmerPayableBalance: 'farmerPayableBalance',
     isRetail: 'isRetail',
     loyaltyPoints: 'loyaltyPoints',
     totalPurchases: 'totalPurchases',
@@ -24154,6 +24172,7 @@ export namespace Prisma {
     henEggsDailyProduction?: IntFilter<"Customer"> | number
     duckEggsDailyProduction?: IntFilter<"Customer"> | number
     collectionSchedule?: EnumCollectionScheduleFilter<"Customer"> | $Enums.CollectionSchedule
+    farmerPayableBalance?: FloatFilter<"Customer"> | number
     isRetail?: BoolFilter<"Customer"> | boolean
     loyaltyPoints?: IntFilter<"Customer"> | number
     totalPurchases?: IntFilter<"Customer"> | number
@@ -24186,6 +24205,7 @@ export namespace Prisma {
     henEggsDailyProduction?: SortOrder
     duckEggsDailyProduction?: SortOrder
     collectionSchedule?: SortOrder
+    farmerPayableBalance?: SortOrder
     isRetail?: SortOrder
     loyaltyPoints?: SortOrder
     totalPurchases?: SortOrder
@@ -24221,6 +24241,7 @@ export namespace Prisma {
     henEggsDailyProduction?: IntFilter<"Customer"> | number
     duckEggsDailyProduction?: IntFilter<"Customer"> | number
     collectionSchedule?: EnumCollectionScheduleFilter<"Customer"> | $Enums.CollectionSchedule
+    farmerPayableBalance?: FloatFilter<"Customer"> | number
     isRetail?: BoolFilter<"Customer"> | boolean
     loyaltyPoints?: IntFilter<"Customer"> | number
     totalPurchases?: IntFilter<"Customer"> | number
@@ -24253,6 +24274,7 @@ export namespace Prisma {
     henEggsDailyProduction?: SortOrder
     duckEggsDailyProduction?: SortOrder
     collectionSchedule?: SortOrder
+    farmerPayableBalance?: SortOrder
     isRetail?: SortOrder
     loyaltyPoints?: SortOrder
     totalPurchases?: SortOrder
@@ -24289,6 +24311,7 @@ export namespace Prisma {
     henEggsDailyProduction?: IntWithAggregatesFilter<"Customer"> | number
     duckEggsDailyProduction?: IntWithAggregatesFilter<"Customer"> | number
     collectionSchedule?: EnumCollectionScheduleWithAggregatesFilter<"Customer"> | $Enums.CollectionSchedule
+    farmerPayableBalance?: FloatWithAggregatesFilter<"Customer"> | number
     isRetail?: BoolWithAggregatesFilter<"Customer"> | boolean
     loyaltyPoints?: IntWithAggregatesFilter<"Customer"> | number
     totalPurchases?: IntWithAggregatesFilter<"Customer"> | number
@@ -26153,6 +26176,7 @@ export namespace Prisma {
     henEggsDailyProduction?: number
     duckEggsDailyProduction?: number
     collectionSchedule?: $Enums.CollectionSchedule
+    farmerPayableBalance?: number
     isRetail?: boolean
     loyaltyPoints?: number
     totalPurchases?: number
@@ -26185,6 +26209,7 @@ export namespace Prisma {
     henEggsDailyProduction?: number
     duckEggsDailyProduction?: number
     collectionSchedule?: $Enums.CollectionSchedule
+    farmerPayableBalance?: number
     isRetail?: boolean
     loyaltyPoints?: number
     totalPurchases?: number
@@ -26217,6 +26242,7 @@ export namespace Prisma {
     henEggsDailyProduction?: IntFieldUpdateOperationsInput | number
     duckEggsDailyProduction?: IntFieldUpdateOperationsInput | number
     collectionSchedule?: EnumCollectionScheduleFieldUpdateOperationsInput | $Enums.CollectionSchedule
+    farmerPayableBalance?: FloatFieldUpdateOperationsInput | number
     isRetail?: BoolFieldUpdateOperationsInput | boolean
     loyaltyPoints?: IntFieldUpdateOperationsInput | number
     totalPurchases?: IntFieldUpdateOperationsInput | number
@@ -26249,6 +26275,7 @@ export namespace Prisma {
     henEggsDailyProduction?: IntFieldUpdateOperationsInput | number
     duckEggsDailyProduction?: IntFieldUpdateOperationsInput | number
     collectionSchedule?: EnumCollectionScheduleFieldUpdateOperationsInput | $Enums.CollectionSchedule
+    farmerPayableBalance?: FloatFieldUpdateOperationsInput | number
     isRetail?: BoolFieldUpdateOperationsInput | boolean
     loyaltyPoints?: IntFieldUpdateOperationsInput | number
     totalPurchases?: IntFieldUpdateOperationsInput | number
@@ -26281,6 +26308,7 @@ export namespace Prisma {
     henEggsDailyProduction?: number
     duckEggsDailyProduction?: number
     collectionSchedule?: $Enums.CollectionSchedule
+    farmerPayableBalance?: number
     isRetail?: boolean
     loyaltyPoints?: number
     totalPurchases?: number
@@ -26309,6 +26337,7 @@ export namespace Prisma {
     henEggsDailyProduction?: IntFieldUpdateOperationsInput | number
     duckEggsDailyProduction?: IntFieldUpdateOperationsInput | number
     collectionSchedule?: EnumCollectionScheduleFieldUpdateOperationsInput | $Enums.CollectionSchedule
+    farmerPayableBalance?: FloatFieldUpdateOperationsInput | number
     isRetail?: BoolFieldUpdateOperationsInput | boolean
     loyaltyPoints?: IntFieldUpdateOperationsInput | number
     totalPurchases?: IntFieldUpdateOperationsInput | number
@@ -26337,6 +26366,7 @@ export namespace Prisma {
     henEggsDailyProduction?: IntFieldUpdateOperationsInput | number
     duckEggsDailyProduction?: IntFieldUpdateOperationsInput | number
     collectionSchedule?: EnumCollectionScheduleFieldUpdateOperationsInput | $Enums.CollectionSchedule
+    farmerPayableBalance?: FloatFieldUpdateOperationsInput | number
     isRetail?: BoolFieldUpdateOperationsInput | boolean
     loyaltyPoints?: IntFieldUpdateOperationsInput | number
     totalPurchases?: IntFieldUpdateOperationsInput | number
@@ -28692,6 +28722,7 @@ export namespace Prisma {
     henEggsDailyProduction?: SortOrder
     duckEggsDailyProduction?: SortOrder
     collectionSchedule?: SortOrder
+    farmerPayableBalance?: SortOrder
     isRetail?: SortOrder
     loyaltyPoints?: SortOrder
     totalPurchases?: SortOrder
@@ -28710,6 +28741,7 @@ export namespace Prisma {
     farmSize?: SortOrder
     henEggsDailyProduction?: SortOrder
     duckEggsDailyProduction?: SortOrder
+    farmerPayableBalance?: SortOrder
     loyaltyPoints?: SortOrder
     totalPurchases?: SortOrder
     totalEggSales?: SortOrder
@@ -28731,6 +28763,7 @@ export namespace Prisma {
     henEggsDailyProduction?: SortOrder
     duckEggsDailyProduction?: SortOrder
     collectionSchedule?: SortOrder
+    farmerPayableBalance?: SortOrder
     isRetail?: SortOrder
     loyaltyPoints?: SortOrder
     totalPurchases?: SortOrder
@@ -28758,6 +28791,7 @@ export namespace Prisma {
     henEggsDailyProduction?: SortOrder
     duckEggsDailyProduction?: SortOrder
     collectionSchedule?: SortOrder
+    farmerPayableBalance?: SortOrder
     isRetail?: SortOrder
     loyaltyPoints?: SortOrder
     totalPurchases?: SortOrder
@@ -28776,6 +28810,7 @@ export namespace Prisma {
     farmSize?: SortOrder
     henEggsDailyProduction?: SortOrder
     duckEggsDailyProduction?: SortOrder
+    farmerPayableBalance?: SortOrder
     loyaltyPoints?: SortOrder
     totalPurchases?: SortOrder
     totalEggSales?: SortOrder
@@ -33163,6 +33198,7 @@ export namespace Prisma {
     henEggsDailyProduction?: number
     duckEggsDailyProduction?: number
     collectionSchedule?: $Enums.CollectionSchedule
+    farmerPayableBalance?: number
     isRetail?: boolean
     loyaltyPoints?: number
     totalPurchases?: number
@@ -33194,6 +33230,7 @@ export namespace Prisma {
     henEggsDailyProduction?: number
     duckEggsDailyProduction?: number
     collectionSchedule?: $Enums.CollectionSchedule
+    farmerPayableBalance?: number
     isRetail?: boolean
     loyaltyPoints?: number
     totalPurchases?: number
@@ -33443,6 +33480,7 @@ export namespace Prisma {
     henEggsDailyProduction?: IntFieldUpdateOperationsInput | number
     duckEggsDailyProduction?: IntFieldUpdateOperationsInput | number
     collectionSchedule?: EnumCollectionScheduleFieldUpdateOperationsInput | $Enums.CollectionSchedule
+    farmerPayableBalance?: FloatFieldUpdateOperationsInput | number
     isRetail?: BoolFieldUpdateOperationsInput | boolean
     loyaltyPoints?: IntFieldUpdateOperationsInput | number
     totalPurchases?: IntFieldUpdateOperationsInput | number
@@ -33474,6 +33512,7 @@ export namespace Prisma {
     henEggsDailyProduction?: IntFieldUpdateOperationsInput | number
     duckEggsDailyProduction?: IntFieldUpdateOperationsInput | number
     collectionSchedule?: EnumCollectionScheduleFieldUpdateOperationsInput | $Enums.CollectionSchedule
+    farmerPayableBalance?: FloatFieldUpdateOperationsInput | number
     isRetail?: BoolFieldUpdateOperationsInput | boolean
     loyaltyPoints?: IntFieldUpdateOperationsInput | number
     totalPurchases?: IntFieldUpdateOperationsInput | number
@@ -33929,6 +33968,7 @@ export namespace Prisma {
     henEggsDailyProduction?: number
     duckEggsDailyProduction?: number
     collectionSchedule?: $Enums.CollectionSchedule
+    farmerPayableBalance?: number
     isRetail?: boolean
     loyaltyPoints?: number
     totalPurchases?: number
@@ -33960,6 +34000,7 @@ export namespace Prisma {
     henEggsDailyProduction?: number
     duckEggsDailyProduction?: number
     collectionSchedule?: $Enums.CollectionSchedule
+    farmerPayableBalance?: number
     isRetail?: boolean
     loyaltyPoints?: number
     totalPurchases?: number
@@ -34105,6 +34146,7 @@ export namespace Prisma {
     henEggsDailyProduction?: IntFieldUpdateOperationsInput | number
     duckEggsDailyProduction?: IntFieldUpdateOperationsInput | number
     collectionSchedule?: EnumCollectionScheduleFieldUpdateOperationsInput | $Enums.CollectionSchedule
+    farmerPayableBalance?: FloatFieldUpdateOperationsInput | number
     isRetail?: BoolFieldUpdateOperationsInput | boolean
     loyaltyPoints?: IntFieldUpdateOperationsInput | number
     totalPurchases?: IntFieldUpdateOperationsInput | number
@@ -34136,6 +34178,7 @@ export namespace Prisma {
     henEggsDailyProduction?: IntFieldUpdateOperationsInput | number
     duckEggsDailyProduction?: IntFieldUpdateOperationsInput | number
     collectionSchedule?: EnumCollectionScheduleFieldUpdateOperationsInput | $Enums.CollectionSchedule
+    farmerPayableBalance?: FloatFieldUpdateOperationsInput | number
     isRetail?: BoolFieldUpdateOperationsInput | boolean
     loyaltyPoints?: IntFieldUpdateOperationsInput | number
     totalPurchases?: IntFieldUpdateOperationsInput | number
@@ -34336,6 +34379,7 @@ export namespace Prisma {
     henEggsDailyProduction?: number
     duckEggsDailyProduction?: number
     collectionSchedule?: $Enums.CollectionSchedule
+    farmerPayableBalance?: number
     isRetail?: boolean
     loyaltyPoints?: number
     totalPurchases?: number
@@ -34367,6 +34411,7 @@ export namespace Prisma {
     henEggsDailyProduction?: number
     duckEggsDailyProduction?: number
     collectionSchedule?: $Enums.CollectionSchedule
+    farmerPayableBalance?: number
     isRetail?: boolean
     loyaltyPoints?: number
     totalPurchases?: number
@@ -34558,6 +34603,7 @@ export namespace Prisma {
     henEggsDailyProduction?: IntFilter<"Customer"> | number
     duckEggsDailyProduction?: IntFilter<"Customer"> | number
     collectionSchedule?: EnumCollectionScheduleFilter<"Customer"> | $Enums.CollectionSchedule
+    farmerPayableBalance?: FloatFilter<"Customer"> | number
     isRetail?: BoolFilter<"Customer"> | boolean
     loyaltyPoints?: IntFilter<"Customer"> | number
     totalPurchases?: IntFilter<"Customer"> | number
@@ -35133,6 +35179,7 @@ export namespace Prisma {
     henEggsDailyProduction?: number
     duckEggsDailyProduction?: number
     collectionSchedule?: $Enums.CollectionSchedule
+    farmerPayableBalance?: number
     isRetail?: boolean
     loyaltyPoints?: number
     totalPurchases?: number
@@ -35164,6 +35211,7 @@ export namespace Prisma {
     henEggsDailyProduction?: number
     duckEggsDailyProduction?: number
     collectionSchedule?: $Enums.CollectionSchedule
+    farmerPayableBalance?: number
     isRetail?: boolean
     loyaltyPoints?: number
     totalPurchases?: number
@@ -35390,6 +35438,7 @@ export namespace Prisma {
     henEggsDailyProduction?: IntFieldUpdateOperationsInput | number
     duckEggsDailyProduction?: IntFieldUpdateOperationsInput | number
     collectionSchedule?: EnumCollectionScheduleFieldUpdateOperationsInput | $Enums.CollectionSchedule
+    farmerPayableBalance?: FloatFieldUpdateOperationsInput | number
     isRetail?: BoolFieldUpdateOperationsInput | boolean
     loyaltyPoints?: IntFieldUpdateOperationsInput | number
     totalPurchases?: IntFieldUpdateOperationsInput | number
@@ -35421,6 +35470,7 @@ export namespace Prisma {
     henEggsDailyProduction?: IntFieldUpdateOperationsInput | number
     duckEggsDailyProduction?: IntFieldUpdateOperationsInput | number
     collectionSchedule?: EnumCollectionScheduleFieldUpdateOperationsInput | $Enums.CollectionSchedule
+    farmerPayableBalance?: FloatFieldUpdateOperationsInput | number
     isRetail?: BoolFieldUpdateOperationsInput | boolean
     loyaltyPoints?: IntFieldUpdateOperationsInput | number
     totalPurchases?: IntFieldUpdateOperationsInput | number
@@ -37070,6 +37120,7 @@ export namespace Prisma {
     henEggsDailyProduction?: IntFieldUpdateOperationsInput | number
     duckEggsDailyProduction?: IntFieldUpdateOperationsInput | number
     collectionSchedule?: EnumCollectionScheduleFieldUpdateOperationsInput | $Enums.CollectionSchedule
+    farmerPayableBalance?: FloatFieldUpdateOperationsInput | number
     isRetail?: BoolFieldUpdateOperationsInput | boolean
     loyaltyPoints?: IntFieldUpdateOperationsInput | number
     totalPurchases?: IntFieldUpdateOperationsInput | number
@@ -37101,6 +37152,7 @@ export namespace Prisma {
     henEggsDailyProduction?: IntFieldUpdateOperationsInput | number
     duckEggsDailyProduction?: IntFieldUpdateOperationsInput | number
     collectionSchedule?: EnumCollectionScheduleFieldUpdateOperationsInput | $Enums.CollectionSchedule
+    farmerPayableBalance?: FloatFieldUpdateOperationsInput | number
     isRetail?: BoolFieldUpdateOperationsInput | boolean
     loyaltyPoints?: IntFieldUpdateOperationsInput | number
     totalPurchases?: IntFieldUpdateOperationsInput | number
@@ -37132,6 +37184,7 @@ export namespace Prisma {
     henEggsDailyProduction?: IntFieldUpdateOperationsInput | number
     duckEggsDailyProduction?: IntFieldUpdateOperationsInput | number
     collectionSchedule?: EnumCollectionScheduleFieldUpdateOperationsInput | $Enums.CollectionSchedule
+    farmerPayableBalance?: FloatFieldUpdateOperationsInput | number
     isRetail?: BoolFieldUpdateOperationsInput | boolean
     loyaltyPoints?: IntFieldUpdateOperationsInput | number
     totalPurchases?: IntFieldUpdateOperationsInput | number

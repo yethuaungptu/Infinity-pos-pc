@@ -49,6 +49,7 @@ export interface Customer {
   henEggsDailyProduction?: number;
   duckEggsDailyProduction?: number;
   collectionSchedule?: 'DAILY' | 'ALTERNATE' | 'WEEKLY' | 'CUSTOM';
+  farmerPayableBalance?: number;
 
   // Regular customer specific
   isRetail?: boolean;

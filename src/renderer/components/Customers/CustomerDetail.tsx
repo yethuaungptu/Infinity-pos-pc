@@ -572,6 +572,21 @@ const CustomerDetail: React.FC<CustomerDetailProps> = ({
             <CurrencyDollarIcon className="w-8 h-8 text-yellow-600" />
           </div>
         </div>
+
+        {customer.type === 'FARMER' && (
+          <div className="bg-white p-4 rounded-lg shadow">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-gray-600">Farmer Payable</p>
+                <p className="text-2xl font-bold text-green-600">
+                  {(customer.farmerPayableBalance || 0).toLocaleString()} MMK
+                </p>
+                <p className="text-xs text-gray-500">Owner owes farmer</p>
+              </div>
+              <CurrencyDollarIcon className="w-8 h-8 text-green-600" />
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Tabs */}
@@ -701,6 +716,13 @@ const CustomerDetail: React.FC<CustomerDetailProps> = ({
                         </span>
                         <span className="font-medium">
                           {customer.collectionSchedule}
+                        </span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-gray-600">Farmer Payable:</span>
+                        <span className="font-medium text-green-600">
+                          {(customer.farmerPayableBalance || 0).toLocaleString()}{' '}
+                          MMK
                         </span>
                       </div>
                     </div>
@@ -1208,6 +1230,14 @@ const CustomerDetail: React.FC<CustomerDetailProps> = ({
                   </span>
                   <span className="text-lg font-semibold text-yellow-600">
                     {customer?.totalEggSales?.toLocaleString()} MMK
+                  </span>
+                </div>
+                <div className="flex justify-between items-center mt-2">
+                  <span className="text-sm text-gray-600">
+                    Farmer Payable:
+                  </span>
+                  <span className="text-lg font-semibold text-green-600">
+                    {(customer?.farmerPayableBalance || 0).toLocaleString()} MMK
                   </span>
                 </div>
               </div>

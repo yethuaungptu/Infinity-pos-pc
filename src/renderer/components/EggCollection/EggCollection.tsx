@@ -273,10 +273,18 @@ const EggCollectionComponent: React.FC = () => {
     }
   };
 
-  const handleMarkPaid = async (collectionId: string) => {
+  const handleMarkPaid = async (collection: EggCollection) => {
+    const confirmed = window.confirm(
+      `Mark this collection as paid for ${Math.round(collection.totalValue).toLocaleString()} MMK?`,
+    );
+    if (!confirmed) return;
     setErrorMessage(null);
     try {
-      const updated = await window.api.markEggCollectionPaid(collectionId);
+      const staff: any = await window.api.check();
+      const updated = await window.api.markEggCollectionPaid({
+        id: collection.id,
+        staffId: staff.id,
+      });
       setCollections((prev) =>
         prev.map((collection) =>
           collection.id === updated.id ? updated : collection,
@@ -811,7 +819,7 @@ const EggCollectionComponent: React.FC = () => {
                     <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-2">
                       {!collection.paid && (
                         <button
-                          onClick={() => handleMarkPaid(collection.id)}
+                          onClick={() => handleMarkPaid(collection)}
                           className="text-green-600 hover:text-green-900"
                           title="Mark as Paid"
                         >
@@ -1042,7 +1050,8 @@ const EggCollectionComponent: React.FC = () => {
                   <h4 className="font-medium text-gray-900 mb-3 flex items-center">
                     🦆 Duck Eggs Collection
                     <span className="ml-2 text-sm font-normal text-gray-600">
-                      (Price: {formData.duckEggPrice.toLocaleString()} MMK/dozen)
+                      (Price: {formData.duckEggPrice.toLocaleString()}{' '}
+                      MMK/dozen)
                     </span>
                   </h4>
                   <div className="grid grid-cols-4 gap-4">
@@ -1138,7 +1147,8 @@ const EggCollectionComponent: React.FC = () => {
                       onChange={(e) =>
                         setFormData((prev) => ({
                           ...prev,
-                          henEggPrice: Math.round(parseFloat(e.target.value)) || 0,
+                          henEggPrice:
+                            Math.round(parseFloat(e.target.value)) || 0,
                         }))
                       }
                       className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-500"
@@ -1155,7 +1165,8 @@ const EggCollectionComponent: React.FC = () => {
                       onChange={(e) =>
                         setFormData((prev) => ({
                           ...prev,
-                          duckEggPrice: Math.round(parseFloat(e.target.value)) || 0,
+                          duckEggPrice:
+                            Math.round(parseFloat(e.target.value)) || 0,
                         }))
                       }
                       className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-500"
