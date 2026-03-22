@@ -54,6 +54,16 @@ export type TransactionItem = $Result.DefaultSelection<Prisma.$TransactionItemPa
  */
 export type EggCollection = $Result.DefaultSelection<Prisma.$EggCollectionPayload>
 /**
+ * Model EggInventory
+ * 
+ */
+export type EggInventory = $Result.DefaultSelection<Prisma.$EggInventoryPayload>
+/**
+ * Model EggDelivery
+ * 
+ */
+export type EggDelivery = $Result.DefaultSelection<Prisma.$EggDeliveryPayload>
+/**
  * Model CollectionRoute
  * 
  */
@@ -148,6 +158,16 @@ export const CollectionSchedule: {
 };
 
 export type CollectionSchedule = (typeof CollectionSchedule)[keyof typeof CollectionSchedule]
+
+
+export const DeliveryStatus: {
+  SCHEDULED: 'SCHEDULED',
+  IN_TRANSIT: 'IN_TRANSIT',
+  DELIVERED: 'DELIVERED',
+  CANCELLED: 'CANCELLED'
+};
+
+export type DeliveryStatus = (typeof DeliveryStatus)[keyof typeof DeliveryStatus]
 
 
 export const ProductType: {
@@ -305,6 +325,10 @@ export const CreditStatus: typeof $Enums.CreditStatus
 export type CollectionSchedule = $Enums.CollectionSchedule
 
 export const CollectionSchedule: typeof $Enums.CollectionSchedule
+
+export type DeliveryStatus = $Enums.DeliveryStatus
+
+export const DeliveryStatus: typeof $Enums.DeliveryStatus
 
 export type ProductType = $Enums.ProductType
 
@@ -551,6 +575,26 @@ export class PrismaClient<
     * ```
     */
   get eggCollection(): Prisma.EggCollectionDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.eggInventory`: Exposes CRUD operations for the **EggInventory** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more EggInventories
+    * const eggInventories = await prisma.eggInventory.findMany()
+    * ```
+    */
+  get eggInventory(): Prisma.EggInventoryDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.eggDelivery`: Exposes CRUD operations for the **EggDelivery** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more EggDeliveries
+    * const eggDeliveries = await prisma.eggDelivery.findMany()
+    * ```
+    */
+  get eggDelivery(): Prisma.EggDeliveryDelegate<ExtArgs, ClientOptions>;
 
   /**
    * `prisma.collectionRoute`: Exposes CRUD operations for the **CollectionRoute** model.
@@ -1079,6 +1123,8 @@ export namespace Prisma {
     Transaction: 'Transaction',
     TransactionItem: 'TransactionItem',
     EggCollection: 'EggCollection',
+    EggInventory: 'EggInventory',
+    EggDelivery: 'EggDelivery',
     CollectionRoute: 'CollectionRoute',
     PurchaseOrder: 'PurchaseOrder',
     PurchaseOrderItem: 'PurchaseOrderItem',
@@ -1105,7 +1151,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "store" | "staff" | "customer" | "vendor" | "product" | "transaction" | "transactionItem" | "eggCollection" | "collectionRoute" | "purchaseOrder" | "purchaseOrderItem" | "paymentRecord" | "systemSetting" | "auditLog" | "syncLog" | "notification"
+      modelProps: "store" | "staff" | "customer" | "vendor" | "product" | "transaction" | "transactionItem" | "eggCollection" | "eggInventory" | "eggDelivery" | "collectionRoute" | "purchaseOrder" | "purchaseOrderItem" | "paymentRecord" | "systemSetting" | "auditLog" | "syncLog" | "notification"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -1698,6 +1744,154 @@ export namespace Prisma {
           count: {
             args: Prisma.EggCollectionCountArgs<ExtArgs>
             result: $Utils.Optional<EggCollectionCountAggregateOutputType> | number
+          }
+        }
+      }
+      EggInventory: {
+        payload: Prisma.$EggInventoryPayload<ExtArgs>
+        fields: Prisma.EggInventoryFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.EggInventoryFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EggInventoryPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.EggInventoryFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EggInventoryPayload>
+          }
+          findFirst: {
+            args: Prisma.EggInventoryFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EggInventoryPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.EggInventoryFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EggInventoryPayload>
+          }
+          findMany: {
+            args: Prisma.EggInventoryFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EggInventoryPayload>[]
+          }
+          create: {
+            args: Prisma.EggInventoryCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EggInventoryPayload>
+          }
+          createMany: {
+            args: Prisma.EggInventoryCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.EggInventoryCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EggInventoryPayload>[]
+          }
+          delete: {
+            args: Prisma.EggInventoryDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EggInventoryPayload>
+          }
+          update: {
+            args: Prisma.EggInventoryUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EggInventoryPayload>
+          }
+          deleteMany: {
+            args: Prisma.EggInventoryDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.EggInventoryUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.EggInventoryUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EggInventoryPayload>[]
+          }
+          upsert: {
+            args: Prisma.EggInventoryUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EggInventoryPayload>
+          }
+          aggregate: {
+            args: Prisma.EggInventoryAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateEggInventory>
+          }
+          groupBy: {
+            args: Prisma.EggInventoryGroupByArgs<ExtArgs>
+            result: $Utils.Optional<EggInventoryGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.EggInventoryCountArgs<ExtArgs>
+            result: $Utils.Optional<EggInventoryCountAggregateOutputType> | number
+          }
+        }
+      }
+      EggDelivery: {
+        payload: Prisma.$EggDeliveryPayload<ExtArgs>
+        fields: Prisma.EggDeliveryFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.EggDeliveryFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EggDeliveryPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.EggDeliveryFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EggDeliveryPayload>
+          }
+          findFirst: {
+            args: Prisma.EggDeliveryFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EggDeliveryPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.EggDeliveryFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EggDeliveryPayload>
+          }
+          findMany: {
+            args: Prisma.EggDeliveryFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EggDeliveryPayload>[]
+          }
+          create: {
+            args: Prisma.EggDeliveryCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EggDeliveryPayload>
+          }
+          createMany: {
+            args: Prisma.EggDeliveryCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.EggDeliveryCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EggDeliveryPayload>[]
+          }
+          delete: {
+            args: Prisma.EggDeliveryDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EggDeliveryPayload>
+          }
+          update: {
+            args: Prisma.EggDeliveryUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EggDeliveryPayload>
+          }
+          deleteMany: {
+            args: Prisma.EggDeliveryDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.EggDeliveryUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.EggDeliveryUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EggDeliveryPayload>[]
+          }
+          upsert: {
+            args: Prisma.EggDeliveryUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EggDeliveryPayload>
+          }
+          aggregate: {
+            args: Prisma.EggDeliveryAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateEggDelivery>
+          }
+          groupBy: {
+            args: Prisma.EggDeliveryGroupByArgs<ExtArgs>
+            result: $Utils.Optional<EggDeliveryGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.EggDeliveryCountArgs<ExtArgs>
+            result: $Utils.Optional<EggDeliveryCountAggregateOutputType> | number
           }
         }
       }
@@ -2397,6 +2591,8 @@ export namespace Prisma {
     transaction?: TransactionOmit
     transactionItem?: TransactionItemOmit
     eggCollection?: EggCollectionOmit
+    eggInventory?: EggInventoryOmit
+    eggDelivery?: EggDeliveryOmit
     collectionRoute?: CollectionRouteOmit
     purchaseOrder?: PurchaseOrderOmit
     purchaseOrderItem?: PurchaseOrderItemOmit
@@ -2489,6 +2685,7 @@ export namespace Prisma {
     eggCollections: number
     paymentRecords: number
     collectionRoutes: number
+    eggDeliveries: number
     PurchaseOrder: number
   }
 
@@ -2497,6 +2694,7 @@ export namespace Prisma {
     eggCollections?: boolean | StaffCountOutputTypeCountEggCollectionsArgs
     paymentRecords?: boolean | StaffCountOutputTypeCountPaymentRecordsArgs
     collectionRoutes?: boolean | StaffCountOutputTypeCountCollectionRoutesArgs
+    eggDeliveries?: boolean | StaffCountOutputTypeCountEggDeliveriesArgs
     PurchaseOrder?: boolean | StaffCountOutputTypeCountPurchaseOrderArgs
   }
 
@@ -2542,6 +2740,13 @@ export namespace Prisma {
   /**
    * StaffCountOutputType without action
    */
+  export type StaffCountOutputTypeCountEggDeliveriesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: EggDeliveryWhereInput
+  }
+
+  /**
+   * StaffCountOutputType without action
+   */
   export type StaffCountOutputTypeCountPurchaseOrderArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: PurchaseOrderWhereInput
   }
@@ -2556,6 +2761,7 @@ export namespace Prisma {
     eggCollections: number
     paymentRecords: number
     routes: number
+    eggDeliveries: number
   }
 
   export type CustomerCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -2563,6 +2769,7 @@ export namespace Prisma {
     eggCollections?: boolean | CustomerCountOutputTypeCountEggCollectionsArgs
     paymentRecords?: boolean | CustomerCountOutputTypeCountPaymentRecordsArgs
     routes?: boolean | CustomerCountOutputTypeCountRoutesArgs
+    eggDeliveries?: boolean | CustomerCountOutputTypeCountEggDeliveriesArgs
   }
 
   // Custom InputTypes
@@ -2602,6 +2809,13 @@ export namespace Prisma {
    */
   export type CustomerCountOutputTypeCountRoutesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: CollectionRouteWhereInput
+  }
+
+  /**
+   * CustomerCountOutputType without action
+   */
+  export type CustomerCountOutputTypeCountEggDeliveriesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: EggDeliveryWhereInput
   }
 
 
@@ -4356,6 +4570,7 @@ export namespace Prisma {
     eggCollections?: boolean | Staff$eggCollectionsArgs<ExtArgs>
     paymentRecords?: boolean | Staff$paymentRecordsArgs<ExtArgs>
     collectionRoutes?: boolean | Staff$collectionRoutesArgs<ExtArgs>
+    eggDeliveries?: boolean | Staff$eggDeliveriesArgs<ExtArgs>
     PurchaseOrder?: boolean | Staff$PurchaseOrderArgs<ExtArgs>
     _count?: boolean | StaffCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["staff"]>
@@ -4435,6 +4650,7 @@ export namespace Prisma {
     eggCollections?: boolean | Staff$eggCollectionsArgs<ExtArgs>
     paymentRecords?: boolean | Staff$paymentRecordsArgs<ExtArgs>
     collectionRoutes?: boolean | Staff$collectionRoutesArgs<ExtArgs>
+    eggDeliveries?: boolean | Staff$eggDeliveriesArgs<ExtArgs>
     PurchaseOrder?: boolean | Staff$PurchaseOrderArgs<ExtArgs>
     _count?: boolean | StaffCountOutputTypeDefaultArgs<ExtArgs>
   }
@@ -4448,6 +4664,7 @@ export namespace Prisma {
       eggCollections: Prisma.$EggCollectionPayload<ExtArgs>[]
       paymentRecords: Prisma.$PaymentRecordPayload<ExtArgs>[]
       collectionRoutes: Prisma.$CollectionRoutePayload<ExtArgs>[]
+      eggDeliveries: Prisma.$EggDeliveryPayload<ExtArgs>[]
       PurchaseOrder: Prisma.$PurchaseOrderPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
@@ -4869,6 +5086,7 @@ export namespace Prisma {
     eggCollections<T extends Staff$eggCollectionsArgs<ExtArgs> = {}>(args?: Subset<T, Staff$eggCollectionsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$EggCollectionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     paymentRecords<T extends Staff$paymentRecordsArgs<ExtArgs> = {}>(args?: Subset<T, Staff$paymentRecordsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PaymentRecordPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     collectionRoutes<T extends Staff$collectionRoutesArgs<ExtArgs> = {}>(args?: Subset<T, Staff$collectionRoutesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$CollectionRoutePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    eggDeliveries<T extends Staff$eggDeliveriesArgs<ExtArgs> = {}>(args?: Subset<T, Staff$eggDeliveriesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$EggDeliveryPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     PurchaseOrder<T extends Staff$PurchaseOrderArgs<ExtArgs> = {}>(args?: Subset<T, Staff$PurchaseOrderArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PurchaseOrderPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
@@ -5401,6 +5619,30 @@ export namespace Prisma {
   }
 
   /**
+   * Staff.eggDeliveries
+   */
+  export type Staff$eggDeliveriesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EggDelivery
+     */
+    select?: EggDeliverySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the EggDelivery
+     */
+    omit?: EggDeliveryOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: EggDeliveryInclude<ExtArgs> | null
+    where?: EggDeliveryWhereInput
+    orderBy?: EggDeliveryOrderByWithRelationInput | EggDeliveryOrderByWithRelationInput[]
+    cursor?: EggDeliveryWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: EggDeliveryScalarFieldEnum | EggDeliveryScalarFieldEnum[]
+  }
+
+  /**
    * Staff.PurchaseOrder
    */
   export type Staff$PurchaseOrderArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -5845,6 +6087,7 @@ export namespace Prisma {
     eggCollections?: boolean | Customer$eggCollectionsArgs<ExtArgs>
     paymentRecords?: boolean | Customer$paymentRecordsArgs<ExtArgs>
     routes?: boolean | Customer$routesArgs<ExtArgs>
+    eggDeliveries?: boolean | Customer$eggDeliveriesArgs<ExtArgs>
     _count?: boolean | CustomerCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["customer"]>
 
@@ -5941,6 +6184,7 @@ export namespace Prisma {
     eggCollections?: boolean | Customer$eggCollectionsArgs<ExtArgs>
     paymentRecords?: boolean | Customer$paymentRecordsArgs<ExtArgs>
     routes?: boolean | Customer$routesArgs<ExtArgs>
+    eggDeliveries?: boolean | Customer$eggDeliveriesArgs<ExtArgs>
     _count?: boolean | CustomerCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type CustomerIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
@@ -5953,6 +6197,7 @@ export namespace Prisma {
       eggCollections: Prisma.$EggCollectionPayload<ExtArgs>[]
       paymentRecords: Prisma.$PaymentRecordPayload<ExtArgs>[]
       routes: Prisma.$CollectionRoutePayload<ExtArgs>[]
+      eggDeliveries: Prisma.$EggDeliveryPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -6379,6 +6624,7 @@ export namespace Prisma {
     eggCollections<T extends Customer$eggCollectionsArgs<ExtArgs> = {}>(args?: Subset<T, Customer$eggCollectionsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$EggCollectionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     paymentRecords<T extends Customer$paymentRecordsArgs<ExtArgs> = {}>(args?: Subset<T, Customer$paymentRecordsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PaymentRecordPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     routes<T extends Customer$routesArgs<ExtArgs> = {}>(args?: Subset<T, Customer$routesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$CollectionRoutePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    eggDeliveries<T extends Customer$eggDeliveriesArgs<ExtArgs> = {}>(args?: Subset<T, Customer$eggDeliveriesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$EggDeliveryPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -6913,6 +7159,30 @@ export namespace Prisma {
     take?: number
     skip?: number
     distinct?: CollectionRouteScalarFieldEnum | CollectionRouteScalarFieldEnum[]
+  }
+
+  /**
+   * Customer.eggDeliveries
+   */
+  export type Customer$eggDeliveriesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EggDelivery
+     */
+    select?: EggDeliverySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the EggDelivery
+     */
+    omit?: EggDeliveryOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: EggDeliveryInclude<ExtArgs> | null
+    where?: EggDeliveryWhereInput
+    orderBy?: EggDeliveryOrderByWithRelationInput | EggDeliveryOrderByWithRelationInput[]
+    cursor?: EggDeliveryWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: EggDeliveryScalarFieldEnum | EggDeliveryScalarFieldEnum[]
   }
 
   /**
@@ -13933,6 +14203,2491 @@ export namespace Prisma {
      * Choose, which related nodes to fetch as well
      */
     include?: EggCollectionInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model EggInventory
+   */
+
+  export type AggregateEggInventory = {
+    _count: EggInventoryCountAggregateOutputType | null
+    _avg: EggInventoryAvgAggregateOutputType | null
+    _sum: EggInventorySumAggregateOutputType | null
+    _min: EggInventoryMinAggregateOutputType | null
+    _max: EggInventoryMaxAggregateOutputType | null
+  }
+
+  export type EggInventoryAvgAggregateOutputType = {
+    henEggsSmall: number | null
+    henEggsMedium: number | null
+    henEggsLarge: number | null
+    henEggsExtraLarge: number | null
+    duckEggsSmall: number | null
+    duckEggsMedium: number | null
+    duckEggsLarge: number | null
+  }
+
+  export type EggInventorySumAggregateOutputType = {
+    henEggsSmall: number | null
+    henEggsMedium: number | null
+    henEggsLarge: number | null
+    henEggsExtraLarge: number | null
+    duckEggsSmall: number | null
+    duckEggsMedium: number | null
+    duckEggsLarge: number | null
+  }
+
+  export type EggInventoryMinAggregateOutputType = {
+    id: string | null
+    henEggsSmall: number | null
+    henEggsMedium: number | null
+    henEggsLarge: number | null
+    henEggsExtraLarge: number | null
+    duckEggsSmall: number | null
+    duckEggsMedium: number | null
+    duckEggsLarge: number | null
+    updatedAt: Date | null
+  }
+
+  export type EggInventoryMaxAggregateOutputType = {
+    id: string | null
+    henEggsSmall: number | null
+    henEggsMedium: number | null
+    henEggsLarge: number | null
+    henEggsExtraLarge: number | null
+    duckEggsSmall: number | null
+    duckEggsMedium: number | null
+    duckEggsLarge: number | null
+    updatedAt: Date | null
+  }
+
+  export type EggInventoryCountAggregateOutputType = {
+    id: number
+    henEggsSmall: number
+    henEggsMedium: number
+    henEggsLarge: number
+    henEggsExtraLarge: number
+    duckEggsSmall: number
+    duckEggsMedium: number
+    duckEggsLarge: number
+    updatedAt: number
+    _all: number
+  }
+
+
+  export type EggInventoryAvgAggregateInputType = {
+    henEggsSmall?: true
+    henEggsMedium?: true
+    henEggsLarge?: true
+    henEggsExtraLarge?: true
+    duckEggsSmall?: true
+    duckEggsMedium?: true
+    duckEggsLarge?: true
+  }
+
+  export type EggInventorySumAggregateInputType = {
+    henEggsSmall?: true
+    henEggsMedium?: true
+    henEggsLarge?: true
+    henEggsExtraLarge?: true
+    duckEggsSmall?: true
+    duckEggsMedium?: true
+    duckEggsLarge?: true
+  }
+
+  export type EggInventoryMinAggregateInputType = {
+    id?: true
+    henEggsSmall?: true
+    henEggsMedium?: true
+    henEggsLarge?: true
+    henEggsExtraLarge?: true
+    duckEggsSmall?: true
+    duckEggsMedium?: true
+    duckEggsLarge?: true
+    updatedAt?: true
+  }
+
+  export type EggInventoryMaxAggregateInputType = {
+    id?: true
+    henEggsSmall?: true
+    henEggsMedium?: true
+    henEggsLarge?: true
+    henEggsExtraLarge?: true
+    duckEggsSmall?: true
+    duckEggsMedium?: true
+    duckEggsLarge?: true
+    updatedAt?: true
+  }
+
+  export type EggInventoryCountAggregateInputType = {
+    id?: true
+    henEggsSmall?: true
+    henEggsMedium?: true
+    henEggsLarge?: true
+    henEggsExtraLarge?: true
+    duckEggsSmall?: true
+    duckEggsMedium?: true
+    duckEggsLarge?: true
+    updatedAt?: true
+    _all?: true
+  }
+
+  export type EggInventoryAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which EggInventory to aggregate.
+     */
+    where?: EggInventoryWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of EggInventories to fetch.
+     */
+    orderBy?: EggInventoryOrderByWithRelationInput | EggInventoryOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: EggInventoryWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` EggInventories from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` EggInventories.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned EggInventories
+    **/
+    _count?: true | EggInventoryCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: EggInventoryAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: EggInventorySumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: EggInventoryMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: EggInventoryMaxAggregateInputType
+  }
+
+  export type GetEggInventoryAggregateType<T extends EggInventoryAggregateArgs> = {
+        [P in keyof T & keyof AggregateEggInventory]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateEggInventory[P]>
+      : GetScalarType<T[P], AggregateEggInventory[P]>
+  }
+
+
+
+
+  export type EggInventoryGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: EggInventoryWhereInput
+    orderBy?: EggInventoryOrderByWithAggregationInput | EggInventoryOrderByWithAggregationInput[]
+    by: EggInventoryScalarFieldEnum[] | EggInventoryScalarFieldEnum
+    having?: EggInventoryScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: EggInventoryCountAggregateInputType | true
+    _avg?: EggInventoryAvgAggregateInputType
+    _sum?: EggInventorySumAggregateInputType
+    _min?: EggInventoryMinAggregateInputType
+    _max?: EggInventoryMaxAggregateInputType
+  }
+
+  export type EggInventoryGroupByOutputType = {
+    id: string
+    henEggsSmall: number
+    henEggsMedium: number
+    henEggsLarge: number
+    henEggsExtraLarge: number
+    duckEggsSmall: number
+    duckEggsMedium: number
+    duckEggsLarge: number
+    updatedAt: Date
+    _count: EggInventoryCountAggregateOutputType | null
+    _avg: EggInventoryAvgAggregateOutputType | null
+    _sum: EggInventorySumAggregateOutputType | null
+    _min: EggInventoryMinAggregateOutputType | null
+    _max: EggInventoryMaxAggregateOutputType | null
+  }
+
+  type GetEggInventoryGroupByPayload<T extends EggInventoryGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<EggInventoryGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof EggInventoryGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], EggInventoryGroupByOutputType[P]>
+            : GetScalarType<T[P], EggInventoryGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type EggInventorySelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    henEggsSmall?: boolean
+    henEggsMedium?: boolean
+    henEggsLarge?: boolean
+    henEggsExtraLarge?: boolean
+    duckEggsSmall?: boolean
+    duckEggsMedium?: boolean
+    duckEggsLarge?: boolean
+    updatedAt?: boolean
+  }, ExtArgs["result"]["eggInventory"]>
+
+  export type EggInventorySelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    henEggsSmall?: boolean
+    henEggsMedium?: boolean
+    henEggsLarge?: boolean
+    henEggsExtraLarge?: boolean
+    duckEggsSmall?: boolean
+    duckEggsMedium?: boolean
+    duckEggsLarge?: boolean
+    updatedAt?: boolean
+  }, ExtArgs["result"]["eggInventory"]>
+
+  export type EggInventorySelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    henEggsSmall?: boolean
+    henEggsMedium?: boolean
+    henEggsLarge?: boolean
+    henEggsExtraLarge?: boolean
+    duckEggsSmall?: boolean
+    duckEggsMedium?: boolean
+    duckEggsLarge?: boolean
+    updatedAt?: boolean
+  }, ExtArgs["result"]["eggInventory"]>
+
+  export type EggInventorySelectScalar = {
+    id?: boolean
+    henEggsSmall?: boolean
+    henEggsMedium?: boolean
+    henEggsLarge?: boolean
+    henEggsExtraLarge?: boolean
+    duckEggsSmall?: boolean
+    duckEggsMedium?: boolean
+    duckEggsLarge?: boolean
+    updatedAt?: boolean
+  }
+
+  export type EggInventoryOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "henEggsSmall" | "henEggsMedium" | "henEggsLarge" | "henEggsExtraLarge" | "duckEggsSmall" | "duckEggsMedium" | "duckEggsLarge" | "updatedAt", ExtArgs["result"]["eggInventory"]>
+
+  export type $EggInventoryPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "EggInventory"
+    objects: {}
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      henEggsSmall: number
+      henEggsMedium: number
+      henEggsLarge: number
+      henEggsExtraLarge: number
+      duckEggsSmall: number
+      duckEggsMedium: number
+      duckEggsLarge: number
+      updatedAt: Date
+    }, ExtArgs["result"]["eggInventory"]>
+    composites: {}
+  }
+
+  type EggInventoryGetPayload<S extends boolean | null | undefined | EggInventoryDefaultArgs> = $Result.GetResult<Prisma.$EggInventoryPayload, S>
+
+  type EggInventoryCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<EggInventoryFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: EggInventoryCountAggregateInputType | true
+    }
+
+  export interface EggInventoryDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['EggInventory'], meta: { name: 'EggInventory' } }
+    /**
+     * Find zero or one EggInventory that matches the filter.
+     * @param {EggInventoryFindUniqueArgs} args - Arguments to find a EggInventory
+     * @example
+     * // Get one EggInventory
+     * const eggInventory = await prisma.eggInventory.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends EggInventoryFindUniqueArgs>(args: SelectSubset<T, EggInventoryFindUniqueArgs<ExtArgs>>): Prisma__EggInventoryClient<$Result.GetResult<Prisma.$EggInventoryPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one EggInventory that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {EggInventoryFindUniqueOrThrowArgs} args - Arguments to find a EggInventory
+     * @example
+     * // Get one EggInventory
+     * const eggInventory = await prisma.eggInventory.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends EggInventoryFindUniqueOrThrowArgs>(args: SelectSubset<T, EggInventoryFindUniqueOrThrowArgs<ExtArgs>>): Prisma__EggInventoryClient<$Result.GetResult<Prisma.$EggInventoryPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first EggInventory that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {EggInventoryFindFirstArgs} args - Arguments to find a EggInventory
+     * @example
+     * // Get one EggInventory
+     * const eggInventory = await prisma.eggInventory.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends EggInventoryFindFirstArgs>(args?: SelectSubset<T, EggInventoryFindFirstArgs<ExtArgs>>): Prisma__EggInventoryClient<$Result.GetResult<Prisma.$EggInventoryPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first EggInventory that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {EggInventoryFindFirstOrThrowArgs} args - Arguments to find a EggInventory
+     * @example
+     * // Get one EggInventory
+     * const eggInventory = await prisma.eggInventory.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends EggInventoryFindFirstOrThrowArgs>(args?: SelectSubset<T, EggInventoryFindFirstOrThrowArgs<ExtArgs>>): Prisma__EggInventoryClient<$Result.GetResult<Prisma.$EggInventoryPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more EggInventories that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {EggInventoryFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all EggInventories
+     * const eggInventories = await prisma.eggInventory.findMany()
+     * 
+     * // Get first 10 EggInventories
+     * const eggInventories = await prisma.eggInventory.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const eggInventoryWithIdOnly = await prisma.eggInventory.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends EggInventoryFindManyArgs>(args?: SelectSubset<T, EggInventoryFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$EggInventoryPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a EggInventory.
+     * @param {EggInventoryCreateArgs} args - Arguments to create a EggInventory.
+     * @example
+     * // Create one EggInventory
+     * const EggInventory = await prisma.eggInventory.create({
+     *   data: {
+     *     // ... data to create a EggInventory
+     *   }
+     * })
+     * 
+     */
+    create<T extends EggInventoryCreateArgs>(args: SelectSubset<T, EggInventoryCreateArgs<ExtArgs>>): Prisma__EggInventoryClient<$Result.GetResult<Prisma.$EggInventoryPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many EggInventories.
+     * @param {EggInventoryCreateManyArgs} args - Arguments to create many EggInventories.
+     * @example
+     * // Create many EggInventories
+     * const eggInventory = await prisma.eggInventory.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends EggInventoryCreateManyArgs>(args?: SelectSubset<T, EggInventoryCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many EggInventories and returns the data saved in the database.
+     * @param {EggInventoryCreateManyAndReturnArgs} args - Arguments to create many EggInventories.
+     * @example
+     * // Create many EggInventories
+     * const eggInventory = await prisma.eggInventory.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many EggInventories and only return the `id`
+     * const eggInventoryWithIdOnly = await prisma.eggInventory.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends EggInventoryCreateManyAndReturnArgs>(args?: SelectSubset<T, EggInventoryCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$EggInventoryPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a EggInventory.
+     * @param {EggInventoryDeleteArgs} args - Arguments to delete one EggInventory.
+     * @example
+     * // Delete one EggInventory
+     * const EggInventory = await prisma.eggInventory.delete({
+     *   where: {
+     *     // ... filter to delete one EggInventory
+     *   }
+     * })
+     * 
+     */
+    delete<T extends EggInventoryDeleteArgs>(args: SelectSubset<T, EggInventoryDeleteArgs<ExtArgs>>): Prisma__EggInventoryClient<$Result.GetResult<Prisma.$EggInventoryPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one EggInventory.
+     * @param {EggInventoryUpdateArgs} args - Arguments to update one EggInventory.
+     * @example
+     * // Update one EggInventory
+     * const eggInventory = await prisma.eggInventory.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends EggInventoryUpdateArgs>(args: SelectSubset<T, EggInventoryUpdateArgs<ExtArgs>>): Prisma__EggInventoryClient<$Result.GetResult<Prisma.$EggInventoryPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more EggInventories.
+     * @param {EggInventoryDeleteManyArgs} args - Arguments to filter EggInventories to delete.
+     * @example
+     * // Delete a few EggInventories
+     * const { count } = await prisma.eggInventory.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends EggInventoryDeleteManyArgs>(args?: SelectSubset<T, EggInventoryDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more EggInventories.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {EggInventoryUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many EggInventories
+     * const eggInventory = await prisma.eggInventory.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends EggInventoryUpdateManyArgs>(args: SelectSubset<T, EggInventoryUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more EggInventories and returns the data updated in the database.
+     * @param {EggInventoryUpdateManyAndReturnArgs} args - Arguments to update many EggInventories.
+     * @example
+     * // Update many EggInventories
+     * const eggInventory = await prisma.eggInventory.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more EggInventories and only return the `id`
+     * const eggInventoryWithIdOnly = await prisma.eggInventory.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends EggInventoryUpdateManyAndReturnArgs>(args: SelectSubset<T, EggInventoryUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$EggInventoryPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one EggInventory.
+     * @param {EggInventoryUpsertArgs} args - Arguments to update or create a EggInventory.
+     * @example
+     * // Update or create a EggInventory
+     * const eggInventory = await prisma.eggInventory.upsert({
+     *   create: {
+     *     // ... data to create a EggInventory
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the EggInventory we want to update
+     *   }
+     * })
+     */
+    upsert<T extends EggInventoryUpsertArgs>(args: SelectSubset<T, EggInventoryUpsertArgs<ExtArgs>>): Prisma__EggInventoryClient<$Result.GetResult<Prisma.$EggInventoryPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of EggInventories.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {EggInventoryCountArgs} args - Arguments to filter EggInventories to count.
+     * @example
+     * // Count the number of EggInventories
+     * const count = await prisma.eggInventory.count({
+     *   where: {
+     *     // ... the filter for the EggInventories we want to count
+     *   }
+     * })
+    **/
+    count<T extends EggInventoryCountArgs>(
+      args?: Subset<T, EggInventoryCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], EggInventoryCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a EggInventory.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {EggInventoryAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends EggInventoryAggregateArgs>(args: Subset<T, EggInventoryAggregateArgs>): Prisma.PrismaPromise<GetEggInventoryAggregateType<T>>
+
+    /**
+     * Group by EggInventory.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {EggInventoryGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends EggInventoryGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: EggInventoryGroupByArgs['orderBy'] }
+        : { orderBy?: EggInventoryGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, EggInventoryGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetEggInventoryGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the EggInventory model
+   */
+  readonly fields: EggInventoryFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for EggInventory.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__EggInventoryClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the EggInventory model
+   */
+  interface EggInventoryFieldRefs {
+    readonly id: FieldRef<"EggInventory", 'String'>
+    readonly henEggsSmall: FieldRef<"EggInventory", 'Int'>
+    readonly henEggsMedium: FieldRef<"EggInventory", 'Int'>
+    readonly henEggsLarge: FieldRef<"EggInventory", 'Int'>
+    readonly henEggsExtraLarge: FieldRef<"EggInventory", 'Int'>
+    readonly duckEggsSmall: FieldRef<"EggInventory", 'Int'>
+    readonly duckEggsMedium: FieldRef<"EggInventory", 'Int'>
+    readonly duckEggsLarge: FieldRef<"EggInventory", 'Int'>
+    readonly updatedAt: FieldRef<"EggInventory", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * EggInventory findUnique
+   */
+  export type EggInventoryFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EggInventory
+     */
+    select?: EggInventorySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the EggInventory
+     */
+    omit?: EggInventoryOmit<ExtArgs> | null
+    /**
+     * Filter, which EggInventory to fetch.
+     */
+    where: EggInventoryWhereUniqueInput
+  }
+
+  /**
+   * EggInventory findUniqueOrThrow
+   */
+  export type EggInventoryFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EggInventory
+     */
+    select?: EggInventorySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the EggInventory
+     */
+    omit?: EggInventoryOmit<ExtArgs> | null
+    /**
+     * Filter, which EggInventory to fetch.
+     */
+    where: EggInventoryWhereUniqueInput
+  }
+
+  /**
+   * EggInventory findFirst
+   */
+  export type EggInventoryFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EggInventory
+     */
+    select?: EggInventorySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the EggInventory
+     */
+    omit?: EggInventoryOmit<ExtArgs> | null
+    /**
+     * Filter, which EggInventory to fetch.
+     */
+    where?: EggInventoryWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of EggInventories to fetch.
+     */
+    orderBy?: EggInventoryOrderByWithRelationInput | EggInventoryOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for EggInventories.
+     */
+    cursor?: EggInventoryWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` EggInventories from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` EggInventories.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of EggInventories.
+     */
+    distinct?: EggInventoryScalarFieldEnum | EggInventoryScalarFieldEnum[]
+  }
+
+  /**
+   * EggInventory findFirstOrThrow
+   */
+  export type EggInventoryFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EggInventory
+     */
+    select?: EggInventorySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the EggInventory
+     */
+    omit?: EggInventoryOmit<ExtArgs> | null
+    /**
+     * Filter, which EggInventory to fetch.
+     */
+    where?: EggInventoryWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of EggInventories to fetch.
+     */
+    orderBy?: EggInventoryOrderByWithRelationInput | EggInventoryOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for EggInventories.
+     */
+    cursor?: EggInventoryWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` EggInventories from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` EggInventories.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of EggInventories.
+     */
+    distinct?: EggInventoryScalarFieldEnum | EggInventoryScalarFieldEnum[]
+  }
+
+  /**
+   * EggInventory findMany
+   */
+  export type EggInventoryFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EggInventory
+     */
+    select?: EggInventorySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the EggInventory
+     */
+    omit?: EggInventoryOmit<ExtArgs> | null
+    /**
+     * Filter, which EggInventories to fetch.
+     */
+    where?: EggInventoryWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of EggInventories to fetch.
+     */
+    orderBy?: EggInventoryOrderByWithRelationInput | EggInventoryOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing EggInventories.
+     */
+    cursor?: EggInventoryWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` EggInventories from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` EggInventories.
+     */
+    skip?: number
+    distinct?: EggInventoryScalarFieldEnum | EggInventoryScalarFieldEnum[]
+  }
+
+  /**
+   * EggInventory create
+   */
+  export type EggInventoryCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EggInventory
+     */
+    select?: EggInventorySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the EggInventory
+     */
+    omit?: EggInventoryOmit<ExtArgs> | null
+    /**
+     * The data needed to create a EggInventory.
+     */
+    data: XOR<EggInventoryCreateInput, EggInventoryUncheckedCreateInput>
+  }
+
+  /**
+   * EggInventory createMany
+   */
+  export type EggInventoryCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many EggInventories.
+     */
+    data: EggInventoryCreateManyInput | EggInventoryCreateManyInput[]
+  }
+
+  /**
+   * EggInventory createManyAndReturn
+   */
+  export type EggInventoryCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EggInventory
+     */
+    select?: EggInventorySelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the EggInventory
+     */
+    omit?: EggInventoryOmit<ExtArgs> | null
+    /**
+     * The data used to create many EggInventories.
+     */
+    data: EggInventoryCreateManyInput | EggInventoryCreateManyInput[]
+  }
+
+  /**
+   * EggInventory update
+   */
+  export type EggInventoryUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EggInventory
+     */
+    select?: EggInventorySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the EggInventory
+     */
+    omit?: EggInventoryOmit<ExtArgs> | null
+    /**
+     * The data needed to update a EggInventory.
+     */
+    data: XOR<EggInventoryUpdateInput, EggInventoryUncheckedUpdateInput>
+    /**
+     * Choose, which EggInventory to update.
+     */
+    where: EggInventoryWhereUniqueInput
+  }
+
+  /**
+   * EggInventory updateMany
+   */
+  export type EggInventoryUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update EggInventories.
+     */
+    data: XOR<EggInventoryUpdateManyMutationInput, EggInventoryUncheckedUpdateManyInput>
+    /**
+     * Filter which EggInventories to update
+     */
+    where?: EggInventoryWhereInput
+    /**
+     * Limit how many EggInventories to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * EggInventory updateManyAndReturn
+   */
+  export type EggInventoryUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EggInventory
+     */
+    select?: EggInventorySelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the EggInventory
+     */
+    omit?: EggInventoryOmit<ExtArgs> | null
+    /**
+     * The data used to update EggInventories.
+     */
+    data: XOR<EggInventoryUpdateManyMutationInput, EggInventoryUncheckedUpdateManyInput>
+    /**
+     * Filter which EggInventories to update
+     */
+    where?: EggInventoryWhereInput
+    /**
+     * Limit how many EggInventories to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * EggInventory upsert
+   */
+  export type EggInventoryUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EggInventory
+     */
+    select?: EggInventorySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the EggInventory
+     */
+    omit?: EggInventoryOmit<ExtArgs> | null
+    /**
+     * The filter to search for the EggInventory to update in case it exists.
+     */
+    where: EggInventoryWhereUniqueInput
+    /**
+     * In case the EggInventory found by the `where` argument doesn't exist, create a new EggInventory with this data.
+     */
+    create: XOR<EggInventoryCreateInput, EggInventoryUncheckedCreateInput>
+    /**
+     * In case the EggInventory was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<EggInventoryUpdateInput, EggInventoryUncheckedUpdateInput>
+  }
+
+  /**
+   * EggInventory delete
+   */
+  export type EggInventoryDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EggInventory
+     */
+    select?: EggInventorySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the EggInventory
+     */
+    omit?: EggInventoryOmit<ExtArgs> | null
+    /**
+     * Filter which EggInventory to delete.
+     */
+    where: EggInventoryWhereUniqueInput
+  }
+
+  /**
+   * EggInventory deleteMany
+   */
+  export type EggInventoryDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which EggInventories to delete
+     */
+    where?: EggInventoryWhereInput
+    /**
+     * Limit how many EggInventories to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * EggInventory without action
+   */
+  export type EggInventoryDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EggInventory
+     */
+    select?: EggInventorySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the EggInventory
+     */
+    omit?: EggInventoryOmit<ExtArgs> | null
+  }
+
+
+  /**
+   * Model EggDelivery
+   */
+
+  export type AggregateEggDelivery = {
+    _count: EggDeliveryCountAggregateOutputType | null
+    _avg: EggDeliveryAvgAggregateOutputType | null
+    _sum: EggDeliverySumAggregateOutputType | null
+    _min: EggDeliveryMinAggregateOutputType | null
+    _max: EggDeliveryMaxAggregateOutputType | null
+  }
+
+  export type EggDeliveryAvgAggregateOutputType = {
+    henEggsSmall: number | null
+    henEggsMedium: number | null
+    henEggsLarge: number | null
+    henEggsExtraLarge: number | null
+    totalHenEggs: number | null
+    duckEggsSmall: number | null
+    duckEggsMedium: number | null
+    duckEggsLarge: number | null
+    totalDuckEggs: number | null
+    henEggPrice: number | null
+    duckEggPrice: number | null
+    totalValue: number | null
+  }
+
+  export type EggDeliverySumAggregateOutputType = {
+    henEggsSmall: number | null
+    henEggsMedium: number | null
+    henEggsLarge: number | null
+    henEggsExtraLarge: number | null
+    totalHenEggs: number | null
+    duckEggsSmall: number | null
+    duckEggsMedium: number | null
+    duckEggsLarge: number | null
+    totalDuckEggs: number | null
+    henEggPrice: number | null
+    duckEggPrice: number | null
+    totalValue: number | null
+  }
+
+  export type EggDeliveryMinAggregateOutputType = {
+    id: string | null
+    customerId: string | null
+    staffId: string | null
+    deliveryDate: Date | null
+    status: $Enums.DeliveryStatus | null
+    henEggsSmall: number | null
+    henEggsMedium: number | null
+    henEggsLarge: number | null
+    henEggsExtraLarge: number | null
+    totalHenEggs: number | null
+    duckEggsSmall: number | null
+    duckEggsMedium: number | null
+    duckEggsLarge: number | null
+    totalDuckEggs: number | null
+    henEggPrice: number | null
+    duckEggPrice: number | null
+    totalValue: number | null
+    paid: boolean | null
+    paymentMethod: $Enums.PaymentMethod | null
+    notes: string | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type EggDeliveryMaxAggregateOutputType = {
+    id: string | null
+    customerId: string | null
+    staffId: string | null
+    deliveryDate: Date | null
+    status: $Enums.DeliveryStatus | null
+    henEggsSmall: number | null
+    henEggsMedium: number | null
+    henEggsLarge: number | null
+    henEggsExtraLarge: number | null
+    totalHenEggs: number | null
+    duckEggsSmall: number | null
+    duckEggsMedium: number | null
+    duckEggsLarge: number | null
+    totalDuckEggs: number | null
+    henEggPrice: number | null
+    duckEggPrice: number | null
+    totalValue: number | null
+    paid: boolean | null
+    paymentMethod: $Enums.PaymentMethod | null
+    notes: string | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type EggDeliveryCountAggregateOutputType = {
+    id: number
+    customerId: number
+    staffId: number
+    deliveryDate: number
+    status: number
+    henEggsSmall: number
+    henEggsMedium: number
+    henEggsLarge: number
+    henEggsExtraLarge: number
+    totalHenEggs: number
+    duckEggsSmall: number
+    duckEggsMedium: number
+    duckEggsLarge: number
+    totalDuckEggs: number
+    henEggPrice: number
+    duckEggPrice: number
+    totalValue: number
+    paid: number
+    paymentMethod: number
+    notes: number
+    createdAt: number
+    updatedAt: number
+    _all: number
+  }
+
+
+  export type EggDeliveryAvgAggregateInputType = {
+    henEggsSmall?: true
+    henEggsMedium?: true
+    henEggsLarge?: true
+    henEggsExtraLarge?: true
+    totalHenEggs?: true
+    duckEggsSmall?: true
+    duckEggsMedium?: true
+    duckEggsLarge?: true
+    totalDuckEggs?: true
+    henEggPrice?: true
+    duckEggPrice?: true
+    totalValue?: true
+  }
+
+  export type EggDeliverySumAggregateInputType = {
+    henEggsSmall?: true
+    henEggsMedium?: true
+    henEggsLarge?: true
+    henEggsExtraLarge?: true
+    totalHenEggs?: true
+    duckEggsSmall?: true
+    duckEggsMedium?: true
+    duckEggsLarge?: true
+    totalDuckEggs?: true
+    henEggPrice?: true
+    duckEggPrice?: true
+    totalValue?: true
+  }
+
+  export type EggDeliveryMinAggregateInputType = {
+    id?: true
+    customerId?: true
+    staffId?: true
+    deliveryDate?: true
+    status?: true
+    henEggsSmall?: true
+    henEggsMedium?: true
+    henEggsLarge?: true
+    henEggsExtraLarge?: true
+    totalHenEggs?: true
+    duckEggsSmall?: true
+    duckEggsMedium?: true
+    duckEggsLarge?: true
+    totalDuckEggs?: true
+    henEggPrice?: true
+    duckEggPrice?: true
+    totalValue?: true
+    paid?: true
+    paymentMethod?: true
+    notes?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type EggDeliveryMaxAggregateInputType = {
+    id?: true
+    customerId?: true
+    staffId?: true
+    deliveryDate?: true
+    status?: true
+    henEggsSmall?: true
+    henEggsMedium?: true
+    henEggsLarge?: true
+    henEggsExtraLarge?: true
+    totalHenEggs?: true
+    duckEggsSmall?: true
+    duckEggsMedium?: true
+    duckEggsLarge?: true
+    totalDuckEggs?: true
+    henEggPrice?: true
+    duckEggPrice?: true
+    totalValue?: true
+    paid?: true
+    paymentMethod?: true
+    notes?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type EggDeliveryCountAggregateInputType = {
+    id?: true
+    customerId?: true
+    staffId?: true
+    deliveryDate?: true
+    status?: true
+    henEggsSmall?: true
+    henEggsMedium?: true
+    henEggsLarge?: true
+    henEggsExtraLarge?: true
+    totalHenEggs?: true
+    duckEggsSmall?: true
+    duckEggsMedium?: true
+    duckEggsLarge?: true
+    totalDuckEggs?: true
+    henEggPrice?: true
+    duckEggPrice?: true
+    totalValue?: true
+    paid?: true
+    paymentMethod?: true
+    notes?: true
+    createdAt?: true
+    updatedAt?: true
+    _all?: true
+  }
+
+  export type EggDeliveryAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which EggDelivery to aggregate.
+     */
+    where?: EggDeliveryWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of EggDeliveries to fetch.
+     */
+    orderBy?: EggDeliveryOrderByWithRelationInput | EggDeliveryOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: EggDeliveryWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` EggDeliveries from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` EggDeliveries.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned EggDeliveries
+    **/
+    _count?: true | EggDeliveryCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: EggDeliveryAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: EggDeliverySumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: EggDeliveryMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: EggDeliveryMaxAggregateInputType
+  }
+
+  export type GetEggDeliveryAggregateType<T extends EggDeliveryAggregateArgs> = {
+        [P in keyof T & keyof AggregateEggDelivery]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateEggDelivery[P]>
+      : GetScalarType<T[P], AggregateEggDelivery[P]>
+  }
+
+
+
+
+  export type EggDeliveryGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: EggDeliveryWhereInput
+    orderBy?: EggDeliveryOrderByWithAggregationInput | EggDeliveryOrderByWithAggregationInput[]
+    by: EggDeliveryScalarFieldEnum[] | EggDeliveryScalarFieldEnum
+    having?: EggDeliveryScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: EggDeliveryCountAggregateInputType | true
+    _avg?: EggDeliveryAvgAggregateInputType
+    _sum?: EggDeliverySumAggregateInputType
+    _min?: EggDeliveryMinAggregateInputType
+    _max?: EggDeliveryMaxAggregateInputType
+  }
+
+  export type EggDeliveryGroupByOutputType = {
+    id: string
+    customerId: string
+    staffId: string | null
+    deliveryDate: Date
+    status: $Enums.DeliveryStatus
+    henEggsSmall: number
+    henEggsMedium: number
+    henEggsLarge: number
+    henEggsExtraLarge: number
+    totalHenEggs: number
+    duckEggsSmall: number
+    duckEggsMedium: number
+    duckEggsLarge: number
+    totalDuckEggs: number
+    henEggPrice: number
+    duckEggPrice: number
+    totalValue: number
+    paid: boolean
+    paymentMethod: $Enums.PaymentMethod | null
+    notes: string | null
+    createdAt: Date
+    updatedAt: Date
+    _count: EggDeliveryCountAggregateOutputType | null
+    _avg: EggDeliveryAvgAggregateOutputType | null
+    _sum: EggDeliverySumAggregateOutputType | null
+    _min: EggDeliveryMinAggregateOutputType | null
+    _max: EggDeliveryMaxAggregateOutputType | null
+  }
+
+  type GetEggDeliveryGroupByPayload<T extends EggDeliveryGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<EggDeliveryGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof EggDeliveryGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], EggDeliveryGroupByOutputType[P]>
+            : GetScalarType<T[P], EggDeliveryGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type EggDeliverySelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    customerId?: boolean
+    staffId?: boolean
+    deliveryDate?: boolean
+    status?: boolean
+    henEggsSmall?: boolean
+    henEggsMedium?: boolean
+    henEggsLarge?: boolean
+    henEggsExtraLarge?: boolean
+    totalHenEggs?: boolean
+    duckEggsSmall?: boolean
+    duckEggsMedium?: boolean
+    duckEggsLarge?: boolean
+    totalDuckEggs?: boolean
+    henEggPrice?: boolean
+    duckEggPrice?: boolean
+    totalValue?: boolean
+    paid?: boolean
+    paymentMethod?: boolean
+    notes?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    customer?: boolean | CustomerDefaultArgs<ExtArgs>
+    staff?: boolean | EggDelivery$staffArgs<ExtArgs>
+  }, ExtArgs["result"]["eggDelivery"]>
+
+  export type EggDeliverySelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    customerId?: boolean
+    staffId?: boolean
+    deliveryDate?: boolean
+    status?: boolean
+    henEggsSmall?: boolean
+    henEggsMedium?: boolean
+    henEggsLarge?: boolean
+    henEggsExtraLarge?: boolean
+    totalHenEggs?: boolean
+    duckEggsSmall?: boolean
+    duckEggsMedium?: boolean
+    duckEggsLarge?: boolean
+    totalDuckEggs?: boolean
+    henEggPrice?: boolean
+    duckEggPrice?: boolean
+    totalValue?: boolean
+    paid?: boolean
+    paymentMethod?: boolean
+    notes?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    customer?: boolean | CustomerDefaultArgs<ExtArgs>
+    staff?: boolean | EggDelivery$staffArgs<ExtArgs>
+  }, ExtArgs["result"]["eggDelivery"]>
+
+  export type EggDeliverySelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    customerId?: boolean
+    staffId?: boolean
+    deliveryDate?: boolean
+    status?: boolean
+    henEggsSmall?: boolean
+    henEggsMedium?: boolean
+    henEggsLarge?: boolean
+    henEggsExtraLarge?: boolean
+    totalHenEggs?: boolean
+    duckEggsSmall?: boolean
+    duckEggsMedium?: boolean
+    duckEggsLarge?: boolean
+    totalDuckEggs?: boolean
+    henEggPrice?: boolean
+    duckEggPrice?: boolean
+    totalValue?: boolean
+    paid?: boolean
+    paymentMethod?: boolean
+    notes?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    customer?: boolean | CustomerDefaultArgs<ExtArgs>
+    staff?: boolean | EggDelivery$staffArgs<ExtArgs>
+  }, ExtArgs["result"]["eggDelivery"]>
+
+  export type EggDeliverySelectScalar = {
+    id?: boolean
+    customerId?: boolean
+    staffId?: boolean
+    deliveryDate?: boolean
+    status?: boolean
+    henEggsSmall?: boolean
+    henEggsMedium?: boolean
+    henEggsLarge?: boolean
+    henEggsExtraLarge?: boolean
+    totalHenEggs?: boolean
+    duckEggsSmall?: boolean
+    duckEggsMedium?: boolean
+    duckEggsLarge?: boolean
+    totalDuckEggs?: boolean
+    henEggPrice?: boolean
+    duckEggPrice?: boolean
+    totalValue?: boolean
+    paid?: boolean
+    paymentMethod?: boolean
+    notes?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }
+
+  export type EggDeliveryOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "customerId" | "staffId" | "deliveryDate" | "status" | "henEggsSmall" | "henEggsMedium" | "henEggsLarge" | "henEggsExtraLarge" | "totalHenEggs" | "duckEggsSmall" | "duckEggsMedium" | "duckEggsLarge" | "totalDuckEggs" | "henEggPrice" | "duckEggPrice" | "totalValue" | "paid" | "paymentMethod" | "notes" | "createdAt" | "updatedAt", ExtArgs["result"]["eggDelivery"]>
+  export type EggDeliveryInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    customer?: boolean | CustomerDefaultArgs<ExtArgs>
+    staff?: boolean | EggDelivery$staffArgs<ExtArgs>
+  }
+  export type EggDeliveryIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    customer?: boolean | CustomerDefaultArgs<ExtArgs>
+    staff?: boolean | EggDelivery$staffArgs<ExtArgs>
+  }
+  export type EggDeliveryIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    customer?: boolean | CustomerDefaultArgs<ExtArgs>
+    staff?: boolean | EggDelivery$staffArgs<ExtArgs>
+  }
+
+  export type $EggDeliveryPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "EggDelivery"
+    objects: {
+      customer: Prisma.$CustomerPayload<ExtArgs>
+      staff: Prisma.$StaffPayload<ExtArgs> | null
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      customerId: string
+      staffId: string | null
+      deliveryDate: Date
+      status: $Enums.DeliveryStatus
+      henEggsSmall: number
+      henEggsMedium: number
+      henEggsLarge: number
+      henEggsExtraLarge: number
+      totalHenEggs: number
+      duckEggsSmall: number
+      duckEggsMedium: number
+      duckEggsLarge: number
+      totalDuckEggs: number
+      henEggPrice: number
+      duckEggPrice: number
+      totalValue: number
+      paid: boolean
+      paymentMethod: $Enums.PaymentMethod | null
+      notes: string | null
+      createdAt: Date
+      updatedAt: Date
+    }, ExtArgs["result"]["eggDelivery"]>
+    composites: {}
+  }
+
+  type EggDeliveryGetPayload<S extends boolean | null | undefined | EggDeliveryDefaultArgs> = $Result.GetResult<Prisma.$EggDeliveryPayload, S>
+
+  type EggDeliveryCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<EggDeliveryFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: EggDeliveryCountAggregateInputType | true
+    }
+
+  export interface EggDeliveryDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['EggDelivery'], meta: { name: 'EggDelivery' } }
+    /**
+     * Find zero or one EggDelivery that matches the filter.
+     * @param {EggDeliveryFindUniqueArgs} args - Arguments to find a EggDelivery
+     * @example
+     * // Get one EggDelivery
+     * const eggDelivery = await prisma.eggDelivery.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends EggDeliveryFindUniqueArgs>(args: SelectSubset<T, EggDeliveryFindUniqueArgs<ExtArgs>>): Prisma__EggDeliveryClient<$Result.GetResult<Prisma.$EggDeliveryPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one EggDelivery that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {EggDeliveryFindUniqueOrThrowArgs} args - Arguments to find a EggDelivery
+     * @example
+     * // Get one EggDelivery
+     * const eggDelivery = await prisma.eggDelivery.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends EggDeliveryFindUniqueOrThrowArgs>(args: SelectSubset<T, EggDeliveryFindUniqueOrThrowArgs<ExtArgs>>): Prisma__EggDeliveryClient<$Result.GetResult<Prisma.$EggDeliveryPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first EggDelivery that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {EggDeliveryFindFirstArgs} args - Arguments to find a EggDelivery
+     * @example
+     * // Get one EggDelivery
+     * const eggDelivery = await prisma.eggDelivery.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends EggDeliveryFindFirstArgs>(args?: SelectSubset<T, EggDeliveryFindFirstArgs<ExtArgs>>): Prisma__EggDeliveryClient<$Result.GetResult<Prisma.$EggDeliveryPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first EggDelivery that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {EggDeliveryFindFirstOrThrowArgs} args - Arguments to find a EggDelivery
+     * @example
+     * // Get one EggDelivery
+     * const eggDelivery = await prisma.eggDelivery.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends EggDeliveryFindFirstOrThrowArgs>(args?: SelectSubset<T, EggDeliveryFindFirstOrThrowArgs<ExtArgs>>): Prisma__EggDeliveryClient<$Result.GetResult<Prisma.$EggDeliveryPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more EggDeliveries that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {EggDeliveryFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all EggDeliveries
+     * const eggDeliveries = await prisma.eggDelivery.findMany()
+     * 
+     * // Get first 10 EggDeliveries
+     * const eggDeliveries = await prisma.eggDelivery.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const eggDeliveryWithIdOnly = await prisma.eggDelivery.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends EggDeliveryFindManyArgs>(args?: SelectSubset<T, EggDeliveryFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$EggDeliveryPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a EggDelivery.
+     * @param {EggDeliveryCreateArgs} args - Arguments to create a EggDelivery.
+     * @example
+     * // Create one EggDelivery
+     * const EggDelivery = await prisma.eggDelivery.create({
+     *   data: {
+     *     // ... data to create a EggDelivery
+     *   }
+     * })
+     * 
+     */
+    create<T extends EggDeliveryCreateArgs>(args: SelectSubset<T, EggDeliveryCreateArgs<ExtArgs>>): Prisma__EggDeliveryClient<$Result.GetResult<Prisma.$EggDeliveryPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many EggDeliveries.
+     * @param {EggDeliveryCreateManyArgs} args - Arguments to create many EggDeliveries.
+     * @example
+     * // Create many EggDeliveries
+     * const eggDelivery = await prisma.eggDelivery.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends EggDeliveryCreateManyArgs>(args?: SelectSubset<T, EggDeliveryCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many EggDeliveries and returns the data saved in the database.
+     * @param {EggDeliveryCreateManyAndReturnArgs} args - Arguments to create many EggDeliveries.
+     * @example
+     * // Create many EggDeliveries
+     * const eggDelivery = await prisma.eggDelivery.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many EggDeliveries and only return the `id`
+     * const eggDeliveryWithIdOnly = await prisma.eggDelivery.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends EggDeliveryCreateManyAndReturnArgs>(args?: SelectSubset<T, EggDeliveryCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$EggDeliveryPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a EggDelivery.
+     * @param {EggDeliveryDeleteArgs} args - Arguments to delete one EggDelivery.
+     * @example
+     * // Delete one EggDelivery
+     * const EggDelivery = await prisma.eggDelivery.delete({
+     *   where: {
+     *     // ... filter to delete one EggDelivery
+     *   }
+     * })
+     * 
+     */
+    delete<T extends EggDeliveryDeleteArgs>(args: SelectSubset<T, EggDeliveryDeleteArgs<ExtArgs>>): Prisma__EggDeliveryClient<$Result.GetResult<Prisma.$EggDeliveryPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one EggDelivery.
+     * @param {EggDeliveryUpdateArgs} args - Arguments to update one EggDelivery.
+     * @example
+     * // Update one EggDelivery
+     * const eggDelivery = await prisma.eggDelivery.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends EggDeliveryUpdateArgs>(args: SelectSubset<T, EggDeliveryUpdateArgs<ExtArgs>>): Prisma__EggDeliveryClient<$Result.GetResult<Prisma.$EggDeliveryPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more EggDeliveries.
+     * @param {EggDeliveryDeleteManyArgs} args - Arguments to filter EggDeliveries to delete.
+     * @example
+     * // Delete a few EggDeliveries
+     * const { count } = await prisma.eggDelivery.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends EggDeliveryDeleteManyArgs>(args?: SelectSubset<T, EggDeliveryDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more EggDeliveries.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {EggDeliveryUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many EggDeliveries
+     * const eggDelivery = await prisma.eggDelivery.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends EggDeliveryUpdateManyArgs>(args: SelectSubset<T, EggDeliveryUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more EggDeliveries and returns the data updated in the database.
+     * @param {EggDeliveryUpdateManyAndReturnArgs} args - Arguments to update many EggDeliveries.
+     * @example
+     * // Update many EggDeliveries
+     * const eggDelivery = await prisma.eggDelivery.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more EggDeliveries and only return the `id`
+     * const eggDeliveryWithIdOnly = await prisma.eggDelivery.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends EggDeliveryUpdateManyAndReturnArgs>(args: SelectSubset<T, EggDeliveryUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$EggDeliveryPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one EggDelivery.
+     * @param {EggDeliveryUpsertArgs} args - Arguments to update or create a EggDelivery.
+     * @example
+     * // Update or create a EggDelivery
+     * const eggDelivery = await prisma.eggDelivery.upsert({
+     *   create: {
+     *     // ... data to create a EggDelivery
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the EggDelivery we want to update
+     *   }
+     * })
+     */
+    upsert<T extends EggDeliveryUpsertArgs>(args: SelectSubset<T, EggDeliveryUpsertArgs<ExtArgs>>): Prisma__EggDeliveryClient<$Result.GetResult<Prisma.$EggDeliveryPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of EggDeliveries.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {EggDeliveryCountArgs} args - Arguments to filter EggDeliveries to count.
+     * @example
+     * // Count the number of EggDeliveries
+     * const count = await prisma.eggDelivery.count({
+     *   where: {
+     *     // ... the filter for the EggDeliveries we want to count
+     *   }
+     * })
+    **/
+    count<T extends EggDeliveryCountArgs>(
+      args?: Subset<T, EggDeliveryCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], EggDeliveryCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a EggDelivery.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {EggDeliveryAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends EggDeliveryAggregateArgs>(args: Subset<T, EggDeliveryAggregateArgs>): Prisma.PrismaPromise<GetEggDeliveryAggregateType<T>>
+
+    /**
+     * Group by EggDelivery.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {EggDeliveryGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends EggDeliveryGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: EggDeliveryGroupByArgs['orderBy'] }
+        : { orderBy?: EggDeliveryGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, EggDeliveryGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetEggDeliveryGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the EggDelivery model
+   */
+  readonly fields: EggDeliveryFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for EggDelivery.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__EggDeliveryClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    customer<T extends CustomerDefaultArgs<ExtArgs> = {}>(args?: Subset<T, CustomerDefaultArgs<ExtArgs>>): Prisma__CustomerClient<$Result.GetResult<Prisma.$CustomerPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    staff<T extends EggDelivery$staffArgs<ExtArgs> = {}>(args?: Subset<T, EggDelivery$staffArgs<ExtArgs>>): Prisma__StaffClient<$Result.GetResult<Prisma.$StaffPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the EggDelivery model
+   */
+  interface EggDeliveryFieldRefs {
+    readonly id: FieldRef<"EggDelivery", 'String'>
+    readonly customerId: FieldRef<"EggDelivery", 'String'>
+    readonly staffId: FieldRef<"EggDelivery", 'String'>
+    readonly deliveryDate: FieldRef<"EggDelivery", 'DateTime'>
+    readonly status: FieldRef<"EggDelivery", 'DeliveryStatus'>
+    readonly henEggsSmall: FieldRef<"EggDelivery", 'Int'>
+    readonly henEggsMedium: FieldRef<"EggDelivery", 'Int'>
+    readonly henEggsLarge: FieldRef<"EggDelivery", 'Int'>
+    readonly henEggsExtraLarge: FieldRef<"EggDelivery", 'Int'>
+    readonly totalHenEggs: FieldRef<"EggDelivery", 'Int'>
+    readonly duckEggsSmall: FieldRef<"EggDelivery", 'Int'>
+    readonly duckEggsMedium: FieldRef<"EggDelivery", 'Int'>
+    readonly duckEggsLarge: FieldRef<"EggDelivery", 'Int'>
+    readonly totalDuckEggs: FieldRef<"EggDelivery", 'Int'>
+    readonly henEggPrice: FieldRef<"EggDelivery", 'Float'>
+    readonly duckEggPrice: FieldRef<"EggDelivery", 'Float'>
+    readonly totalValue: FieldRef<"EggDelivery", 'Float'>
+    readonly paid: FieldRef<"EggDelivery", 'Boolean'>
+    readonly paymentMethod: FieldRef<"EggDelivery", 'PaymentMethod'>
+    readonly notes: FieldRef<"EggDelivery", 'String'>
+    readonly createdAt: FieldRef<"EggDelivery", 'DateTime'>
+    readonly updatedAt: FieldRef<"EggDelivery", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * EggDelivery findUnique
+   */
+  export type EggDeliveryFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EggDelivery
+     */
+    select?: EggDeliverySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the EggDelivery
+     */
+    omit?: EggDeliveryOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: EggDeliveryInclude<ExtArgs> | null
+    /**
+     * Filter, which EggDelivery to fetch.
+     */
+    where: EggDeliveryWhereUniqueInput
+  }
+
+  /**
+   * EggDelivery findUniqueOrThrow
+   */
+  export type EggDeliveryFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EggDelivery
+     */
+    select?: EggDeliverySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the EggDelivery
+     */
+    omit?: EggDeliveryOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: EggDeliveryInclude<ExtArgs> | null
+    /**
+     * Filter, which EggDelivery to fetch.
+     */
+    where: EggDeliveryWhereUniqueInput
+  }
+
+  /**
+   * EggDelivery findFirst
+   */
+  export type EggDeliveryFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EggDelivery
+     */
+    select?: EggDeliverySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the EggDelivery
+     */
+    omit?: EggDeliveryOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: EggDeliveryInclude<ExtArgs> | null
+    /**
+     * Filter, which EggDelivery to fetch.
+     */
+    where?: EggDeliveryWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of EggDeliveries to fetch.
+     */
+    orderBy?: EggDeliveryOrderByWithRelationInput | EggDeliveryOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for EggDeliveries.
+     */
+    cursor?: EggDeliveryWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` EggDeliveries from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` EggDeliveries.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of EggDeliveries.
+     */
+    distinct?: EggDeliveryScalarFieldEnum | EggDeliveryScalarFieldEnum[]
+  }
+
+  /**
+   * EggDelivery findFirstOrThrow
+   */
+  export type EggDeliveryFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EggDelivery
+     */
+    select?: EggDeliverySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the EggDelivery
+     */
+    omit?: EggDeliveryOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: EggDeliveryInclude<ExtArgs> | null
+    /**
+     * Filter, which EggDelivery to fetch.
+     */
+    where?: EggDeliveryWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of EggDeliveries to fetch.
+     */
+    orderBy?: EggDeliveryOrderByWithRelationInput | EggDeliveryOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for EggDeliveries.
+     */
+    cursor?: EggDeliveryWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` EggDeliveries from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` EggDeliveries.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of EggDeliveries.
+     */
+    distinct?: EggDeliveryScalarFieldEnum | EggDeliveryScalarFieldEnum[]
+  }
+
+  /**
+   * EggDelivery findMany
+   */
+  export type EggDeliveryFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EggDelivery
+     */
+    select?: EggDeliverySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the EggDelivery
+     */
+    omit?: EggDeliveryOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: EggDeliveryInclude<ExtArgs> | null
+    /**
+     * Filter, which EggDeliveries to fetch.
+     */
+    where?: EggDeliveryWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of EggDeliveries to fetch.
+     */
+    orderBy?: EggDeliveryOrderByWithRelationInput | EggDeliveryOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing EggDeliveries.
+     */
+    cursor?: EggDeliveryWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` EggDeliveries from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` EggDeliveries.
+     */
+    skip?: number
+    distinct?: EggDeliveryScalarFieldEnum | EggDeliveryScalarFieldEnum[]
+  }
+
+  /**
+   * EggDelivery create
+   */
+  export type EggDeliveryCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EggDelivery
+     */
+    select?: EggDeliverySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the EggDelivery
+     */
+    omit?: EggDeliveryOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: EggDeliveryInclude<ExtArgs> | null
+    /**
+     * The data needed to create a EggDelivery.
+     */
+    data: XOR<EggDeliveryCreateInput, EggDeliveryUncheckedCreateInput>
+  }
+
+  /**
+   * EggDelivery createMany
+   */
+  export type EggDeliveryCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many EggDeliveries.
+     */
+    data: EggDeliveryCreateManyInput | EggDeliveryCreateManyInput[]
+  }
+
+  /**
+   * EggDelivery createManyAndReturn
+   */
+  export type EggDeliveryCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EggDelivery
+     */
+    select?: EggDeliverySelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the EggDelivery
+     */
+    omit?: EggDeliveryOmit<ExtArgs> | null
+    /**
+     * The data used to create many EggDeliveries.
+     */
+    data: EggDeliveryCreateManyInput | EggDeliveryCreateManyInput[]
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: EggDeliveryIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * EggDelivery update
+   */
+  export type EggDeliveryUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EggDelivery
+     */
+    select?: EggDeliverySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the EggDelivery
+     */
+    omit?: EggDeliveryOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: EggDeliveryInclude<ExtArgs> | null
+    /**
+     * The data needed to update a EggDelivery.
+     */
+    data: XOR<EggDeliveryUpdateInput, EggDeliveryUncheckedUpdateInput>
+    /**
+     * Choose, which EggDelivery to update.
+     */
+    where: EggDeliveryWhereUniqueInput
+  }
+
+  /**
+   * EggDelivery updateMany
+   */
+  export type EggDeliveryUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update EggDeliveries.
+     */
+    data: XOR<EggDeliveryUpdateManyMutationInput, EggDeliveryUncheckedUpdateManyInput>
+    /**
+     * Filter which EggDeliveries to update
+     */
+    where?: EggDeliveryWhereInput
+    /**
+     * Limit how many EggDeliveries to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * EggDelivery updateManyAndReturn
+   */
+  export type EggDeliveryUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EggDelivery
+     */
+    select?: EggDeliverySelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the EggDelivery
+     */
+    omit?: EggDeliveryOmit<ExtArgs> | null
+    /**
+     * The data used to update EggDeliveries.
+     */
+    data: XOR<EggDeliveryUpdateManyMutationInput, EggDeliveryUncheckedUpdateManyInput>
+    /**
+     * Filter which EggDeliveries to update
+     */
+    where?: EggDeliveryWhereInput
+    /**
+     * Limit how many EggDeliveries to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: EggDeliveryIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * EggDelivery upsert
+   */
+  export type EggDeliveryUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EggDelivery
+     */
+    select?: EggDeliverySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the EggDelivery
+     */
+    omit?: EggDeliveryOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: EggDeliveryInclude<ExtArgs> | null
+    /**
+     * The filter to search for the EggDelivery to update in case it exists.
+     */
+    where: EggDeliveryWhereUniqueInput
+    /**
+     * In case the EggDelivery found by the `where` argument doesn't exist, create a new EggDelivery with this data.
+     */
+    create: XOR<EggDeliveryCreateInput, EggDeliveryUncheckedCreateInput>
+    /**
+     * In case the EggDelivery was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<EggDeliveryUpdateInput, EggDeliveryUncheckedUpdateInput>
+  }
+
+  /**
+   * EggDelivery delete
+   */
+  export type EggDeliveryDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EggDelivery
+     */
+    select?: EggDeliverySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the EggDelivery
+     */
+    omit?: EggDeliveryOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: EggDeliveryInclude<ExtArgs> | null
+    /**
+     * Filter which EggDelivery to delete.
+     */
+    where: EggDeliveryWhereUniqueInput
+  }
+
+  /**
+   * EggDelivery deleteMany
+   */
+  export type EggDeliveryDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which EggDeliveries to delete
+     */
+    where?: EggDeliveryWhereInput
+    /**
+     * Limit how many EggDeliveries to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * EggDelivery.staff
+   */
+  export type EggDelivery$staffArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Staff
+     */
+    select?: StaffSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Staff
+     */
+    omit?: StaffOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: StaffInclude<ExtArgs> | null
+    where?: StaffWhereInput
+  }
+
+  /**
+   * EggDelivery without action
+   */
+  export type EggDeliveryDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EggDelivery
+     */
+    select?: EggDeliverySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the EggDelivery
+     */
+    omit?: EggDeliveryOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: EggDeliveryInclude<ExtArgs> | null
   }
 
 
@@ -23519,6 +26274,49 @@ export namespace Prisma {
   export type EggCollectionScalarFieldEnum = (typeof EggCollectionScalarFieldEnum)[keyof typeof EggCollectionScalarFieldEnum]
 
 
+  export const EggInventoryScalarFieldEnum: {
+    id: 'id',
+    henEggsSmall: 'henEggsSmall',
+    henEggsMedium: 'henEggsMedium',
+    henEggsLarge: 'henEggsLarge',
+    henEggsExtraLarge: 'henEggsExtraLarge',
+    duckEggsSmall: 'duckEggsSmall',
+    duckEggsMedium: 'duckEggsMedium',
+    duckEggsLarge: 'duckEggsLarge',
+    updatedAt: 'updatedAt'
+  };
+
+  export type EggInventoryScalarFieldEnum = (typeof EggInventoryScalarFieldEnum)[keyof typeof EggInventoryScalarFieldEnum]
+
+
+  export const EggDeliveryScalarFieldEnum: {
+    id: 'id',
+    customerId: 'customerId',
+    staffId: 'staffId',
+    deliveryDate: 'deliveryDate',
+    status: 'status',
+    henEggsSmall: 'henEggsSmall',
+    henEggsMedium: 'henEggsMedium',
+    henEggsLarge: 'henEggsLarge',
+    henEggsExtraLarge: 'henEggsExtraLarge',
+    totalHenEggs: 'totalHenEggs',
+    duckEggsSmall: 'duckEggsSmall',
+    duckEggsMedium: 'duckEggsMedium',
+    duckEggsLarge: 'duckEggsLarge',
+    totalDuckEggs: 'totalDuckEggs',
+    henEggPrice: 'henEggPrice',
+    duckEggPrice: 'duckEggPrice',
+    totalValue: 'totalValue',
+    paid: 'paid',
+    paymentMethod: 'paymentMethod',
+    notes: 'notes',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
+  };
+
+  export type EggDeliveryScalarFieldEnum = (typeof EggDeliveryScalarFieldEnum)[keyof typeof EggDeliveryScalarFieldEnum]
+
+
   export const CollectionRouteScalarFieldEnum: {
     id: 'id',
     name: 'name',
@@ -23831,6 +26629,13 @@ export namespace Prisma {
 
 
   /**
+   * Reference to a field of type 'DeliveryStatus'
+   */
+  export type EnumDeliveryStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DeliveryStatus'>
+    
+
+
+  /**
    * Reference to a field of type 'PurchaseOrderStatus'
    */
   export type EnumPurchaseOrderStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'PurchaseOrderStatus'>
@@ -24036,6 +26841,7 @@ export namespace Prisma {
     eggCollections?: EggCollectionListRelationFilter
     paymentRecords?: PaymentRecordListRelationFilter
     collectionRoutes?: CollectionRouteListRelationFilter
+    eggDeliveries?: EggDeliveryListRelationFilter
     PurchaseOrder?: PurchaseOrderListRelationFilter
   }
 
@@ -24064,6 +26870,7 @@ export namespace Prisma {
     eggCollections?: EggCollectionOrderByRelationAggregateInput
     paymentRecords?: PaymentRecordOrderByRelationAggregateInput
     collectionRoutes?: CollectionRouteOrderByRelationAggregateInput
+    eggDeliveries?: EggDeliveryOrderByRelationAggregateInput
     PurchaseOrder?: PurchaseOrderOrderByRelationAggregateInput
   }
 
@@ -24095,6 +26902,7 @@ export namespace Prisma {
     eggCollections?: EggCollectionListRelationFilter
     paymentRecords?: PaymentRecordListRelationFilter
     collectionRoutes?: CollectionRouteListRelationFilter
+    eggDeliveries?: EggDeliveryListRelationFilter
     PurchaseOrder?: PurchaseOrderListRelationFilter
   }, "id" | "employeeId" | "email" | "username">
 
@@ -24186,6 +26994,7 @@ export namespace Prisma {
     eggCollections?: EggCollectionListRelationFilter
     paymentRecords?: PaymentRecordListRelationFilter
     routes?: CollectionRouteListRelationFilter
+    eggDeliveries?: EggDeliveryListRelationFilter
   }
 
   export type CustomerOrderByWithRelationInput = {
@@ -24219,6 +27028,7 @@ export namespace Prisma {
     eggCollections?: EggCollectionOrderByRelationAggregateInput
     paymentRecords?: PaymentRecordOrderByRelationAggregateInput
     routes?: CollectionRouteOrderByRelationAggregateInput
+    eggDeliveries?: EggDeliveryOrderByRelationAggregateInput
   }
 
   export type CustomerWhereUniqueInput = Prisma.AtLeast<{
@@ -24255,6 +27065,7 @@ export namespace Prisma {
     eggCollections?: EggCollectionListRelationFilter
     paymentRecords?: PaymentRecordListRelationFilter
     routes?: CollectionRouteListRelationFilter
+    eggDeliveries?: EggDeliveryListRelationFilter
   }, "id">
 
   export type CustomerOrderByWithAggregationInput = {
@@ -25077,6 +27888,225 @@ export namespace Prisma {
     lastSync?: DateTimeNullableWithAggregatesFilter<"EggCollection"> | Date | string | null
     createdAt?: DateTimeWithAggregatesFilter<"EggCollection"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"EggCollection"> | Date | string
+  }
+
+  export type EggInventoryWhereInput = {
+    AND?: EggInventoryWhereInput | EggInventoryWhereInput[]
+    OR?: EggInventoryWhereInput[]
+    NOT?: EggInventoryWhereInput | EggInventoryWhereInput[]
+    id?: StringFilter<"EggInventory"> | string
+    henEggsSmall?: IntFilter<"EggInventory"> | number
+    henEggsMedium?: IntFilter<"EggInventory"> | number
+    henEggsLarge?: IntFilter<"EggInventory"> | number
+    henEggsExtraLarge?: IntFilter<"EggInventory"> | number
+    duckEggsSmall?: IntFilter<"EggInventory"> | number
+    duckEggsMedium?: IntFilter<"EggInventory"> | number
+    duckEggsLarge?: IntFilter<"EggInventory"> | number
+    updatedAt?: DateTimeFilter<"EggInventory"> | Date | string
+  }
+
+  export type EggInventoryOrderByWithRelationInput = {
+    id?: SortOrder
+    henEggsSmall?: SortOrder
+    henEggsMedium?: SortOrder
+    henEggsLarge?: SortOrder
+    henEggsExtraLarge?: SortOrder
+    duckEggsSmall?: SortOrder
+    duckEggsMedium?: SortOrder
+    duckEggsLarge?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type EggInventoryWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    AND?: EggInventoryWhereInput | EggInventoryWhereInput[]
+    OR?: EggInventoryWhereInput[]
+    NOT?: EggInventoryWhereInput | EggInventoryWhereInput[]
+    henEggsSmall?: IntFilter<"EggInventory"> | number
+    henEggsMedium?: IntFilter<"EggInventory"> | number
+    henEggsLarge?: IntFilter<"EggInventory"> | number
+    henEggsExtraLarge?: IntFilter<"EggInventory"> | number
+    duckEggsSmall?: IntFilter<"EggInventory"> | number
+    duckEggsMedium?: IntFilter<"EggInventory"> | number
+    duckEggsLarge?: IntFilter<"EggInventory"> | number
+    updatedAt?: DateTimeFilter<"EggInventory"> | Date | string
+  }, "id">
+
+  export type EggInventoryOrderByWithAggregationInput = {
+    id?: SortOrder
+    henEggsSmall?: SortOrder
+    henEggsMedium?: SortOrder
+    henEggsLarge?: SortOrder
+    henEggsExtraLarge?: SortOrder
+    duckEggsSmall?: SortOrder
+    duckEggsMedium?: SortOrder
+    duckEggsLarge?: SortOrder
+    updatedAt?: SortOrder
+    _count?: EggInventoryCountOrderByAggregateInput
+    _avg?: EggInventoryAvgOrderByAggregateInput
+    _max?: EggInventoryMaxOrderByAggregateInput
+    _min?: EggInventoryMinOrderByAggregateInput
+    _sum?: EggInventorySumOrderByAggregateInput
+  }
+
+  export type EggInventoryScalarWhereWithAggregatesInput = {
+    AND?: EggInventoryScalarWhereWithAggregatesInput | EggInventoryScalarWhereWithAggregatesInput[]
+    OR?: EggInventoryScalarWhereWithAggregatesInput[]
+    NOT?: EggInventoryScalarWhereWithAggregatesInput | EggInventoryScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"EggInventory"> | string
+    henEggsSmall?: IntWithAggregatesFilter<"EggInventory"> | number
+    henEggsMedium?: IntWithAggregatesFilter<"EggInventory"> | number
+    henEggsLarge?: IntWithAggregatesFilter<"EggInventory"> | number
+    henEggsExtraLarge?: IntWithAggregatesFilter<"EggInventory"> | number
+    duckEggsSmall?: IntWithAggregatesFilter<"EggInventory"> | number
+    duckEggsMedium?: IntWithAggregatesFilter<"EggInventory"> | number
+    duckEggsLarge?: IntWithAggregatesFilter<"EggInventory"> | number
+    updatedAt?: DateTimeWithAggregatesFilter<"EggInventory"> | Date | string
+  }
+
+  export type EggDeliveryWhereInput = {
+    AND?: EggDeliveryWhereInput | EggDeliveryWhereInput[]
+    OR?: EggDeliveryWhereInput[]
+    NOT?: EggDeliveryWhereInput | EggDeliveryWhereInput[]
+    id?: StringFilter<"EggDelivery"> | string
+    customerId?: StringFilter<"EggDelivery"> | string
+    staffId?: StringNullableFilter<"EggDelivery"> | string | null
+    deliveryDate?: DateTimeFilter<"EggDelivery"> | Date | string
+    status?: EnumDeliveryStatusFilter<"EggDelivery"> | $Enums.DeliveryStatus
+    henEggsSmall?: IntFilter<"EggDelivery"> | number
+    henEggsMedium?: IntFilter<"EggDelivery"> | number
+    henEggsLarge?: IntFilter<"EggDelivery"> | number
+    henEggsExtraLarge?: IntFilter<"EggDelivery"> | number
+    totalHenEggs?: IntFilter<"EggDelivery"> | number
+    duckEggsSmall?: IntFilter<"EggDelivery"> | number
+    duckEggsMedium?: IntFilter<"EggDelivery"> | number
+    duckEggsLarge?: IntFilter<"EggDelivery"> | number
+    totalDuckEggs?: IntFilter<"EggDelivery"> | number
+    henEggPrice?: FloatFilter<"EggDelivery"> | number
+    duckEggPrice?: FloatFilter<"EggDelivery"> | number
+    totalValue?: FloatFilter<"EggDelivery"> | number
+    paid?: BoolFilter<"EggDelivery"> | boolean
+    paymentMethod?: EnumPaymentMethodNullableFilter<"EggDelivery"> | $Enums.PaymentMethod | null
+    notes?: StringNullableFilter<"EggDelivery"> | string | null
+    createdAt?: DateTimeFilter<"EggDelivery"> | Date | string
+    updatedAt?: DateTimeFilter<"EggDelivery"> | Date | string
+    customer?: XOR<CustomerScalarRelationFilter, CustomerWhereInput>
+    staff?: XOR<StaffNullableScalarRelationFilter, StaffWhereInput> | null
+  }
+
+  export type EggDeliveryOrderByWithRelationInput = {
+    id?: SortOrder
+    customerId?: SortOrder
+    staffId?: SortOrderInput | SortOrder
+    deliveryDate?: SortOrder
+    status?: SortOrder
+    henEggsSmall?: SortOrder
+    henEggsMedium?: SortOrder
+    henEggsLarge?: SortOrder
+    henEggsExtraLarge?: SortOrder
+    totalHenEggs?: SortOrder
+    duckEggsSmall?: SortOrder
+    duckEggsMedium?: SortOrder
+    duckEggsLarge?: SortOrder
+    totalDuckEggs?: SortOrder
+    henEggPrice?: SortOrder
+    duckEggPrice?: SortOrder
+    totalValue?: SortOrder
+    paid?: SortOrder
+    paymentMethod?: SortOrderInput | SortOrder
+    notes?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    customer?: CustomerOrderByWithRelationInput
+    staff?: StaffOrderByWithRelationInput
+  }
+
+  export type EggDeliveryWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    AND?: EggDeliveryWhereInput | EggDeliveryWhereInput[]
+    OR?: EggDeliveryWhereInput[]
+    NOT?: EggDeliveryWhereInput | EggDeliveryWhereInput[]
+    customerId?: StringFilter<"EggDelivery"> | string
+    staffId?: StringNullableFilter<"EggDelivery"> | string | null
+    deliveryDate?: DateTimeFilter<"EggDelivery"> | Date | string
+    status?: EnumDeliveryStatusFilter<"EggDelivery"> | $Enums.DeliveryStatus
+    henEggsSmall?: IntFilter<"EggDelivery"> | number
+    henEggsMedium?: IntFilter<"EggDelivery"> | number
+    henEggsLarge?: IntFilter<"EggDelivery"> | number
+    henEggsExtraLarge?: IntFilter<"EggDelivery"> | number
+    totalHenEggs?: IntFilter<"EggDelivery"> | number
+    duckEggsSmall?: IntFilter<"EggDelivery"> | number
+    duckEggsMedium?: IntFilter<"EggDelivery"> | number
+    duckEggsLarge?: IntFilter<"EggDelivery"> | number
+    totalDuckEggs?: IntFilter<"EggDelivery"> | number
+    henEggPrice?: FloatFilter<"EggDelivery"> | number
+    duckEggPrice?: FloatFilter<"EggDelivery"> | number
+    totalValue?: FloatFilter<"EggDelivery"> | number
+    paid?: BoolFilter<"EggDelivery"> | boolean
+    paymentMethod?: EnumPaymentMethodNullableFilter<"EggDelivery"> | $Enums.PaymentMethod | null
+    notes?: StringNullableFilter<"EggDelivery"> | string | null
+    createdAt?: DateTimeFilter<"EggDelivery"> | Date | string
+    updatedAt?: DateTimeFilter<"EggDelivery"> | Date | string
+    customer?: XOR<CustomerScalarRelationFilter, CustomerWhereInput>
+    staff?: XOR<StaffNullableScalarRelationFilter, StaffWhereInput> | null
+  }, "id">
+
+  export type EggDeliveryOrderByWithAggregationInput = {
+    id?: SortOrder
+    customerId?: SortOrder
+    staffId?: SortOrderInput | SortOrder
+    deliveryDate?: SortOrder
+    status?: SortOrder
+    henEggsSmall?: SortOrder
+    henEggsMedium?: SortOrder
+    henEggsLarge?: SortOrder
+    henEggsExtraLarge?: SortOrder
+    totalHenEggs?: SortOrder
+    duckEggsSmall?: SortOrder
+    duckEggsMedium?: SortOrder
+    duckEggsLarge?: SortOrder
+    totalDuckEggs?: SortOrder
+    henEggPrice?: SortOrder
+    duckEggPrice?: SortOrder
+    totalValue?: SortOrder
+    paid?: SortOrder
+    paymentMethod?: SortOrderInput | SortOrder
+    notes?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    _count?: EggDeliveryCountOrderByAggregateInput
+    _avg?: EggDeliveryAvgOrderByAggregateInput
+    _max?: EggDeliveryMaxOrderByAggregateInput
+    _min?: EggDeliveryMinOrderByAggregateInput
+    _sum?: EggDeliverySumOrderByAggregateInput
+  }
+
+  export type EggDeliveryScalarWhereWithAggregatesInput = {
+    AND?: EggDeliveryScalarWhereWithAggregatesInput | EggDeliveryScalarWhereWithAggregatesInput[]
+    OR?: EggDeliveryScalarWhereWithAggregatesInput[]
+    NOT?: EggDeliveryScalarWhereWithAggregatesInput | EggDeliveryScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"EggDelivery"> | string
+    customerId?: StringWithAggregatesFilter<"EggDelivery"> | string
+    staffId?: StringNullableWithAggregatesFilter<"EggDelivery"> | string | null
+    deliveryDate?: DateTimeWithAggregatesFilter<"EggDelivery"> | Date | string
+    status?: EnumDeliveryStatusWithAggregatesFilter<"EggDelivery"> | $Enums.DeliveryStatus
+    henEggsSmall?: IntWithAggregatesFilter<"EggDelivery"> | number
+    henEggsMedium?: IntWithAggregatesFilter<"EggDelivery"> | number
+    henEggsLarge?: IntWithAggregatesFilter<"EggDelivery"> | number
+    henEggsExtraLarge?: IntWithAggregatesFilter<"EggDelivery"> | number
+    totalHenEggs?: IntWithAggregatesFilter<"EggDelivery"> | number
+    duckEggsSmall?: IntWithAggregatesFilter<"EggDelivery"> | number
+    duckEggsMedium?: IntWithAggregatesFilter<"EggDelivery"> | number
+    duckEggsLarge?: IntWithAggregatesFilter<"EggDelivery"> | number
+    totalDuckEggs?: IntWithAggregatesFilter<"EggDelivery"> | number
+    henEggPrice?: FloatWithAggregatesFilter<"EggDelivery"> | number
+    duckEggPrice?: FloatWithAggregatesFilter<"EggDelivery"> | number
+    totalValue?: FloatWithAggregatesFilter<"EggDelivery"> | number
+    paid?: BoolWithAggregatesFilter<"EggDelivery"> | boolean
+    paymentMethod?: EnumPaymentMethodNullableWithAggregatesFilter<"EggDelivery"> | $Enums.PaymentMethod | null
+    notes?: StringNullableWithAggregatesFilter<"EggDelivery"> | string | null
+    createdAt?: DateTimeWithAggregatesFilter<"EggDelivery"> | Date | string
+    updatedAt?: DateTimeWithAggregatesFilter<"EggDelivery"> | Date | string
   }
 
   export type CollectionRouteWhereInput = {
@@ -26003,6 +29033,7 @@ export namespace Prisma {
     eggCollections?: EggCollectionCreateNestedManyWithoutStaffInput
     paymentRecords?: PaymentRecordCreateNestedManyWithoutStaffInput
     collectionRoutes?: CollectionRouteCreateNestedManyWithoutStaffInput
+    eggDeliveries?: EggDeliveryCreateNestedManyWithoutStaffInput
     PurchaseOrder?: PurchaseOrderCreateNestedManyWithoutStaffInput
   }
 
@@ -26031,6 +29062,7 @@ export namespace Prisma {
     eggCollections?: EggCollectionUncheckedCreateNestedManyWithoutStaffInput
     paymentRecords?: PaymentRecordUncheckedCreateNestedManyWithoutStaffInput
     collectionRoutes?: CollectionRouteUncheckedCreateNestedManyWithoutStaffInput
+    eggDeliveries?: EggDeliveryUncheckedCreateNestedManyWithoutStaffInput
     PurchaseOrder?: PurchaseOrderUncheckedCreateNestedManyWithoutStaffInput
   }
 
@@ -26059,6 +29091,7 @@ export namespace Prisma {
     eggCollections?: EggCollectionUpdateManyWithoutStaffNestedInput
     paymentRecords?: PaymentRecordUpdateManyWithoutStaffNestedInput
     collectionRoutes?: CollectionRouteUpdateManyWithoutStaffNestedInput
+    eggDeliveries?: EggDeliveryUpdateManyWithoutStaffNestedInput
     PurchaseOrder?: PurchaseOrderUpdateManyWithoutStaffNestedInput
   }
 
@@ -26087,6 +29120,7 @@ export namespace Prisma {
     eggCollections?: EggCollectionUncheckedUpdateManyWithoutStaffNestedInput
     paymentRecords?: PaymentRecordUncheckedUpdateManyWithoutStaffNestedInput
     collectionRoutes?: CollectionRouteUncheckedUpdateManyWithoutStaffNestedInput
+    eggDeliveries?: EggDeliveryUncheckedUpdateManyWithoutStaffNestedInput
     PurchaseOrder?: PurchaseOrderUncheckedUpdateManyWithoutStaffNestedInput
   }
 
@@ -26190,6 +29224,7 @@ export namespace Prisma {
     eggCollections?: EggCollectionCreateNestedManyWithoutFarmerInput
     paymentRecords?: PaymentRecordCreateNestedManyWithoutCustomerInput
     routes?: CollectionRouteCreateNestedManyWithoutCustomersInput
+    eggDeliveries?: EggDeliveryCreateNestedManyWithoutCustomerInput
   }
 
   export type CustomerUncheckedCreateInput = {
@@ -26223,6 +29258,7 @@ export namespace Prisma {
     eggCollections?: EggCollectionUncheckedCreateNestedManyWithoutFarmerInput
     paymentRecords?: PaymentRecordUncheckedCreateNestedManyWithoutCustomerInput
     routes?: CollectionRouteUncheckedCreateNestedManyWithoutCustomersInput
+    eggDeliveries?: EggDeliveryUncheckedCreateNestedManyWithoutCustomerInput
   }
 
   export type CustomerUpdateInput = {
@@ -26256,6 +29292,7 @@ export namespace Prisma {
     eggCollections?: EggCollectionUpdateManyWithoutFarmerNestedInput
     paymentRecords?: PaymentRecordUpdateManyWithoutCustomerNestedInput
     routes?: CollectionRouteUpdateManyWithoutCustomersNestedInput
+    eggDeliveries?: EggDeliveryUpdateManyWithoutCustomerNestedInput
   }
 
   export type CustomerUncheckedUpdateInput = {
@@ -26289,6 +29326,7 @@ export namespace Prisma {
     eggCollections?: EggCollectionUncheckedUpdateManyWithoutFarmerNestedInput
     paymentRecords?: PaymentRecordUncheckedUpdateManyWithoutCustomerNestedInput
     routes?: CollectionRouteUncheckedUpdateManyWithoutCustomersNestedInput
+    eggDeliveries?: EggDeliveryUncheckedUpdateManyWithoutCustomerNestedInput
   }
 
   export type CustomerCreateManyInput = {
@@ -27286,6 +30324,263 @@ export namespace Prisma {
     cloudId?: NullableStringFieldUpdateOperationsInput | string | null
     syncError?: NullableStringFieldUpdateOperationsInput | string | null
     lastSync?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type EggInventoryCreateInput = {
+    id?: string
+    henEggsSmall?: number
+    henEggsMedium?: number
+    henEggsLarge?: number
+    henEggsExtraLarge?: number
+    duckEggsSmall?: number
+    duckEggsMedium?: number
+    duckEggsLarge?: number
+    updatedAt?: Date | string
+  }
+
+  export type EggInventoryUncheckedCreateInput = {
+    id?: string
+    henEggsSmall?: number
+    henEggsMedium?: number
+    henEggsLarge?: number
+    henEggsExtraLarge?: number
+    duckEggsSmall?: number
+    duckEggsMedium?: number
+    duckEggsLarge?: number
+    updatedAt?: Date | string
+  }
+
+  export type EggInventoryUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    henEggsSmall?: IntFieldUpdateOperationsInput | number
+    henEggsMedium?: IntFieldUpdateOperationsInput | number
+    henEggsLarge?: IntFieldUpdateOperationsInput | number
+    henEggsExtraLarge?: IntFieldUpdateOperationsInput | number
+    duckEggsSmall?: IntFieldUpdateOperationsInput | number
+    duckEggsMedium?: IntFieldUpdateOperationsInput | number
+    duckEggsLarge?: IntFieldUpdateOperationsInput | number
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type EggInventoryUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    henEggsSmall?: IntFieldUpdateOperationsInput | number
+    henEggsMedium?: IntFieldUpdateOperationsInput | number
+    henEggsLarge?: IntFieldUpdateOperationsInput | number
+    henEggsExtraLarge?: IntFieldUpdateOperationsInput | number
+    duckEggsSmall?: IntFieldUpdateOperationsInput | number
+    duckEggsMedium?: IntFieldUpdateOperationsInput | number
+    duckEggsLarge?: IntFieldUpdateOperationsInput | number
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type EggInventoryCreateManyInput = {
+    id?: string
+    henEggsSmall?: number
+    henEggsMedium?: number
+    henEggsLarge?: number
+    henEggsExtraLarge?: number
+    duckEggsSmall?: number
+    duckEggsMedium?: number
+    duckEggsLarge?: number
+    updatedAt?: Date | string
+  }
+
+  export type EggInventoryUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    henEggsSmall?: IntFieldUpdateOperationsInput | number
+    henEggsMedium?: IntFieldUpdateOperationsInput | number
+    henEggsLarge?: IntFieldUpdateOperationsInput | number
+    henEggsExtraLarge?: IntFieldUpdateOperationsInput | number
+    duckEggsSmall?: IntFieldUpdateOperationsInput | number
+    duckEggsMedium?: IntFieldUpdateOperationsInput | number
+    duckEggsLarge?: IntFieldUpdateOperationsInput | number
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type EggInventoryUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    henEggsSmall?: IntFieldUpdateOperationsInput | number
+    henEggsMedium?: IntFieldUpdateOperationsInput | number
+    henEggsLarge?: IntFieldUpdateOperationsInput | number
+    henEggsExtraLarge?: IntFieldUpdateOperationsInput | number
+    duckEggsSmall?: IntFieldUpdateOperationsInput | number
+    duckEggsMedium?: IntFieldUpdateOperationsInput | number
+    duckEggsLarge?: IntFieldUpdateOperationsInput | number
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type EggDeliveryCreateInput = {
+    id?: string
+    deliveryDate: Date | string
+    status?: $Enums.DeliveryStatus
+    henEggsSmall?: number
+    henEggsMedium?: number
+    henEggsLarge?: number
+    henEggsExtraLarge?: number
+    totalHenEggs?: number
+    duckEggsSmall?: number
+    duckEggsMedium?: number
+    duckEggsLarge?: number
+    totalDuckEggs?: number
+    henEggPrice: number
+    duckEggPrice: number
+    totalValue: number
+    paid?: boolean
+    paymentMethod?: $Enums.PaymentMethod | null
+    notes?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    customer: CustomerCreateNestedOneWithoutEggDeliveriesInput
+    staff?: StaffCreateNestedOneWithoutEggDeliveriesInput
+  }
+
+  export type EggDeliveryUncheckedCreateInput = {
+    id?: string
+    customerId: string
+    staffId?: string | null
+    deliveryDate: Date | string
+    status?: $Enums.DeliveryStatus
+    henEggsSmall?: number
+    henEggsMedium?: number
+    henEggsLarge?: number
+    henEggsExtraLarge?: number
+    totalHenEggs?: number
+    duckEggsSmall?: number
+    duckEggsMedium?: number
+    duckEggsLarge?: number
+    totalDuckEggs?: number
+    henEggPrice: number
+    duckEggPrice: number
+    totalValue: number
+    paid?: boolean
+    paymentMethod?: $Enums.PaymentMethod | null
+    notes?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type EggDeliveryUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    deliveryDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    status?: EnumDeliveryStatusFieldUpdateOperationsInput | $Enums.DeliveryStatus
+    henEggsSmall?: IntFieldUpdateOperationsInput | number
+    henEggsMedium?: IntFieldUpdateOperationsInput | number
+    henEggsLarge?: IntFieldUpdateOperationsInput | number
+    henEggsExtraLarge?: IntFieldUpdateOperationsInput | number
+    totalHenEggs?: IntFieldUpdateOperationsInput | number
+    duckEggsSmall?: IntFieldUpdateOperationsInput | number
+    duckEggsMedium?: IntFieldUpdateOperationsInput | number
+    duckEggsLarge?: IntFieldUpdateOperationsInput | number
+    totalDuckEggs?: IntFieldUpdateOperationsInput | number
+    henEggPrice?: FloatFieldUpdateOperationsInput | number
+    duckEggPrice?: FloatFieldUpdateOperationsInput | number
+    totalValue?: FloatFieldUpdateOperationsInput | number
+    paid?: BoolFieldUpdateOperationsInput | boolean
+    paymentMethod?: NullableEnumPaymentMethodFieldUpdateOperationsInput | $Enums.PaymentMethod | null
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    customer?: CustomerUpdateOneRequiredWithoutEggDeliveriesNestedInput
+    staff?: StaffUpdateOneWithoutEggDeliveriesNestedInput
+  }
+
+  export type EggDeliveryUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    customerId?: StringFieldUpdateOperationsInput | string
+    staffId?: NullableStringFieldUpdateOperationsInput | string | null
+    deliveryDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    status?: EnumDeliveryStatusFieldUpdateOperationsInput | $Enums.DeliveryStatus
+    henEggsSmall?: IntFieldUpdateOperationsInput | number
+    henEggsMedium?: IntFieldUpdateOperationsInput | number
+    henEggsLarge?: IntFieldUpdateOperationsInput | number
+    henEggsExtraLarge?: IntFieldUpdateOperationsInput | number
+    totalHenEggs?: IntFieldUpdateOperationsInput | number
+    duckEggsSmall?: IntFieldUpdateOperationsInput | number
+    duckEggsMedium?: IntFieldUpdateOperationsInput | number
+    duckEggsLarge?: IntFieldUpdateOperationsInput | number
+    totalDuckEggs?: IntFieldUpdateOperationsInput | number
+    henEggPrice?: FloatFieldUpdateOperationsInput | number
+    duckEggPrice?: FloatFieldUpdateOperationsInput | number
+    totalValue?: FloatFieldUpdateOperationsInput | number
+    paid?: BoolFieldUpdateOperationsInput | boolean
+    paymentMethod?: NullableEnumPaymentMethodFieldUpdateOperationsInput | $Enums.PaymentMethod | null
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type EggDeliveryCreateManyInput = {
+    id?: string
+    customerId: string
+    staffId?: string | null
+    deliveryDate: Date | string
+    status?: $Enums.DeliveryStatus
+    henEggsSmall?: number
+    henEggsMedium?: number
+    henEggsLarge?: number
+    henEggsExtraLarge?: number
+    totalHenEggs?: number
+    duckEggsSmall?: number
+    duckEggsMedium?: number
+    duckEggsLarge?: number
+    totalDuckEggs?: number
+    henEggPrice: number
+    duckEggPrice: number
+    totalValue: number
+    paid?: boolean
+    paymentMethod?: $Enums.PaymentMethod | null
+    notes?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type EggDeliveryUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    deliveryDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    status?: EnumDeliveryStatusFieldUpdateOperationsInput | $Enums.DeliveryStatus
+    henEggsSmall?: IntFieldUpdateOperationsInput | number
+    henEggsMedium?: IntFieldUpdateOperationsInput | number
+    henEggsLarge?: IntFieldUpdateOperationsInput | number
+    henEggsExtraLarge?: IntFieldUpdateOperationsInput | number
+    totalHenEggs?: IntFieldUpdateOperationsInput | number
+    duckEggsSmall?: IntFieldUpdateOperationsInput | number
+    duckEggsMedium?: IntFieldUpdateOperationsInput | number
+    duckEggsLarge?: IntFieldUpdateOperationsInput | number
+    totalDuckEggs?: IntFieldUpdateOperationsInput | number
+    henEggPrice?: FloatFieldUpdateOperationsInput | number
+    duckEggPrice?: FloatFieldUpdateOperationsInput | number
+    totalValue?: FloatFieldUpdateOperationsInput | number
+    paid?: BoolFieldUpdateOperationsInput | boolean
+    paymentMethod?: NullableEnumPaymentMethodFieldUpdateOperationsInput | $Enums.PaymentMethod | null
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type EggDeliveryUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    customerId?: StringFieldUpdateOperationsInput | string
+    staffId?: NullableStringFieldUpdateOperationsInput | string | null
+    deliveryDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    status?: EnumDeliveryStatusFieldUpdateOperationsInput | $Enums.DeliveryStatus
+    henEggsSmall?: IntFieldUpdateOperationsInput | number
+    henEggsMedium?: IntFieldUpdateOperationsInput | number
+    henEggsLarge?: IntFieldUpdateOperationsInput | number
+    henEggsExtraLarge?: IntFieldUpdateOperationsInput | number
+    totalHenEggs?: IntFieldUpdateOperationsInput | number
+    duckEggsSmall?: IntFieldUpdateOperationsInput | number
+    duckEggsMedium?: IntFieldUpdateOperationsInput | number
+    duckEggsLarge?: IntFieldUpdateOperationsInput | number
+    totalDuckEggs?: IntFieldUpdateOperationsInput | number
+    henEggPrice?: FloatFieldUpdateOperationsInput | number
+    duckEggPrice?: FloatFieldUpdateOperationsInput | number
+    totalValue?: FloatFieldUpdateOperationsInput | number
+    paid?: BoolFieldUpdateOperationsInput | boolean
+    paymentMethod?: NullableEnumPaymentMethodFieldUpdateOperationsInput | $Enums.PaymentMethod | null
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -28472,6 +31767,12 @@ export namespace Prisma {
     none?: CollectionRouteWhereInput
   }
 
+  export type EggDeliveryListRelationFilter = {
+    every?: EggDeliveryWhereInput
+    some?: EggDeliveryWhereInput
+    none?: EggDeliveryWhereInput
+  }
+
   export type PurchaseOrderListRelationFilter = {
     every?: PurchaseOrderWhereInput
     some?: PurchaseOrderWhereInput
@@ -28491,6 +31792,10 @@ export namespace Prisma {
   }
 
   export type CollectionRouteOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type EggDeliveryOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
 
@@ -29482,9 +32787,204 @@ export namespace Prisma {
     qualityScore?: SortOrder
   }
 
+  export type EggInventoryCountOrderByAggregateInput = {
+    id?: SortOrder
+    henEggsSmall?: SortOrder
+    henEggsMedium?: SortOrder
+    henEggsLarge?: SortOrder
+    henEggsExtraLarge?: SortOrder
+    duckEggsSmall?: SortOrder
+    duckEggsMedium?: SortOrder
+    duckEggsLarge?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type EggInventoryAvgOrderByAggregateInput = {
+    henEggsSmall?: SortOrder
+    henEggsMedium?: SortOrder
+    henEggsLarge?: SortOrder
+    henEggsExtraLarge?: SortOrder
+    duckEggsSmall?: SortOrder
+    duckEggsMedium?: SortOrder
+    duckEggsLarge?: SortOrder
+  }
+
+  export type EggInventoryMaxOrderByAggregateInput = {
+    id?: SortOrder
+    henEggsSmall?: SortOrder
+    henEggsMedium?: SortOrder
+    henEggsLarge?: SortOrder
+    henEggsExtraLarge?: SortOrder
+    duckEggsSmall?: SortOrder
+    duckEggsMedium?: SortOrder
+    duckEggsLarge?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type EggInventoryMinOrderByAggregateInput = {
+    id?: SortOrder
+    henEggsSmall?: SortOrder
+    henEggsMedium?: SortOrder
+    henEggsLarge?: SortOrder
+    henEggsExtraLarge?: SortOrder
+    duckEggsSmall?: SortOrder
+    duckEggsMedium?: SortOrder
+    duckEggsLarge?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type EggInventorySumOrderByAggregateInput = {
+    henEggsSmall?: SortOrder
+    henEggsMedium?: SortOrder
+    henEggsLarge?: SortOrder
+    henEggsExtraLarge?: SortOrder
+    duckEggsSmall?: SortOrder
+    duckEggsMedium?: SortOrder
+    duckEggsLarge?: SortOrder
+  }
+
+  export type EnumDeliveryStatusFilter<$PrismaModel = never> = {
+    equals?: $Enums.DeliveryStatus | EnumDeliveryStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.DeliveryStatus[]
+    notIn?: $Enums.DeliveryStatus[]
+    not?: NestedEnumDeliveryStatusFilter<$PrismaModel> | $Enums.DeliveryStatus
+  }
+
+  export type EnumPaymentMethodNullableFilter<$PrismaModel = never> = {
+    equals?: $Enums.PaymentMethod | EnumPaymentMethodFieldRefInput<$PrismaModel> | null
+    in?: $Enums.PaymentMethod[] | null
+    notIn?: $Enums.PaymentMethod[] | null
+    not?: NestedEnumPaymentMethodNullableFilter<$PrismaModel> | $Enums.PaymentMethod | null
+  }
+
   export type StaffNullableScalarRelationFilter = {
     is?: StaffWhereInput | null
     isNot?: StaffWhereInput | null
+  }
+
+  export type EggDeliveryCountOrderByAggregateInput = {
+    id?: SortOrder
+    customerId?: SortOrder
+    staffId?: SortOrder
+    deliveryDate?: SortOrder
+    status?: SortOrder
+    henEggsSmall?: SortOrder
+    henEggsMedium?: SortOrder
+    henEggsLarge?: SortOrder
+    henEggsExtraLarge?: SortOrder
+    totalHenEggs?: SortOrder
+    duckEggsSmall?: SortOrder
+    duckEggsMedium?: SortOrder
+    duckEggsLarge?: SortOrder
+    totalDuckEggs?: SortOrder
+    henEggPrice?: SortOrder
+    duckEggPrice?: SortOrder
+    totalValue?: SortOrder
+    paid?: SortOrder
+    paymentMethod?: SortOrder
+    notes?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type EggDeliveryAvgOrderByAggregateInput = {
+    henEggsSmall?: SortOrder
+    henEggsMedium?: SortOrder
+    henEggsLarge?: SortOrder
+    henEggsExtraLarge?: SortOrder
+    totalHenEggs?: SortOrder
+    duckEggsSmall?: SortOrder
+    duckEggsMedium?: SortOrder
+    duckEggsLarge?: SortOrder
+    totalDuckEggs?: SortOrder
+    henEggPrice?: SortOrder
+    duckEggPrice?: SortOrder
+    totalValue?: SortOrder
+  }
+
+  export type EggDeliveryMaxOrderByAggregateInput = {
+    id?: SortOrder
+    customerId?: SortOrder
+    staffId?: SortOrder
+    deliveryDate?: SortOrder
+    status?: SortOrder
+    henEggsSmall?: SortOrder
+    henEggsMedium?: SortOrder
+    henEggsLarge?: SortOrder
+    henEggsExtraLarge?: SortOrder
+    totalHenEggs?: SortOrder
+    duckEggsSmall?: SortOrder
+    duckEggsMedium?: SortOrder
+    duckEggsLarge?: SortOrder
+    totalDuckEggs?: SortOrder
+    henEggPrice?: SortOrder
+    duckEggPrice?: SortOrder
+    totalValue?: SortOrder
+    paid?: SortOrder
+    paymentMethod?: SortOrder
+    notes?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type EggDeliveryMinOrderByAggregateInput = {
+    id?: SortOrder
+    customerId?: SortOrder
+    staffId?: SortOrder
+    deliveryDate?: SortOrder
+    status?: SortOrder
+    henEggsSmall?: SortOrder
+    henEggsMedium?: SortOrder
+    henEggsLarge?: SortOrder
+    henEggsExtraLarge?: SortOrder
+    totalHenEggs?: SortOrder
+    duckEggsSmall?: SortOrder
+    duckEggsMedium?: SortOrder
+    duckEggsLarge?: SortOrder
+    totalDuckEggs?: SortOrder
+    henEggPrice?: SortOrder
+    duckEggPrice?: SortOrder
+    totalValue?: SortOrder
+    paid?: SortOrder
+    paymentMethod?: SortOrder
+    notes?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type EggDeliverySumOrderByAggregateInput = {
+    henEggsSmall?: SortOrder
+    henEggsMedium?: SortOrder
+    henEggsLarge?: SortOrder
+    henEggsExtraLarge?: SortOrder
+    totalHenEggs?: SortOrder
+    duckEggsSmall?: SortOrder
+    duckEggsMedium?: SortOrder
+    duckEggsLarge?: SortOrder
+    totalDuckEggs?: SortOrder
+    henEggPrice?: SortOrder
+    duckEggPrice?: SortOrder
+    totalValue?: SortOrder
+  }
+
+  export type EnumDeliveryStatusWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.DeliveryStatus | EnumDeliveryStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.DeliveryStatus[]
+    notIn?: $Enums.DeliveryStatus[]
+    not?: NestedEnumDeliveryStatusWithAggregatesFilter<$PrismaModel> | $Enums.DeliveryStatus
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumDeliveryStatusFilter<$PrismaModel>
+    _max?: NestedEnumDeliveryStatusFilter<$PrismaModel>
+  }
+
+  export type EnumPaymentMethodNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.PaymentMethod | EnumPaymentMethodFieldRefInput<$PrismaModel> | null
+    in?: $Enums.PaymentMethod[] | null
+    notIn?: $Enums.PaymentMethod[] | null
+    not?: NestedEnumPaymentMethodNullableWithAggregatesFilter<$PrismaModel> | $Enums.PaymentMethod | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedEnumPaymentMethodNullableFilter<$PrismaModel>
+    _max?: NestedEnumPaymentMethodNullableFilter<$PrismaModel>
   }
 
   export type CustomerListRelationFilter = {
@@ -30121,6 +33621,13 @@ export namespace Prisma {
     connect?: CollectionRouteWhereUniqueInput | CollectionRouteWhereUniqueInput[]
   }
 
+  export type EggDeliveryCreateNestedManyWithoutStaffInput = {
+    create?: XOR<EggDeliveryCreateWithoutStaffInput, EggDeliveryUncheckedCreateWithoutStaffInput> | EggDeliveryCreateWithoutStaffInput[] | EggDeliveryUncheckedCreateWithoutStaffInput[]
+    connectOrCreate?: EggDeliveryCreateOrConnectWithoutStaffInput | EggDeliveryCreateOrConnectWithoutStaffInput[]
+    createMany?: EggDeliveryCreateManyStaffInputEnvelope
+    connect?: EggDeliveryWhereUniqueInput | EggDeliveryWhereUniqueInput[]
+  }
+
   export type PurchaseOrderCreateNestedManyWithoutStaffInput = {
     create?: XOR<PurchaseOrderCreateWithoutStaffInput, PurchaseOrderUncheckedCreateWithoutStaffInput> | PurchaseOrderCreateWithoutStaffInput[] | PurchaseOrderUncheckedCreateWithoutStaffInput[]
     connectOrCreate?: PurchaseOrderCreateOrConnectWithoutStaffInput | PurchaseOrderCreateOrConnectWithoutStaffInput[]
@@ -30154,6 +33661,13 @@ export namespace Prisma {
     connectOrCreate?: CollectionRouteCreateOrConnectWithoutStaffInput | CollectionRouteCreateOrConnectWithoutStaffInput[]
     createMany?: CollectionRouteCreateManyStaffInputEnvelope
     connect?: CollectionRouteWhereUniqueInput | CollectionRouteWhereUniqueInput[]
+  }
+
+  export type EggDeliveryUncheckedCreateNestedManyWithoutStaffInput = {
+    create?: XOR<EggDeliveryCreateWithoutStaffInput, EggDeliveryUncheckedCreateWithoutStaffInput> | EggDeliveryCreateWithoutStaffInput[] | EggDeliveryUncheckedCreateWithoutStaffInput[]
+    connectOrCreate?: EggDeliveryCreateOrConnectWithoutStaffInput | EggDeliveryCreateOrConnectWithoutStaffInput[]
+    createMany?: EggDeliveryCreateManyStaffInputEnvelope
+    connect?: EggDeliveryWhereUniqueInput | EggDeliveryWhereUniqueInput[]
   }
 
   export type PurchaseOrderUncheckedCreateNestedManyWithoutStaffInput = {
@@ -30247,6 +33761,20 @@ export namespace Prisma {
     deleteMany?: CollectionRouteScalarWhereInput | CollectionRouteScalarWhereInput[]
   }
 
+  export type EggDeliveryUpdateManyWithoutStaffNestedInput = {
+    create?: XOR<EggDeliveryCreateWithoutStaffInput, EggDeliveryUncheckedCreateWithoutStaffInput> | EggDeliveryCreateWithoutStaffInput[] | EggDeliveryUncheckedCreateWithoutStaffInput[]
+    connectOrCreate?: EggDeliveryCreateOrConnectWithoutStaffInput | EggDeliveryCreateOrConnectWithoutStaffInput[]
+    upsert?: EggDeliveryUpsertWithWhereUniqueWithoutStaffInput | EggDeliveryUpsertWithWhereUniqueWithoutStaffInput[]
+    createMany?: EggDeliveryCreateManyStaffInputEnvelope
+    set?: EggDeliveryWhereUniqueInput | EggDeliveryWhereUniqueInput[]
+    disconnect?: EggDeliveryWhereUniqueInput | EggDeliveryWhereUniqueInput[]
+    delete?: EggDeliveryWhereUniqueInput | EggDeliveryWhereUniqueInput[]
+    connect?: EggDeliveryWhereUniqueInput | EggDeliveryWhereUniqueInput[]
+    update?: EggDeliveryUpdateWithWhereUniqueWithoutStaffInput | EggDeliveryUpdateWithWhereUniqueWithoutStaffInput[]
+    updateMany?: EggDeliveryUpdateManyWithWhereWithoutStaffInput | EggDeliveryUpdateManyWithWhereWithoutStaffInput[]
+    deleteMany?: EggDeliveryScalarWhereInput | EggDeliveryScalarWhereInput[]
+  }
+
   export type PurchaseOrderUpdateManyWithoutStaffNestedInput = {
     create?: XOR<PurchaseOrderCreateWithoutStaffInput, PurchaseOrderUncheckedCreateWithoutStaffInput> | PurchaseOrderCreateWithoutStaffInput[] | PurchaseOrderUncheckedCreateWithoutStaffInput[]
     connectOrCreate?: PurchaseOrderCreateOrConnectWithoutStaffInput | PurchaseOrderCreateOrConnectWithoutStaffInput[]
@@ -30317,6 +33845,20 @@ export namespace Prisma {
     deleteMany?: CollectionRouteScalarWhereInput | CollectionRouteScalarWhereInput[]
   }
 
+  export type EggDeliveryUncheckedUpdateManyWithoutStaffNestedInput = {
+    create?: XOR<EggDeliveryCreateWithoutStaffInput, EggDeliveryUncheckedCreateWithoutStaffInput> | EggDeliveryCreateWithoutStaffInput[] | EggDeliveryUncheckedCreateWithoutStaffInput[]
+    connectOrCreate?: EggDeliveryCreateOrConnectWithoutStaffInput | EggDeliveryCreateOrConnectWithoutStaffInput[]
+    upsert?: EggDeliveryUpsertWithWhereUniqueWithoutStaffInput | EggDeliveryUpsertWithWhereUniqueWithoutStaffInput[]
+    createMany?: EggDeliveryCreateManyStaffInputEnvelope
+    set?: EggDeliveryWhereUniqueInput | EggDeliveryWhereUniqueInput[]
+    disconnect?: EggDeliveryWhereUniqueInput | EggDeliveryWhereUniqueInput[]
+    delete?: EggDeliveryWhereUniqueInput | EggDeliveryWhereUniqueInput[]
+    connect?: EggDeliveryWhereUniqueInput | EggDeliveryWhereUniqueInput[]
+    update?: EggDeliveryUpdateWithWhereUniqueWithoutStaffInput | EggDeliveryUpdateWithWhereUniqueWithoutStaffInput[]
+    updateMany?: EggDeliveryUpdateManyWithWhereWithoutStaffInput | EggDeliveryUpdateManyWithWhereWithoutStaffInput[]
+    deleteMany?: EggDeliveryScalarWhereInput | EggDeliveryScalarWhereInput[]
+  }
+
   export type PurchaseOrderUncheckedUpdateManyWithoutStaffNestedInput = {
     create?: XOR<PurchaseOrderCreateWithoutStaffInput, PurchaseOrderUncheckedCreateWithoutStaffInput> | PurchaseOrderCreateWithoutStaffInput[] | PurchaseOrderUncheckedCreateWithoutStaffInput[]
     connectOrCreate?: PurchaseOrderCreateOrConnectWithoutStaffInput | PurchaseOrderCreateOrConnectWithoutStaffInput[]
@@ -30358,6 +33900,13 @@ export namespace Prisma {
     connect?: CollectionRouteWhereUniqueInput | CollectionRouteWhereUniqueInput[]
   }
 
+  export type EggDeliveryCreateNestedManyWithoutCustomerInput = {
+    create?: XOR<EggDeliveryCreateWithoutCustomerInput, EggDeliveryUncheckedCreateWithoutCustomerInput> | EggDeliveryCreateWithoutCustomerInput[] | EggDeliveryUncheckedCreateWithoutCustomerInput[]
+    connectOrCreate?: EggDeliveryCreateOrConnectWithoutCustomerInput | EggDeliveryCreateOrConnectWithoutCustomerInput[]
+    createMany?: EggDeliveryCreateManyCustomerInputEnvelope
+    connect?: EggDeliveryWhereUniqueInput | EggDeliveryWhereUniqueInput[]
+  }
+
   export type TransactionUncheckedCreateNestedManyWithoutCustomerInput = {
     create?: XOR<TransactionCreateWithoutCustomerInput, TransactionUncheckedCreateWithoutCustomerInput> | TransactionCreateWithoutCustomerInput[] | TransactionUncheckedCreateWithoutCustomerInput[]
     connectOrCreate?: TransactionCreateOrConnectWithoutCustomerInput | TransactionCreateOrConnectWithoutCustomerInput[]
@@ -30383,6 +33932,13 @@ export namespace Prisma {
     create?: XOR<CollectionRouteCreateWithoutCustomersInput, CollectionRouteUncheckedCreateWithoutCustomersInput> | CollectionRouteCreateWithoutCustomersInput[] | CollectionRouteUncheckedCreateWithoutCustomersInput[]
     connectOrCreate?: CollectionRouteCreateOrConnectWithoutCustomersInput | CollectionRouteCreateOrConnectWithoutCustomersInput[]
     connect?: CollectionRouteWhereUniqueInput | CollectionRouteWhereUniqueInput[]
+  }
+
+  export type EggDeliveryUncheckedCreateNestedManyWithoutCustomerInput = {
+    create?: XOR<EggDeliveryCreateWithoutCustomerInput, EggDeliveryUncheckedCreateWithoutCustomerInput> | EggDeliveryCreateWithoutCustomerInput[] | EggDeliveryUncheckedCreateWithoutCustomerInput[]
+    connectOrCreate?: EggDeliveryCreateOrConnectWithoutCustomerInput | EggDeliveryCreateOrConnectWithoutCustomerInput[]
+    createMany?: EggDeliveryCreateManyCustomerInputEnvelope
+    connect?: EggDeliveryWhereUniqueInput | EggDeliveryWhereUniqueInput[]
   }
 
   export type EnumCustomerTypeFieldUpdateOperationsInput = {
@@ -30452,6 +34008,20 @@ export namespace Prisma {
     deleteMany?: CollectionRouteScalarWhereInput | CollectionRouteScalarWhereInput[]
   }
 
+  export type EggDeliveryUpdateManyWithoutCustomerNestedInput = {
+    create?: XOR<EggDeliveryCreateWithoutCustomerInput, EggDeliveryUncheckedCreateWithoutCustomerInput> | EggDeliveryCreateWithoutCustomerInput[] | EggDeliveryUncheckedCreateWithoutCustomerInput[]
+    connectOrCreate?: EggDeliveryCreateOrConnectWithoutCustomerInput | EggDeliveryCreateOrConnectWithoutCustomerInput[]
+    upsert?: EggDeliveryUpsertWithWhereUniqueWithoutCustomerInput | EggDeliveryUpsertWithWhereUniqueWithoutCustomerInput[]
+    createMany?: EggDeliveryCreateManyCustomerInputEnvelope
+    set?: EggDeliveryWhereUniqueInput | EggDeliveryWhereUniqueInput[]
+    disconnect?: EggDeliveryWhereUniqueInput | EggDeliveryWhereUniqueInput[]
+    delete?: EggDeliveryWhereUniqueInput | EggDeliveryWhereUniqueInput[]
+    connect?: EggDeliveryWhereUniqueInput | EggDeliveryWhereUniqueInput[]
+    update?: EggDeliveryUpdateWithWhereUniqueWithoutCustomerInput | EggDeliveryUpdateWithWhereUniqueWithoutCustomerInput[]
+    updateMany?: EggDeliveryUpdateManyWithWhereWithoutCustomerInput | EggDeliveryUpdateManyWithWhereWithoutCustomerInput[]
+    deleteMany?: EggDeliveryScalarWhereInput | EggDeliveryScalarWhereInput[]
+  }
+
   export type TransactionUncheckedUpdateManyWithoutCustomerNestedInput = {
     create?: XOR<TransactionCreateWithoutCustomerInput, TransactionUncheckedCreateWithoutCustomerInput> | TransactionCreateWithoutCustomerInput[] | TransactionUncheckedCreateWithoutCustomerInput[]
     connectOrCreate?: TransactionCreateOrConnectWithoutCustomerInput | TransactionCreateOrConnectWithoutCustomerInput[]
@@ -30505,6 +34075,20 @@ export namespace Prisma {
     update?: CollectionRouteUpdateWithWhereUniqueWithoutCustomersInput | CollectionRouteUpdateWithWhereUniqueWithoutCustomersInput[]
     updateMany?: CollectionRouteUpdateManyWithWhereWithoutCustomersInput | CollectionRouteUpdateManyWithWhereWithoutCustomersInput[]
     deleteMany?: CollectionRouteScalarWhereInput | CollectionRouteScalarWhereInput[]
+  }
+
+  export type EggDeliveryUncheckedUpdateManyWithoutCustomerNestedInput = {
+    create?: XOR<EggDeliveryCreateWithoutCustomerInput, EggDeliveryUncheckedCreateWithoutCustomerInput> | EggDeliveryCreateWithoutCustomerInput[] | EggDeliveryUncheckedCreateWithoutCustomerInput[]
+    connectOrCreate?: EggDeliveryCreateOrConnectWithoutCustomerInput | EggDeliveryCreateOrConnectWithoutCustomerInput[]
+    upsert?: EggDeliveryUpsertWithWhereUniqueWithoutCustomerInput | EggDeliveryUpsertWithWhereUniqueWithoutCustomerInput[]
+    createMany?: EggDeliveryCreateManyCustomerInputEnvelope
+    set?: EggDeliveryWhereUniqueInput | EggDeliveryWhereUniqueInput[]
+    disconnect?: EggDeliveryWhereUniqueInput | EggDeliveryWhereUniqueInput[]
+    delete?: EggDeliveryWhereUniqueInput | EggDeliveryWhereUniqueInput[]
+    connect?: EggDeliveryWhereUniqueInput | EggDeliveryWhereUniqueInput[]
+    update?: EggDeliveryUpdateWithWhereUniqueWithoutCustomerInput | EggDeliveryUpdateWithWhereUniqueWithoutCustomerInput[]
+    updateMany?: EggDeliveryUpdateManyWithWhereWithoutCustomerInput | EggDeliveryUpdateManyWithWhereWithoutCustomerInput[]
+    deleteMany?: EggDeliveryScalarWhereInput | EggDeliveryScalarWhereInput[]
   }
 
   export type ProductCreateNestedManyWithoutPrimaryVendorInput = {
@@ -30989,6 +34573,44 @@ export namespace Prisma {
     upsert?: StaffUpsertWithoutEggCollectionsInput
     connect?: StaffWhereUniqueInput
     update?: XOR<XOR<StaffUpdateToOneWithWhereWithoutEggCollectionsInput, StaffUpdateWithoutEggCollectionsInput>, StaffUncheckedUpdateWithoutEggCollectionsInput>
+  }
+
+  export type CustomerCreateNestedOneWithoutEggDeliveriesInput = {
+    create?: XOR<CustomerCreateWithoutEggDeliveriesInput, CustomerUncheckedCreateWithoutEggDeliveriesInput>
+    connectOrCreate?: CustomerCreateOrConnectWithoutEggDeliveriesInput
+    connect?: CustomerWhereUniqueInput
+  }
+
+  export type StaffCreateNestedOneWithoutEggDeliveriesInput = {
+    create?: XOR<StaffCreateWithoutEggDeliveriesInput, StaffUncheckedCreateWithoutEggDeliveriesInput>
+    connectOrCreate?: StaffCreateOrConnectWithoutEggDeliveriesInput
+    connect?: StaffWhereUniqueInput
+  }
+
+  export type EnumDeliveryStatusFieldUpdateOperationsInput = {
+    set?: $Enums.DeliveryStatus
+  }
+
+  export type NullableEnumPaymentMethodFieldUpdateOperationsInput = {
+    set?: $Enums.PaymentMethod | null
+  }
+
+  export type CustomerUpdateOneRequiredWithoutEggDeliveriesNestedInput = {
+    create?: XOR<CustomerCreateWithoutEggDeliveriesInput, CustomerUncheckedCreateWithoutEggDeliveriesInput>
+    connectOrCreate?: CustomerCreateOrConnectWithoutEggDeliveriesInput
+    upsert?: CustomerUpsertWithoutEggDeliveriesInput
+    connect?: CustomerWhereUniqueInput
+    update?: XOR<XOR<CustomerUpdateToOneWithWhereWithoutEggDeliveriesInput, CustomerUpdateWithoutEggDeliveriesInput>, CustomerUncheckedUpdateWithoutEggDeliveriesInput>
+  }
+
+  export type StaffUpdateOneWithoutEggDeliveriesNestedInput = {
+    create?: XOR<StaffCreateWithoutEggDeliveriesInput, StaffUncheckedCreateWithoutEggDeliveriesInput>
+    connectOrCreate?: StaffCreateOrConnectWithoutEggDeliveriesInput
+    upsert?: StaffUpsertWithoutEggDeliveriesInput
+    disconnect?: StaffWhereInput | boolean
+    delete?: StaffWhereInput | boolean
+    connect?: StaffWhereUniqueInput
+    update?: XOR<XOR<StaffUpdateToOneWithWhereWithoutEggDeliveriesInput, StaffUpdateWithoutEggDeliveriesInput>, StaffUncheckedUpdateWithoutEggDeliveriesInput>
   }
 
   export type StaffCreateNestedOneWithoutCollectionRoutesInput = {
@@ -31701,6 +35323,40 @@ export namespace Prisma {
     _max?: NestedEnumTransactionStatusFilter<$PrismaModel>
   }
 
+  export type NestedEnumDeliveryStatusFilter<$PrismaModel = never> = {
+    equals?: $Enums.DeliveryStatus | EnumDeliveryStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.DeliveryStatus[]
+    notIn?: $Enums.DeliveryStatus[]
+    not?: NestedEnumDeliveryStatusFilter<$PrismaModel> | $Enums.DeliveryStatus
+  }
+
+  export type NestedEnumPaymentMethodNullableFilter<$PrismaModel = never> = {
+    equals?: $Enums.PaymentMethod | EnumPaymentMethodFieldRefInput<$PrismaModel> | null
+    in?: $Enums.PaymentMethod[] | null
+    notIn?: $Enums.PaymentMethod[] | null
+    not?: NestedEnumPaymentMethodNullableFilter<$PrismaModel> | $Enums.PaymentMethod | null
+  }
+
+  export type NestedEnumDeliveryStatusWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.DeliveryStatus | EnumDeliveryStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.DeliveryStatus[]
+    notIn?: $Enums.DeliveryStatus[]
+    not?: NestedEnumDeliveryStatusWithAggregatesFilter<$PrismaModel> | $Enums.DeliveryStatus
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumDeliveryStatusFilter<$PrismaModel>
+    _max?: NestedEnumDeliveryStatusFilter<$PrismaModel>
+  }
+
+  export type NestedEnumPaymentMethodNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.PaymentMethod | EnumPaymentMethodFieldRefInput<$PrismaModel> | null
+    in?: $Enums.PaymentMethod[] | null
+    notIn?: $Enums.PaymentMethod[] | null
+    not?: NestedEnumPaymentMethodNullableWithAggregatesFilter<$PrismaModel> | $Enums.PaymentMethod | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedEnumPaymentMethodNullableFilter<$PrismaModel>
+    _max?: NestedEnumPaymentMethodNullableFilter<$PrismaModel>
+  }
+
   export type NestedEnumPurchaseOrderStatusFilter<$PrismaModel = never> = {
     equals?: $Enums.PurchaseOrderStatus | EnumPurchaseOrderStatusFieldRefInput<$PrismaModel>
     in?: $Enums.PurchaseOrderStatus[]
@@ -32059,6 +35715,63 @@ export namespace Prisma {
     data: CollectionRouteCreateManyStaffInput | CollectionRouteCreateManyStaffInput[]
   }
 
+  export type EggDeliveryCreateWithoutStaffInput = {
+    id?: string
+    deliveryDate: Date | string
+    status?: $Enums.DeliveryStatus
+    henEggsSmall?: number
+    henEggsMedium?: number
+    henEggsLarge?: number
+    henEggsExtraLarge?: number
+    totalHenEggs?: number
+    duckEggsSmall?: number
+    duckEggsMedium?: number
+    duckEggsLarge?: number
+    totalDuckEggs?: number
+    henEggPrice: number
+    duckEggPrice: number
+    totalValue: number
+    paid?: boolean
+    paymentMethod?: $Enums.PaymentMethod | null
+    notes?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    customer: CustomerCreateNestedOneWithoutEggDeliveriesInput
+  }
+
+  export type EggDeliveryUncheckedCreateWithoutStaffInput = {
+    id?: string
+    customerId: string
+    deliveryDate: Date | string
+    status?: $Enums.DeliveryStatus
+    henEggsSmall?: number
+    henEggsMedium?: number
+    henEggsLarge?: number
+    henEggsExtraLarge?: number
+    totalHenEggs?: number
+    duckEggsSmall?: number
+    duckEggsMedium?: number
+    duckEggsLarge?: number
+    totalDuckEggs?: number
+    henEggPrice: number
+    duckEggPrice: number
+    totalValue: number
+    paid?: boolean
+    paymentMethod?: $Enums.PaymentMethod | null
+    notes?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type EggDeliveryCreateOrConnectWithoutStaffInput = {
+    where: EggDeliveryWhereUniqueInput
+    create: XOR<EggDeliveryCreateWithoutStaffInput, EggDeliveryUncheckedCreateWithoutStaffInput>
+  }
+
+  export type EggDeliveryCreateManyStaffInputEnvelope = {
+    data: EggDeliveryCreateManyStaffInput | EggDeliveryCreateManyStaffInput[]
+  }
+
   export type PurchaseOrderCreateWithoutStaffInput = {
     id?: string
     orderNumber: string
@@ -32275,6 +35988,50 @@ export namespace Prisma {
     active?: BoolFilter<"CollectionRoute"> | boolean
     createdAt?: DateTimeFilter<"CollectionRoute"> | Date | string
     updatedAt?: DateTimeFilter<"CollectionRoute"> | Date | string
+  }
+
+  export type EggDeliveryUpsertWithWhereUniqueWithoutStaffInput = {
+    where: EggDeliveryWhereUniqueInput
+    update: XOR<EggDeliveryUpdateWithoutStaffInput, EggDeliveryUncheckedUpdateWithoutStaffInput>
+    create: XOR<EggDeliveryCreateWithoutStaffInput, EggDeliveryUncheckedCreateWithoutStaffInput>
+  }
+
+  export type EggDeliveryUpdateWithWhereUniqueWithoutStaffInput = {
+    where: EggDeliveryWhereUniqueInput
+    data: XOR<EggDeliveryUpdateWithoutStaffInput, EggDeliveryUncheckedUpdateWithoutStaffInput>
+  }
+
+  export type EggDeliveryUpdateManyWithWhereWithoutStaffInput = {
+    where: EggDeliveryScalarWhereInput
+    data: XOR<EggDeliveryUpdateManyMutationInput, EggDeliveryUncheckedUpdateManyWithoutStaffInput>
+  }
+
+  export type EggDeliveryScalarWhereInput = {
+    AND?: EggDeliveryScalarWhereInput | EggDeliveryScalarWhereInput[]
+    OR?: EggDeliveryScalarWhereInput[]
+    NOT?: EggDeliveryScalarWhereInput | EggDeliveryScalarWhereInput[]
+    id?: StringFilter<"EggDelivery"> | string
+    customerId?: StringFilter<"EggDelivery"> | string
+    staffId?: StringNullableFilter<"EggDelivery"> | string | null
+    deliveryDate?: DateTimeFilter<"EggDelivery"> | Date | string
+    status?: EnumDeliveryStatusFilter<"EggDelivery"> | $Enums.DeliveryStatus
+    henEggsSmall?: IntFilter<"EggDelivery"> | number
+    henEggsMedium?: IntFilter<"EggDelivery"> | number
+    henEggsLarge?: IntFilter<"EggDelivery"> | number
+    henEggsExtraLarge?: IntFilter<"EggDelivery"> | number
+    totalHenEggs?: IntFilter<"EggDelivery"> | number
+    duckEggsSmall?: IntFilter<"EggDelivery"> | number
+    duckEggsMedium?: IntFilter<"EggDelivery"> | number
+    duckEggsLarge?: IntFilter<"EggDelivery"> | number
+    totalDuckEggs?: IntFilter<"EggDelivery"> | number
+    henEggPrice?: FloatFilter<"EggDelivery"> | number
+    duckEggPrice?: FloatFilter<"EggDelivery"> | number
+    totalValue?: FloatFilter<"EggDelivery"> | number
+    paid?: BoolFilter<"EggDelivery"> | boolean
+    paymentMethod?: EnumPaymentMethodNullableFilter<"EggDelivery"> | $Enums.PaymentMethod | null
+    notes?: StringNullableFilter<"EggDelivery"> | string | null
+    createdAt?: DateTimeFilter<"EggDelivery"> | Date | string
+    updatedAt?: DateTimeFilter<"EggDelivery"> | Date | string
   }
 
   export type PurchaseOrderUpsertWithWhereUniqueWithoutStaffInput = {
@@ -32534,6 +36291,63 @@ export namespace Prisma {
     create: XOR<CollectionRouteCreateWithoutCustomersInput, CollectionRouteUncheckedCreateWithoutCustomersInput>
   }
 
+  export type EggDeliveryCreateWithoutCustomerInput = {
+    id?: string
+    deliveryDate: Date | string
+    status?: $Enums.DeliveryStatus
+    henEggsSmall?: number
+    henEggsMedium?: number
+    henEggsLarge?: number
+    henEggsExtraLarge?: number
+    totalHenEggs?: number
+    duckEggsSmall?: number
+    duckEggsMedium?: number
+    duckEggsLarge?: number
+    totalDuckEggs?: number
+    henEggPrice: number
+    duckEggPrice: number
+    totalValue: number
+    paid?: boolean
+    paymentMethod?: $Enums.PaymentMethod | null
+    notes?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    staff?: StaffCreateNestedOneWithoutEggDeliveriesInput
+  }
+
+  export type EggDeliveryUncheckedCreateWithoutCustomerInput = {
+    id?: string
+    staffId?: string | null
+    deliveryDate: Date | string
+    status?: $Enums.DeliveryStatus
+    henEggsSmall?: number
+    henEggsMedium?: number
+    henEggsLarge?: number
+    henEggsExtraLarge?: number
+    totalHenEggs?: number
+    duckEggsSmall?: number
+    duckEggsMedium?: number
+    duckEggsLarge?: number
+    totalDuckEggs?: number
+    henEggPrice: number
+    duckEggPrice: number
+    totalValue: number
+    paid?: boolean
+    paymentMethod?: $Enums.PaymentMethod | null
+    notes?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type EggDeliveryCreateOrConnectWithoutCustomerInput = {
+    where: EggDeliveryWhereUniqueInput
+    create: XOR<EggDeliveryCreateWithoutCustomerInput, EggDeliveryUncheckedCreateWithoutCustomerInput>
+  }
+
+  export type EggDeliveryCreateManyCustomerInputEnvelope = {
+    data: EggDeliveryCreateManyCustomerInput | EggDeliveryCreateManyCustomerInput[]
+  }
+
   export type TransactionUpsertWithWhereUniqueWithoutCustomerInput = {
     where: TransactionWhereUniqueInput
     update: XOR<TransactionUpdateWithoutCustomerInput, TransactionUncheckedUpdateWithoutCustomerInput>
@@ -32596,6 +36410,22 @@ export namespace Prisma {
   export type CollectionRouteUpdateManyWithWhereWithoutCustomersInput = {
     where: CollectionRouteScalarWhereInput
     data: XOR<CollectionRouteUpdateManyMutationInput, CollectionRouteUncheckedUpdateManyWithoutCustomersInput>
+  }
+
+  export type EggDeliveryUpsertWithWhereUniqueWithoutCustomerInput = {
+    where: EggDeliveryWhereUniqueInput
+    update: XOR<EggDeliveryUpdateWithoutCustomerInput, EggDeliveryUncheckedUpdateWithoutCustomerInput>
+    create: XOR<EggDeliveryCreateWithoutCustomerInput, EggDeliveryUncheckedCreateWithoutCustomerInput>
+  }
+
+  export type EggDeliveryUpdateWithWhereUniqueWithoutCustomerInput = {
+    where: EggDeliveryWhereUniqueInput
+    data: XOR<EggDeliveryUpdateWithoutCustomerInput, EggDeliveryUncheckedUpdateWithoutCustomerInput>
+  }
+
+  export type EggDeliveryUpdateManyWithWhereWithoutCustomerInput = {
+    where: EggDeliveryScalarWhereInput
+    data: XOR<EggDeliveryUpdateManyMutationInput, EggDeliveryUncheckedUpdateManyWithoutCustomerInput>
   }
 
   export type ProductCreateWithoutPrimaryVendorInput = {
@@ -33211,6 +37041,7 @@ export namespace Prisma {
     eggCollections?: EggCollectionCreateNestedManyWithoutFarmerInput
     paymentRecords?: PaymentRecordCreateNestedManyWithoutCustomerInput
     routes?: CollectionRouteCreateNestedManyWithoutCustomersInput
+    eggDeliveries?: EggDeliveryCreateNestedManyWithoutCustomerInput
   }
 
   export type CustomerUncheckedCreateWithoutTransactionsInput = {
@@ -33243,6 +37074,7 @@ export namespace Prisma {
     eggCollections?: EggCollectionUncheckedCreateNestedManyWithoutFarmerInput
     paymentRecords?: PaymentRecordUncheckedCreateNestedManyWithoutCustomerInput
     routes?: CollectionRouteUncheckedCreateNestedManyWithoutCustomersInput
+    eggDeliveries?: EggDeliveryUncheckedCreateNestedManyWithoutCustomerInput
   }
 
   export type CustomerCreateOrConnectWithoutTransactionsInput = {
@@ -33335,6 +37167,7 @@ export namespace Prisma {
     eggCollections?: EggCollectionCreateNestedManyWithoutStaffInput
     paymentRecords?: PaymentRecordCreateNestedManyWithoutStaffInput
     collectionRoutes?: CollectionRouteCreateNestedManyWithoutStaffInput
+    eggDeliveries?: EggDeliveryCreateNestedManyWithoutStaffInput
     PurchaseOrder?: PurchaseOrderCreateNestedManyWithoutStaffInput
   }
 
@@ -33362,6 +37195,7 @@ export namespace Prisma {
     eggCollections?: EggCollectionUncheckedCreateNestedManyWithoutStaffInput
     paymentRecords?: PaymentRecordUncheckedCreateNestedManyWithoutStaffInput
     collectionRoutes?: CollectionRouteUncheckedCreateNestedManyWithoutStaffInput
+    eggDeliveries?: EggDeliveryUncheckedCreateNestedManyWithoutStaffInput
     PurchaseOrder?: PurchaseOrderUncheckedCreateNestedManyWithoutStaffInput
   }
 
@@ -33493,6 +37327,7 @@ export namespace Prisma {
     eggCollections?: EggCollectionUpdateManyWithoutFarmerNestedInput
     paymentRecords?: PaymentRecordUpdateManyWithoutCustomerNestedInput
     routes?: CollectionRouteUpdateManyWithoutCustomersNestedInput
+    eggDeliveries?: EggDeliveryUpdateManyWithoutCustomerNestedInput
   }
 
   export type CustomerUncheckedUpdateWithoutTransactionsInput = {
@@ -33525,6 +37360,7 @@ export namespace Prisma {
     eggCollections?: EggCollectionUncheckedUpdateManyWithoutFarmerNestedInput
     paymentRecords?: PaymentRecordUncheckedUpdateManyWithoutCustomerNestedInput
     routes?: CollectionRouteUncheckedUpdateManyWithoutCustomersNestedInput
+    eggDeliveries?: EggDeliveryUncheckedUpdateManyWithoutCustomerNestedInput
   }
 
   export type VendorUpsertWithoutTransactionInput = {
@@ -33629,6 +37465,7 @@ export namespace Prisma {
     eggCollections?: EggCollectionUpdateManyWithoutStaffNestedInput
     paymentRecords?: PaymentRecordUpdateManyWithoutStaffNestedInput
     collectionRoutes?: CollectionRouteUpdateManyWithoutStaffNestedInput
+    eggDeliveries?: EggDeliveryUpdateManyWithoutStaffNestedInput
     PurchaseOrder?: PurchaseOrderUpdateManyWithoutStaffNestedInput
   }
 
@@ -33656,6 +37493,7 @@ export namespace Prisma {
     eggCollections?: EggCollectionUncheckedUpdateManyWithoutStaffNestedInput
     paymentRecords?: PaymentRecordUncheckedUpdateManyWithoutStaffNestedInput
     collectionRoutes?: CollectionRouteUncheckedUpdateManyWithoutStaffNestedInput
+    eggDeliveries?: EggDeliveryUncheckedUpdateManyWithoutStaffNestedInput
     PurchaseOrder?: PurchaseOrderUncheckedUpdateManyWithoutStaffNestedInput
   }
 
@@ -33981,6 +37819,7 @@ export namespace Prisma {
     transactions?: TransactionCreateNestedManyWithoutCustomerInput
     paymentRecords?: PaymentRecordCreateNestedManyWithoutCustomerInput
     routes?: CollectionRouteCreateNestedManyWithoutCustomersInput
+    eggDeliveries?: EggDeliveryCreateNestedManyWithoutCustomerInput
   }
 
   export type CustomerUncheckedCreateWithoutEggCollectionsInput = {
@@ -34013,6 +37852,7 @@ export namespace Prisma {
     transactions?: TransactionUncheckedCreateNestedManyWithoutCustomerInput
     paymentRecords?: PaymentRecordUncheckedCreateNestedManyWithoutCustomerInput
     routes?: CollectionRouteUncheckedCreateNestedManyWithoutCustomersInput
+    eggDeliveries?: EggDeliveryUncheckedCreateNestedManyWithoutCustomerInput
   }
 
   export type CustomerCreateOrConnectWithoutEggCollectionsInput = {
@@ -34083,6 +37923,7 @@ export namespace Prisma {
     transactions?: TransactionCreateNestedManyWithoutStaffInput
     paymentRecords?: PaymentRecordCreateNestedManyWithoutStaffInput
     collectionRoutes?: CollectionRouteCreateNestedManyWithoutStaffInput
+    eggDeliveries?: EggDeliveryCreateNestedManyWithoutStaffInput
     PurchaseOrder?: PurchaseOrderCreateNestedManyWithoutStaffInput
   }
 
@@ -34110,6 +37951,7 @@ export namespace Prisma {
     transactions?: TransactionUncheckedCreateNestedManyWithoutStaffInput
     paymentRecords?: PaymentRecordUncheckedCreateNestedManyWithoutStaffInput
     collectionRoutes?: CollectionRouteUncheckedCreateNestedManyWithoutStaffInput
+    eggDeliveries?: EggDeliveryUncheckedCreateNestedManyWithoutStaffInput
     PurchaseOrder?: PurchaseOrderUncheckedCreateNestedManyWithoutStaffInput
   }
 
@@ -34159,6 +38001,7 @@ export namespace Prisma {
     transactions?: TransactionUpdateManyWithoutCustomerNestedInput
     paymentRecords?: PaymentRecordUpdateManyWithoutCustomerNestedInput
     routes?: CollectionRouteUpdateManyWithoutCustomersNestedInput
+    eggDeliveries?: EggDeliveryUpdateManyWithoutCustomerNestedInput
   }
 
   export type CustomerUncheckedUpdateWithoutEggCollectionsInput = {
@@ -34191,6 +38034,7 @@ export namespace Prisma {
     transactions?: TransactionUncheckedUpdateManyWithoutCustomerNestedInput
     paymentRecords?: PaymentRecordUncheckedUpdateManyWithoutCustomerNestedInput
     routes?: CollectionRouteUncheckedUpdateManyWithoutCustomersNestedInput
+    eggDeliveries?: EggDeliveryUncheckedUpdateManyWithoutCustomerNestedInput
   }
 
   export type CollectionRouteUpsertWithoutEggCollectionsInput = {
@@ -34273,6 +38117,7 @@ export namespace Prisma {
     transactions?: TransactionUpdateManyWithoutStaffNestedInput
     paymentRecords?: PaymentRecordUpdateManyWithoutStaffNestedInput
     collectionRoutes?: CollectionRouteUpdateManyWithoutStaffNestedInput
+    eggDeliveries?: EggDeliveryUpdateManyWithoutStaffNestedInput
     PurchaseOrder?: PurchaseOrderUpdateManyWithoutStaffNestedInput
   }
 
@@ -34298,6 +38143,283 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     transactions?: TransactionUncheckedUpdateManyWithoutStaffNestedInput
+    paymentRecords?: PaymentRecordUncheckedUpdateManyWithoutStaffNestedInput
+    collectionRoutes?: CollectionRouteUncheckedUpdateManyWithoutStaffNestedInput
+    eggDeliveries?: EggDeliveryUncheckedUpdateManyWithoutStaffNestedInput
+    PurchaseOrder?: PurchaseOrderUncheckedUpdateManyWithoutStaffNestedInput
+  }
+
+  export type CustomerCreateWithoutEggDeliveriesInput = {
+    id?: string
+    type: $Enums.CustomerType
+    businessName?: string | null
+    contactPerson: string
+    email?: string | null
+    phone?: string | null
+    address?: string | null
+    creditLimit?: number
+    creditBalance?: number
+    paymentTerms?: number
+    creditStatus?: $Enums.CreditStatus
+    farmSize?: number | null
+    animalTypes?: NullableJsonNullValueInput | InputJsonValue
+    henEggsDailyProduction?: number
+    duckEggsDailyProduction?: number
+    collectionSchedule?: $Enums.CollectionSchedule
+    farmerPayableBalance?: number
+    isRetail?: boolean
+    loyaltyPoints?: number
+    totalPurchases?: number
+    totalEggSales?: number
+    lastPurchase?: Date | string | null
+    lastEggCollection?: Date | string | null
+    active?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    transactions?: TransactionCreateNestedManyWithoutCustomerInput
+    eggCollections?: EggCollectionCreateNestedManyWithoutFarmerInput
+    paymentRecords?: PaymentRecordCreateNestedManyWithoutCustomerInput
+    routes?: CollectionRouteCreateNestedManyWithoutCustomersInput
+  }
+
+  export type CustomerUncheckedCreateWithoutEggDeliveriesInput = {
+    id?: string
+    type: $Enums.CustomerType
+    businessName?: string | null
+    contactPerson: string
+    email?: string | null
+    phone?: string | null
+    address?: string | null
+    creditLimit?: number
+    creditBalance?: number
+    paymentTerms?: number
+    creditStatus?: $Enums.CreditStatus
+    farmSize?: number | null
+    animalTypes?: NullableJsonNullValueInput | InputJsonValue
+    henEggsDailyProduction?: number
+    duckEggsDailyProduction?: number
+    collectionSchedule?: $Enums.CollectionSchedule
+    farmerPayableBalance?: number
+    isRetail?: boolean
+    loyaltyPoints?: number
+    totalPurchases?: number
+    totalEggSales?: number
+    lastPurchase?: Date | string | null
+    lastEggCollection?: Date | string | null
+    active?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    transactions?: TransactionUncheckedCreateNestedManyWithoutCustomerInput
+    eggCollections?: EggCollectionUncheckedCreateNestedManyWithoutFarmerInput
+    paymentRecords?: PaymentRecordUncheckedCreateNestedManyWithoutCustomerInput
+    routes?: CollectionRouteUncheckedCreateNestedManyWithoutCustomersInput
+  }
+
+  export type CustomerCreateOrConnectWithoutEggDeliveriesInput = {
+    where: CustomerWhereUniqueInput
+    create: XOR<CustomerCreateWithoutEggDeliveriesInput, CustomerUncheckedCreateWithoutEggDeliveriesInput>
+  }
+
+  export type StaffCreateWithoutEggDeliveriesInput = {
+    id?: string
+    employeeId: string
+    firstName: string
+    lastName: string
+    email?: string | null
+    phone?: string | null
+    position: $Enums.StaffPosition
+    department: $Enums.StaffDepartment
+    hireDate: Date | string
+    salary: number
+    active?: boolean
+    username: string
+    password?: string | null
+    lastLogin?: Date | string | null
+    permissions?: JsonNullValueInput | InputJsonValue
+    totalCollections?: number | null
+    averageQuality?: number | null
+    onTimeRate?: number | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    transactions?: TransactionCreateNestedManyWithoutStaffInput
+    eggCollections?: EggCollectionCreateNestedManyWithoutStaffInput
+    paymentRecords?: PaymentRecordCreateNestedManyWithoutStaffInput
+    collectionRoutes?: CollectionRouteCreateNestedManyWithoutStaffInput
+    PurchaseOrder?: PurchaseOrderCreateNestedManyWithoutStaffInput
+  }
+
+  export type StaffUncheckedCreateWithoutEggDeliveriesInput = {
+    id?: string
+    employeeId: string
+    firstName: string
+    lastName: string
+    email?: string | null
+    phone?: string | null
+    position: $Enums.StaffPosition
+    department: $Enums.StaffDepartment
+    hireDate: Date | string
+    salary: number
+    active?: boolean
+    username: string
+    password?: string | null
+    lastLogin?: Date | string | null
+    permissions?: JsonNullValueInput | InputJsonValue
+    totalCollections?: number | null
+    averageQuality?: number | null
+    onTimeRate?: number | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    transactions?: TransactionUncheckedCreateNestedManyWithoutStaffInput
+    eggCollections?: EggCollectionUncheckedCreateNestedManyWithoutStaffInput
+    paymentRecords?: PaymentRecordUncheckedCreateNestedManyWithoutStaffInput
+    collectionRoutes?: CollectionRouteUncheckedCreateNestedManyWithoutStaffInput
+    PurchaseOrder?: PurchaseOrderUncheckedCreateNestedManyWithoutStaffInput
+  }
+
+  export type StaffCreateOrConnectWithoutEggDeliveriesInput = {
+    where: StaffWhereUniqueInput
+    create: XOR<StaffCreateWithoutEggDeliveriesInput, StaffUncheckedCreateWithoutEggDeliveriesInput>
+  }
+
+  export type CustomerUpsertWithoutEggDeliveriesInput = {
+    update: XOR<CustomerUpdateWithoutEggDeliveriesInput, CustomerUncheckedUpdateWithoutEggDeliveriesInput>
+    create: XOR<CustomerCreateWithoutEggDeliveriesInput, CustomerUncheckedCreateWithoutEggDeliveriesInput>
+    where?: CustomerWhereInput
+  }
+
+  export type CustomerUpdateToOneWithWhereWithoutEggDeliveriesInput = {
+    where?: CustomerWhereInput
+    data: XOR<CustomerUpdateWithoutEggDeliveriesInput, CustomerUncheckedUpdateWithoutEggDeliveriesInput>
+  }
+
+  export type CustomerUpdateWithoutEggDeliveriesInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    type?: EnumCustomerTypeFieldUpdateOperationsInput | $Enums.CustomerType
+    businessName?: NullableStringFieldUpdateOperationsInput | string | null
+    contactPerson?: StringFieldUpdateOperationsInput | string
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    address?: NullableStringFieldUpdateOperationsInput | string | null
+    creditLimit?: IntFieldUpdateOperationsInput | number
+    creditBalance?: IntFieldUpdateOperationsInput | number
+    paymentTerms?: IntFieldUpdateOperationsInput | number
+    creditStatus?: EnumCreditStatusFieldUpdateOperationsInput | $Enums.CreditStatus
+    farmSize?: NullableFloatFieldUpdateOperationsInput | number | null
+    animalTypes?: NullableJsonNullValueInput | InputJsonValue
+    henEggsDailyProduction?: IntFieldUpdateOperationsInput | number
+    duckEggsDailyProduction?: IntFieldUpdateOperationsInput | number
+    collectionSchedule?: EnumCollectionScheduleFieldUpdateOperationsInput | $Enums.CollectionSchedule
+    farmerPayableBalance?: FloatFieldUpdateOperationsInput | number
+    isRetail?: BoolFieldUpdateOperationsInput | boolean
+    loyaltyPoints?: IntFieldUpdateOperationsInput | number
+    totalPurchases?: IntFieldUpdateOperationsInput | number
+    totalEggSales?: IntFieldUpdateOperationsInput | number
+    lastPurchase?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    lastEggCollection?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    active?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    transactions?: TransactionUpdateManyWithoutCustomerNestedInput
+    eggCollections?: EggCollectionUpdateManyWithoutFarmerNestedInput
+    paymentRecords?: PaymentRecordUpdateManyWithoutCustomerNestedInput
+    routes?: CollectionRouteUpdateManyWithoutCustomersNestedInput
+  }
+
+  export type CustomerUncheckedUpdateWithoutEggDeliveriesInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    type?: EnumCustomerTypeFieldUpdateOperationsInput | $Enums.CustomerType
+    businessName?: NullableStringFieldUpdateOperationsInput | string | null
+    contactPerson?: StringFieldUpdateOperationsInput | string
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    address?: NullableStringFieldUpdateOperationsInput | string | null
+    creditLimit?: IntFieldUpdateOperationsInput | number
+    creditBalance?: IntFieldUpdateOperationsInput | number
+    paymentTerms?: IntFieldUpdateOperationsInput | number
+    creditStatus?: EnumCreditStatusFieldUpdateOperationsInput | $Enums.CreditStatus
+    farmSize?: NullableFloatFieldUpdateOperationsInput | number | null
+    animalTypes?: NullableJsonNullValueInput | InputJsonValue
+    henEggsDailyProduction?: IntFieldUpdateOperationsInput | number
+    duckEggsDailyProduction?: IntFieldUpdateOperationsInput | number
+    collectionSchedule?: EnumCollectionScheduleFieldUpdateOperationsInput | $Enums.CollectionSchedule
+    farmerPayableBalance?: FloatFieldUpdateOperationsInput | number
+    isRetail?: BoolFieldUpdateOperationsInput | boolean
+    loyaltyPoints?: IntFieldUpdateOperationsInput | number
+    totalPurchases?: IntFieldUpdateOperationsInput | number
+    totalEggSales?: IntFieldUpdateOperationsInput | number
+    lastPurchase?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    lastEggCollection?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    active?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    transactions?: TransactionUncheckedUpdateManyWithoutCustomerNestedInput
+    eggCollections?: EggCollectionUncheckedUpdateManyWithoutFarmerNestedInput
+    paymentRecords?: PaymentRecordUncheckedUpdateManyWithoutCustomerNestedInput
+    routes?: CollectionRouteUncheckedUpdateManyWithoutCustomersNestedInput
+  }
+
+  export type StaffUpsertWithoutEggDeliveriesInput = {
+    update: XOR<StaffUpdateWithoutEggDeliveriesInput, StaffUncheckedUpdateWithoutEggDeliveriesInput>
+    create: XOR<StaffCreateWithoutEggDeliveriesInput, StaffUncheckedCreateWithoutEggDeliveriesInput>
+    where?: StaffWhereInput
+  }
+
+  export type StaffUpdateToOneWithWhereWithoutEggDeliveriesInput = {
+    where?: StaffWhereInput
+    data: XOR<StaffUpdateWithoutEggDeliveriesInput, StaffUncheckedUpdateWithoutEggDeliveriesInput>
+  }
+
+  export type StaffUpdateWithoutEggDeliveriesInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    employeeId?: StringFieldUpdateOperationsInput | string
+    firstName?: StringFieldUpdateOperationsInput | string
+    lastName?: StringFieldUpdateOperationsInput | string
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    position?: EnumStaffPositionFieldUpdateOperationsInput | $Enums.StaffPosition
+    department?: EnumStaffDepartmentFieldUpdateOperationsInput | $Enums.StaffDepartment
+    hireDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    salary?: IntFieldUpdateOperationsInput | number
+    active?: BoolFieldUpdateOperationsInput | boolean
+    username?: StringFieldUpdateOperationsInput | string
+    password?: NullableStringFieldUpdateOperationsInput | string | null
+    lastLogin?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    permissions?: JsonNullValueInput | InputJsonValue
+    totalCollections?: NullableIntFieldUpdateOperationsInput | number | null
+    averageQuality?: NullableFloatFieldUpdateOperationsInput | number | null
+    onTimeRate?: NullableFloatFieldUpdateOperationsInput | number | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    transactions?: TransactionUpdateManyWithoutStaffNestedInput
+    eggCollections?: EggCollectionUpdateManyWithoutStaffNestedInput
+    paymentRecords?: PaymentRecordUpdateManyWithoutStaffNestedInput
+    collectionRoutes?: CollectionRouteUpdateManyWithoutStaffNestedInput
+    PurchaseOrder?: PurchaseOrderUpdateManyWithoutStaffNestedInput
+  }
+
+  export type StaffUncheckedUpdateWithoutEggDeliveriesInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    employeeId?: StringFieldUpdateOperationsInput | string
+    firstName?: StringFieldUpdateOperationsInput | string
+    lastName?: StringFieldUpdateOperationsInput | string
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    position?: EnumStaffPositionFieldUpdateOperationsInput | $Enums.StaffPosition
+    department?: EnumStaffDepartmentFieldUpdateOperationsInput | $Enums.StaffDepartment
+    hireDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    salary?: IntFieldUpdateOperationsInput | number
+    active?: BoolFieldUpdateOperationsInput | boolean
+    username?: StringFieldUpdateOperationsInput | string
+    password?: NullableStringFieldUpdateOperationsInput | string | null
+    lastLogin?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    permissions?: JsonNullValueInput | InputJsonValue
+    totalCollections?: NullableIntFieldUpdateOperationsInput | number | null
+    averageQuality?: NullableFloatFieldUpdateOperationsInput | number | null
+    onTimeRate?: NullableFloatFieldUpdateOperationsInput | number | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    transactions?: TransactionUncheckedUpdateManyWithoutStaffNestedInput
+    eggCollections?: EggCollectionUncheckedUpdateManyWithoutStaffNestedInput
     paymentRecords?: PaymentRecordUncheckedUpdateManyWithoutStaffNestedInput
     collectionRoutes?: CollectionRouteUncheckedUpdateManyWithoutStaffNestedInput
     PurchaseOrder?: PurchaseOrderUncheckedUpdateManyWithoutStaffNestedInput
@@ -34327,6 +38449,7 @@ export namespace Prisma {
     transactions?: TransactionCreateNestedManyWithoutStaffInput
     eggCollections?: EggCollectionCreateNestedManyWithoutStaffInput
     paymentRecords?: PaymentRecordCreateNestedManyWithoutStaffInput
+    eggDeliveries?: EggDeliveryCreateNestedManyWithoutStaffInput
     PurchaseOrder?: PurchaseOrderCreateNestedManyWithoutStaffInput
   }
 
@@ -34354,6 +38477,7 @@ export namespace Prisma {
     transactions?: TransactionUncheckedCreateNestedManyWithoutStaffInput
     eggCollections?: EggCollectionUncheckedCreateNestedManyWithoutStaffInput
     paymentRecords?: PaymentRecordUncheckedCreateNestedManyWithoutStaffInput
+    eggDeliveries?: EggDeliveryUncheckedCreateNestedManyWithoutStaffInput
     PurchaseOrder?: PurchaseOrderUncheckedCreateNestedManyWithoutStaffInput
   }
 
@@ -34392,6 +38516,7 @@ export namespace Prisma {
     transactions?: TransactionCreateNestedManyWithoutCustomerInput
     eggCollections?: EggCollectionCreateNestedManyWithoutFarmerInput
     paymentRecords?: PaymentRecordCreateNestedManyWithoutCustomerInput
+    eggDeliveries?: EggDeliveryCreateNestedManyWithoutCustomerInput
   }
 
   export type CustomerUncheckedCreateWithoutRoutesInput = {
@@ -34424,6 +38549,7 @@ export namespace Prisma {
     transactions?: TransactionUncheckedCreateNestedManyWithoutCustomerInput
     eggCollections?: EggCollectionUncheckedCreateNestedManyWithoutFarmerInput
     paymentRecords?: PaymentRecordUncheckedCreateNestedManyWithoutCustomerInput
+    eggDeliveries?: EggDeliveryUncheckedCreateNestedManyWithoutCustomerInput
   }
 
   export type CustomerCreateOrConnectWithoutRoutesInput = {
@@ -34537,6 +38663,7 @@ export namespace Prisma {
     transactions?: TransactionUpdateManyWithoutStaffNestedInput
     eggCollections?: EggCollectionUpdateManyWithoutStaffNestedInput
     paymentRecords?: PaymentRecordUpdateManyWithoutStaffNestedInput
+    eggDeliveries?: EggDeliveryUpdateManyWithoutStaffNestedInput
     PurchaseOrder?: PurchaseOrderUpdateManyWithoutStaffNestedInput
   }
 
@@ -34564,6 +38691,7 @@ export namespace Prisma {
     transactions?: TransactionUncheckedUpdateManyWithoutStaffNestedInput
     eggCollections?: EggCollectionUncheckedUpdateManyWithoutStaffNestedInput
     paymentRecords?: PaymentRecordUncheckedUpdateManyWithoutStaffNestedInput
+    eggDeliveries?: EggDeliveryUncheckedUpdateManyWithoutStaffNestedInput
     PurchaseOrder?: PurchaseOrderUncheckedUpdateManyWithoutStaffNestedInput
   }
 
@@ -34717,6 +38845,7 @@ export namespace Prisma {
     eggCollections?: EggCollectionCreateNestedManyWithoutStaffInput
     paymentRecords?: PaymentRecordCreateNestedManyWithoutStaffInput
     collectionRoutes?: CollectionRouteCreateNestedManyWithoutStaffInput
+    eggDeliveries?: EggDeliveryCreateNestedManyWithoutStaffInput
   }
 
   export type StaffUncheckedCreateWithoutPurchaseOrderInput = {
@@ -34744,6 +38873,7 @@ export namespace Prisma {
     eggCollections?: EggCollectionUncheckedCreateNestedManyWithoutStaffInput
     paymentRecords?: PaymentRecordUncheckedCreateNestedManyWithoutStaffInput
     collectionRoutes?: CollectionRouteUncheckedCreateNestedManyWithoutStaffInput
+    eggDeliveries?: EggDeliveryUncheckedCreateNestedManyWithoutStaffInput
   }
 
   export type StaffCreateOrConnectWithoutPurchaseOrderInput = {
@@ -34885,6 +39015,7 @@ export namespace Prisma {
     eggCollections?: EggCollectionUpdateManyWithoutStaffNestedInput
     paymentRecords?: PaymentRecordUpdateManyWithoutStaffNestedInput
     collectionRoutes?: CollectionRouteUpdateManyWithoutStaffNestedInput
+    eggDeliveries?: EggDeliveryUpdateManyWithoutStaffNestedInput
   }
 
   export type StaffUncheckedUpdateWithoutPurchaseOrderInput = {
@@ -34912,6 +39043,7 @@ export namespace Prisma {
     eggCollections?: EggCollectionUncheckedUpdateManyWithoutStaffNestedInput
     paymentRecords?: PaymentRecordUncheckedUpdateManyWithoutStaffNestedInput
     collectionRoutes?: CollectionRouteUncheckedUpdateManyWithoutStaffNestedInput
+    eggDeliveries?: EggDeliveryUncheckedUpdateManyWithoutStaffNestedInput
   }
 
   export type PurchaseOrderItemUpsertWithWhereUniqueWithoutPurchaseOrderInput = {
@@ -35192,6 +39324,7 @@ export namespace Prisma {
     transactions?: TransactionCreateNestedManyWithoutCustomerInput
     eggCollections?: EggCollectionCreateNestedManyWithoutFarmerInput
     routes?: CollectionRouteCreateNestedManyWithoutCustomersInput
+    eggDeliveries?: EggDeliveryCreateNestedManyWithoutCustomerInput
   }
 
   export type CustomerUncheckedCreateWithoutPaymentRecordsInput = {
@@ -35224,6 +39357,7 @@ export namespace Prisma {
     transactions?: TransactionUncheckedCreateNestedManyWithoutCustomerInput
     eggCollections?: EggCollectionUncheckedCreateNestedManyWithoutFarmerInput
     routes?: CollectionRouteUncheckedCreateNestedManyWithoutCustomersInput
+    eggDeliveries?: EggDeliveryUncheckedCreateNestedManyWithoutCustomerInput
   }
 
   export type CustomerCreateOrConnectWithoutPaymentRecordsInput = {
@@ -35375,6 +39509,7 @@ export namespace Prisma {
     transactions?: TransactionCreateNestedManyWithoutStaffInput
     eggCollections?: EggCollectionCreateNestedManyWithoutStaffInput
     collectionRoutes?: CollectionRouteCreateNestedManyWithoutStaffInput
+    eggDeliveries?: EggDeliveryCreateNestedManyWithoutStaffInput
     PurchaseOrder?: PurchaseOrderCreateNestedManyWithoutStaffInput
   }
 
@@ -35402,6 +39537,7 @@ export namespace Prisma {
     transactions?: TransactionUncheckedCreateNestedManyWithoutStaffInput
     eggCollections?: EggCollectionUncheckedCreateNestedManyWithoutStaffInput
     collectionRoutes?: CollectionRouteUncheckedCreateNestedManyWithoutStaffInput
+    eggDeliveries?: EggDeliveryUncheckedCreateNestedManyWithoutStaffInput
     PurchaseOrder?: PurchaseOrderUncheckedCreateNestedManyWithoutStaffInput
   }
 
@@ -35451,6 +39587,7 @@ export namespace Prisma {
     transactions?: TransactionUpdateManyWithoutCustomerNestedInput
     eggCollections?: EggCollectionUpdateManyWithoutFarmerNestedInput
     routes?: CollectionRouteUpdateManyWithoutCustomersNestedInput
+    eggDeliveries?: EggDeliveryUpdateManyWithoutCustomerNestedInput
   }
 
   export type CustomerUncheckedUpdateWithoutPaymentRecordsInput = {
@@ -35483,6 +39620,7 @@ export namespace Prisma {
     transactions?: TransactionUncheckedUpdateManyWithoutCustomerNestedInput
     eggCollections?: EggCollectionUncheckedUpdateManyWithoutFarmerNestedInput
     routes?: CollectionRouteUncheckedUpdateManyWithoutCustomersNestedInput
+    eggDeliveries?: EggDeliveryUncheckedUpdateManyWithoutCustomerNestedInput
   }
 
   export type VendorUpsertWithoutPaymentRecordsInput = {
@@ -35652,6 +39790,7 @@ export namespace Prisma {
     transactions?: TransactionUpdateManyWithoutStaffNestedInput
     eggCollections?: EggCollectionUpdateManyWithoutStaffNestedInput
     collectionRoutes?: CollectionRouteUpdateManyWithoutStaffNestedInput
+    eggDeliveries?: EggDeliveryUpdateManyWithoutStaffNestedInput
     PurchaseOrder?: PurchaseOrderUpdateManyWithoutStaffNestedInput
   }
 
@@ -35679,6 +39818,7 @@ export namespace Prisma {
     transactions?: TransactionUncheckedUpdateManyWithoutStaffNestedInput
     eggCollections?: EggCollectionUncheckedUpdateManyWithoutStaffNestedInput
     collectionRoutes?: CollectionRouteUncheckedUpdateManyWithoutStaffNestedInput
+    eggDeliveries?: EggDeliveryUncheckedUpdateManyWithoutStaffNestedInput
     PurchaseOrder?: PurchaseOrderUncheckedUpdateManyWithoutStaffNestedInput
   }
 
@@ -35767,6 +39907,30 @@ export namespace Prisma {
     onTimePercentage?: number | null
     totalCollections?: number
     active?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type EggDeliveryCreateManyStaffInput = {
+    id?: string
+    customerId: string
+    deliveryDate: Date | string
+    status?: $Enums.DeliveryStatus
+    henEggsSmall?: number
+    henEggsMedium?: number
+    henEggsLarge?: number
+    henEggsExtraLarge?: number
+    totalHenEggs?: number
+    duckEggsSmall?: number
+    duckEggsMedium?: number
+    duckEggsLarge?: number
+    totalDuckEggs?: number
+    henEggPrice: number
+    duckEggPrice: number
+    totalValue: number
+    paid?: boolean
+    paymentMethod?: $Enums.PaymentMethod | null
+    notes?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -36065,6 +40229,78 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
+  export type EggDeliveryUpdateWithoutStaffInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    deliveryDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    status?: EnumDeliveryStatusFieldUpdateOperationsInput | $Enums.DeliveryStatus
+    henEggsSmall?: IntFieldUpdateOperationsInput | number
+    henEggsMedium?: IntFieldUpdateOperationsInput | number
+    henEggsLarge?: IntFieldUpdateOperationsInput | number
+    henEggsExtraLarge?: IntFieldUpdateOperationsInput | number
+    totalHenEggs?: IntFieldUpdateOperationsInput | number
+    duckEggsSmall?: IntFieldUpdateOperationsInput | number
+    duckEggsMedium?: IntFieldUpdateOperationsInput | number
+    duckEggsLarge?: IntFieldUpdateOperationsInput | number
+    totalDuckEggs?: IntFieldUpdateOperationsInput | number
+    henEggPrice?: FloatFieldUpdateOperationsInput | number
+    duckEggPrice?: FloatFieldUpdateOperationsInput | number
+    totalValue?: FloatFieldUpdateOperationsInput | number
+    paid?: BoolFieldUpdateOperationsInput | boolean
+    paymentMethod?: NullableEnumPaymentMethodFieldUpdateOperationsInput | $Enums.PaymentMethod | null
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    customer?: CustomerUpdateOneRequiredWithoutEggDeliveriesNestedInput
+  }
+
+  export type EggDeliveryUncheckedUpdateWithoutStaffInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    customerId?: StringFieldUpdateOperationsInput | string
+    deliveryDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    status?: EnumDeliveryStatusFieldUpdateOperationsInput | $Enums.DeliveryStatus
+    henEggsSmall?: IntFieldUpdateOperationsInput | number
+    henEggsMedium?: IntFieldUpdateOperationsInput | number
+    henEggsLarge?: IntFieldUpdateOperationsInput | number
+    henEggsExtraLarge?: IntFieldUpdateOperationsInput | number
+    totalHenEggs?: IntFieldUpdateOperationsInput | number
+    duckEggsSmall?: IntFieldUpdateOperationsInput | number
+    duckEggsMedium?: IntFieldUpdateOperationsInput | number
+    duckEggsLarge?: IntFieldUpdateOperationsInput | number
+    totalDuckEggs?: IntFieldUpdateOperationsInput | number
+    henEggPrice?: FloatFieldUpdateOperationsInput | number
+    duckEggPrice?: FloatFieldUpdateOperationsInput | number
+    totalValue?: FloatFieldUpdateOperationsInput | number
+    paid?: BoolFieldUpdateOperationsInput | boolean
+    paymentMethod?: NullableEnumPaymentMethodFieldUpdateOperationsInput | $Enums.PaymentMethod | null
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type EggDeliveryUncheckedUpdateManyWithoutStaffInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    customerId?: StringFieldUpdateOperationsInput | string
+    deliveryDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    status?: EnumDeliveryStatusFieldUpdateOperationsInput | $Enums.DeliveryStatus
+    henEggsSmall?: IntFieldUpdateOperationsInput | number
+    henEggsMedium?: IntFieldUpdateOperationsInput | number
+    henEggsLarge?: IntFieldUpdateOperationsInput | number
+    henEggsExtraLarge?: IntFieldUpdateOperationsInput | number
+    totalHenEggs?: IntFieldUpdateOperationsInput | number
+    duckEggsSmall?: IntFieldUpdateOperationsInput | number
+    duckEggsMedium?: IntFieldUpdateOperationsInput | number
+    duckEggsLarge?: IntFieldUpdateOperationsInput | number
+    totalDuckEggs?: IntFieldUpdateOperationsInput | number
+    henEggPrice?: FloatFieldUpdateOperationsInput | number
+    duckEggPrice?: FloatFieldUpdateOperationsInput | number
+    totalValue?: FloatFieldUpdateOperationsInput | number
+    paid?: BoolFieldUpdateOperationsInput | boolean
+    paymentMethod?: NullableEnumPaymentMethodFieldUpdateOperationsInput | $Enums.PaymentMethod | null
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
   export type PurchaseOrderUpdateWithoutStaffInput = {
     id?: StringFieldUpdateOperationsInput | string
     orderNumber?: StringFieldUpdateOperationsInput | string
@@ -36194,6 +40430,30 @@ export namespace Prisma {
     processedBy: string
     notes?: string | null
     synced?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type EggDeliveryCreateManyCustomerInput = {
+    id?: string
+    staffId?: string | null
+    deliveryDate: Date | string
+    status?: $Enums.DeliveryStatus
+    henEggsSmall?: number
+    henEggsMedium?: number
+    henEggsLarge?: number
+    henEggsExtraLarge?: number
+    totalHenEggs?: number
+    duckEggsSmall?: number
+    duckEggsMedium?: number
+    duckEggsLarge?: number
+    totalDuckEggs?: number
+    henEggPrice: number
+    duckEggPrice: number
+    totalValue: number
+    paid?: boolean
+    paymentMethod?: $Enums.PaymentMethod | null
+    notes?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -36470,6 +40730,78 @@ export namespace Prisma {
     onTimePercentage?: NullableFloatFieldUpdateOperationsInput | number | null
     totalCollections?: IntFieldUpdateOperationsInput | number
     active?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type EggDeliveryUpdateWithoutCustomerInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    deliveryDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    status?: EnumDeliveryStatusFieldUpdateOperationsInput | $Enums.DeliveryStatus
+    henEggsSmall?: IntFieldUpdateOperationsInput | number
+    henEggsMedium?: IntFieldUpdateOperationsInput | number
+    henEggsLarge?: IntFieldUpdateOperationsInput | number
+    henEggsExtraLarge?: IntFieldUpdateOperationsInput | number
+    totalHenEggs?: IntFieldUpdateOperationsInput | number
+    duckEggsSmall?: IntFieldUpdateOperationsInput | number
+    duckEggsMedium?: IntFieldUpdateOperationsInput | number
+    duckEggsLarge?: IntFieldUpdateOperationsInput | number
+    totalDuckEggs?: IntFieldUpdateOperationsInput | number
+    henEggPrice?: FloatFieldUpdateOperationsInput | number
+    duckEggPrice?: FloatFieldUpdateOperationsInput | number
+    totalValue?: FloatFieldUpdateOperationsInput | number
+    paid?: BoolFieldUpdateOperationsInput | boolean
+    paymentMethod?: NullableEnumPaymentMethodFieldUpdateOperationsInput | $Enums.PaymentMethod | null
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    staff?: StaffUpdateOneWithoutEggDeliveriesNestedInput
+  }
+
+  export type EggDeliveryUncheckedUpdateWithoutCustomerInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    staffId?: NullableStringFieldUpdateOperationsInput | string | null
+    deliveryDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    status?: EnumDeliveryStatusFieldUpdateOperationsInput | $Enums.DeliveryStatus
+    henEggsSmall?: IntFieldUpdateOperationsInput | number
+    henEggsMedium?: IntFieldUpdateOperationsInput | number
+    henEggsLarge?: IntFieldUpdateOperationsInput | number
+    henEggsExtraLarge?: IntFieldUpdateOperationsInput | number
+    totalHenEggs?: IntFieldUpdateOperationsInput | number
+    duckEggsSmall?: IntFieldUpdateOperationsInput | number
+    duckEggsMedium?: IntFieldUpdateOperationsInput | number
+    duckEggsLarge?: IntFieldUpdateOperationsInput | number
+    totalDuckEggs?: IntFieldUpdateOperationsInput | number
+    henEggPrice?: FloatFieldUpdateOperationsInput | number
+    duckEggPrice?: FloatFieldUpdateOperationsInput | number
+    totalValue?: FloatFieldUpdateOperationsInput | number
+    paid?: BoolFieldUpdateOperationsInput | boolean
+    paymentMethod?: NullableEnumPaymentMethodFieldUpdateOperationsInput | $Enums.PaymentMethod | null
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type EggDeliveryUncheckedUpdateManyWithoutCustomerInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    staffId?: NullableStringFieldUpdateOperationsInput | string | null
+    deliveryDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    status?: EnumDeliveryStatusFieldUpdateOperationsInput | $Enums.DeliveryStatus
+    henEggsSmall?: IntFieldUpdateOperationsInput | number
+    henEggsMedium?: IntFieldUpdateOperationsInput | number
+    henEggsLarge?: IntFieldUpdateOperationsInput | number
+    henEggsExtraLarge?: IntFieldUpdateOperationsInput | number
+    totalHenEggs?: IntFieldUpdateOperationsInput | number
+    duckEggsSmall?: IntFieldUpdateOperationsInput | number
+    duckEggsMedium?: IntFieldUpdateOperationsInput | number
+    duckEggsLarge?: IntFieldUpdateOperationsInput | number
+    totalDuckEggs?: IntFieldUpdateOperationsInput | number
+    henEggPrice?: FloatFieldUpdateOperationsInput | number
+    duckEggPrice?: FloatFieldUpdateOperationsInput | number
+    totalValue?: FloatFieldUpdateOperationsInput | number
+    paid?: BoolFieldUpdateOperationsInput | boolean
+    paymentMethod?: NullableEnumPaymentMethodFieldUpdateOperationsInput | $Enums.PaymentMethod | null
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -37133,6 +41465,7 @@ export namespace Prisma {
     transactions?: TransactionUpdateManyWithoutCustomerNestedInput
     eggCollections?: EggCollectionUpdateManyWithoutFarmerNestedInput
     paymentRecords?: PaymentRecordUpdateManyWithoutCustomerNestedInput
+    eggDeliveries?: EggDeliveryUpdateManyWithoutCustomerNestedInput
   }
 
   export type CustomerUncheckedUpdateWithoutRoutesInput = {
@@ -37165,6 +41498,7 @@ export namespace Prisma {
     transactions?: TransactionUncheckedUpdateManyWithoutCustomerNestedInput
     eggCollections?: EggCollectionUncheckedUpdateManyWithoutFarmerNestedInput
     paymentRecords?: PaymentRecordUncheckedUpdateManyWithoutCustomerNestedInput
+    eggDeliveries?: EggDeliveryUncheckedUpdateManyWithoutCustomerNestedInput
   }
 
   export type CustomerUncheckedUpdateManyWithoutRoutesInput = {

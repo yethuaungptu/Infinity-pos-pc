@@ -112,6 +112,17 @@ contextBridge.exposeInMainWorld('api', {
     ipcRenderer.invoke('db:deleteCollectionRoute', id),
   getFinancialDashboardData: (data: { period: string; date: string }) =>
     ipcRenderer.invoke('db:getFinancialDashboardData', data),
+  getEggInventory: () => ipcRenderer.invoke('db:getEggInventory'),
+  adjustEggInventory: (data: any) =>
+    ipcRenderer.invoke('db:adjustEggInventory', data),
+  getEggDeliveries: (query?: any) =>
+    ipcRenderer.invoke('db:getEggDeliveries', query),
+  createEggDelivery: (data: any) =>
+    ipcRenderer.invoke('db:createEggDelivery', data),
+  updateEggDelivery: (data: any) =>
+    ipcRenderer.invoke('db:updateEggDelivery', data),
+  deleteEggDelivery: (id: string) =>
+    ipcRenderer.invoke('db:deleteEggDelivery', id),
 });
 
 export type ElectronHandler = typeof electronHandler;

@@ -10,6 +10,10 @@ import {
   Customer,
   CollectionRoute,
   Staff,
+  EggInventory,
+  EggDelivery,
+  DeliveryStatus,
+  PaymentMethod,
 } from '../../types/core';
 
 const EggCollectionComponent: React.FC = () => {
@@ -17,6 +21,12 @@ const EggCollectionComponent: React.FC = () => {
   const [farmers, setFarmers] = useState<Customer[]>([]);
   const [routes, setRoutes] = useState<CollectionRoute[]>([]);
   const [staff, setStaff] = useState<Staff[]>([]);
+  const [wholesaleCustomers, setWholesaleCustomers] = useState<Customer[]>([]);
+  const [eggInventory, setEggInventory] = useState<EggInventory | null>(null);
+  const [deliveries, setDeliveries] = useState<EggDelivery[]>([]);
+  const [activeTab, setActiveTab] = useState<
+    'collections' | 'routes' | 'inventory'
+  >('collections');
   const [selectedDate, setSelectedDate] = useState(
     new Date().toISOString().split('T')[0],
   );
@@ -29,9 +39,13 @@ const EggCollectionComponent: React.FC = () => {
   const [editingRoute, setEditingRoute] = useState<CollectionRoute | null>(
     null,
   );
+  const [showDeliveryModal, setShowDeliveryModal] = useState(false);
+  const [editingDelivery, setEditingDelivery] =
+    useState<EggDelivery | null>(null);
   const [routeSaving, setRouteSaving] = useState(false);
   const [loading, setLoading] = useState(false);
   const [loadingCollections, setLoadingCollections] = useState(false);
+  const [loadingDeliveries, setLoadingDeliveries] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const [routeForm, setRouteForm] = useState({
@@ -43,6 +57,29 @@ const EggCollectionComponent: React.FC = () => {
     staffId: '',
     schedule: 'DAILY' as CollectionRoute['schedule'],
     active: true,
+  });
+
+  const [deliveryForm, setDeliveryForm] = useState({
+    customerId: '',
+    staffId: '',
+    deliveryDate: new Date().toISOString().split('T')[0],
+    status: 'SCHEDULED' as DeliveryStatus,
+    henEggs: {
+      small: 0,
+      medium: 0,
+      large: 0,
+      extraLarge: 0,
+    },
+    duckEggs: {
+      small: 0,
+      medium: 0,
+      large: 0,
+    },
+    henEggPrice: 0,
+    duckEggPrice: 0,
+    paid: false,
+    paymentMethod: 'CASH' as PaymentMethod,
+    notes: '',
   });
 
   // Form state for new collection
@@ -81,22 +118,37 @@ const EggCollectionComponent: React.FC = () => {
       setLoading(true);
       setErrorMessage(null);
       try {
-        const [farmerResults, routeResults, staffResults, prices] =
-          await Promise.all([
-            window.api.getCustomerByType('FARMER'),
-            window.api.getCollectionRoutes(),
-            window.api.getStaffs(),
-            window.api.getMarketPrices(),
-          ]);
+        const [
+          farmerResults,
+          wholesaleResults,
+          routeResults,
+          staffResults,
+          prices,
+          inventory,
+        ] = await Promise.all([
+          window.api.getCustomerByType('FARMER'),
+          window.api.getCustomerByType('WHOLESALE'),
+          window.api.getCollectionRoutes(),
+          window.api.getStaffs(),
+          window.api.getMarketPrices(),
+          window.api.getEggInventory(),
+        ]);
 
         if (!isMounted) return;
         setFarmers(farmerResults);
         setRoutes(routeResults);
         setStaff(staffResults);
+        setWholesaleCustomers(wholesaleResults);
+        setEggInventory(inventory);
         setMarketPrices({
           henEggs: prices.henEggs.large,
           duckEggs: prices.duckEggs.large,
         });
+        setDeliveryForm((prev) => ({
+          ...prev,
+          henEggPrice: Math.round(prices.henEggs.large),
+          duckEggPrice: Math.round(prices.duckEggs.large),
+        }));
       } catch (error) {
         console.error('Failed to load egg collection data:', error);
         if (isMounted) {
@@ -160,6 +212,47 @@ const EggCollectionComponent: React.FC = () => {
       isMounted = false;
     };
   }, [selectedDate, selectedRoute, selectedStaff]);
+
+  useEffect(() => {
+    let isMounted = true;
+
+    const loadDeliveries = async () => {
+      setLoadingDeliveries(true);
+      setErrorMessage(null);
+
+      const startOfDay = new Date(`${selectedDate}T00:00:00`);
+      const endOfDay = new Date(`${selectedDate}T23:59:59`);
+
+      try {
+        const results = await window.api.getEggDeliveries({
+          startDate: startOfDay.toISOString(),
+          endDate: endOfDay.toISOString(),
+        });
+
+        if (!isMounted) return;
+        const normalized = results.map((delivery: EggDelivery) => ({
+          ...delivery,
+          deliveryDate: new Date(delivery.deliveryDate),
+          createdAt: new Date(delivery.createdAt),
+          updatedAt: new Date(delivery.updatedAt),
+        }));
+        setDeliveries(normalized);
+      } catch (error) {
+        console.error('Failed to load deliveries:', error);
+        if (isMounted) {
+          setErrorMessage('Failed to load deliveries for the selected date.');
+        }
+      } finally {
+        if (isMounted) setLoadingDeliveries(false);
+      }
+    };
+
+    loadDeliveries();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [selectedDate]);
 
   const openModal = (collection?: EggCollection) => {
     if (collection) {
@@ -296,6 +389,159 @@ const EggCollectionComponent: React.FC = () => {
     }
   };
 
+  const openDeliveryModal = (delivery?: EggDelivery) => {
+    if (delivery) {
+      setEditingDelivery(delivery);
+      setDeliveryForm({
+        customerId: delivery.customerId,
+        staffId: delivery.staffId || '',
+        deliveryDate: delivery.deliveryDate.toISOString().split('T')[0],
+        status: delivery.status,
+        henEggs: { ...delivery.henEggs },
+        duckEggs: { ...delivery.duckEggs },
+        henEggPrice: delivery.henEggPrice,
+        duckEggPrice: delivery.duckEggPrice,
+        paid: delivery.paid,
+        paymentMethod: delivery.paymentMethod || 'CASH',
+        notes: delivery.notes || '',
+      });
+    } else {
+      setEditingDelivery(null);
+      setDeliveryForm((prev) => ({
+        ...prev,
+        customerId: '',
+        staffId: '',
+        deliveryDate: selectedDate,
+        status: 'SCHEDULED',
+        henEggs: { small: 0, medium: 0, large: 0, extraLarge: 0 },
+        duckEggs: { small: 0, medium: 0, large: 0 },
+        henEggPrice: marketPrices.henEggs,
+        duckEggPrice: marketPrices.duckEggs,
+        paid: false,
+        paymentMethod: 'CASH',
+        notes: '',
+      }));
+    }
+    setShowDeliveryModal(true);
+  };
+
+  const closeDeliveryModal = () => {
+    setShowDeliveryModal(false);
+    setEditingDelivery(null);
+  };
+
+  const calculateDeliveryTotals = () => {
+    const totalHenEggs = Object.values(deliveryForm.henEggs).reduce(
+      (sum, count) => sum + count,
+      0,
+    );
+    const totalDuckEggs = Object.values(deliveryForm.duckEggs).reduce(
+      (sum, count) => sum + count,
+      0,
+    );
+
+    const henDozens = totalHenEggs / 12;
+    const duckDozens = totalDuckEggs / 12;
+
+    const henValue = Math.round(henDozens * deliveryForm.henEggPrice);
+    const duckValue = Math.round(duckDozens * deliveryForm.duckEggPrice);
+    const totalValue = henValue + duckValue;
+
+    return {
+      totalHenEggs,
+      totalDuckEggs,
+      henDozens: henDozens.toFixed(1),
+      duckDozens: duckDozens.toFixed(1),
+      henValue,
+      duckValue,
+      totalValue,
+    };
+  };
+
+  const handleDeliverySubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setErrorMessage(null);
+
+    try {
+      if (editingDelivery) {
+        const updated = await window.api.updateEggDelivery({
+          id: editingDelivery.id,
+          ...deliveryForm,
+          deliveryDate: new Date(
+            `${deliveryForm.deliveryDate}T00:00:00`,
+          ).toISOString(),
+        });
+        setDeliveries((prev) =>
+          prev.map((delivery) =>
+            delivery.id === updated.id ? updated : delivery,
+          ),
+        );
+      } else {
+        const created = await window.api.createEggDelivery({
+          ...deliveryForm,
+          deliveryDate: new Date(
+            `${deliveryForm.deliveryDate}T00:00:00`,
+          ).toISOString(),
+        });
+        setDeliveries((prev) => [created, ...prev]);
+      }
+
+      const inventory = await window.api.getEggInventory();
+      setEggInventory(inventory);
+      closeDeliveryModal();
+    } catch (error) {
+      console.error('Failed to save delivery:', error);
+      setErrorMessage('Failed to save delivery.');
+    }
+  };
+
+  const handleDeliveryDelete = async (deliveryId: string) => {
+    const confirmed = window.confirm(
+      'Are you sure you want to delete this delivery?',
+    );
+    if (!confirmed) return;
+
+    setErrorMessage(null);
+    try {
+      await window.api.deleteEggDelivery(deliveryId);
+      setDeliveries((prev) => prev.filter((d) => d.id !== deliveryId));
+    } catch (error) {
+      console.error('Failed to delete delivery:', error);
+      setErrorMessage('Failed to delete delivery.');
+    }
+  };
+
+  const handleMarkDelivered = async (delivery: EggDelivery) => {
+    const confirmed = window.confirm('Mark this delivery as delivered?');
+    if (!confirmed) return;
+
+    setErrorMessage(null);
+    try {
+      const updated = await window.api.updateEggDelivery({
+        id: delivery.id,
+        customerId: delivery.customerId,
+        staffId: delivery.staffId,
+        deliveryDate: delivery.deliveryDate.toISOString(),
+        status: 'DELIVERED',
+        henEggs: delivery.henEggs,
+        duckEggs: delivery.duckEggs,
+        henEggPrice: delivery.henEggPrice,
+        duckEggPrice: delivery.duckEggPrice,
+        paid: delivery.paid,
+        paymentMethod: delivery.paymentMethod,
+        notes: delivery.notes,
+      });
+      setDeliveries((prev) =>
+        prev.map((item) => (item.id === updated.id ? updated : item)),
+      );
+      const inventory = await window.api.getEggInventory();
+      setEggInventory(inventory);
+    } catch (error) {
+      console.error('Failed to mark delivery as delivered:', error);
+      setErrorMessage('Failed to mark delivery as delivered.');
+    }
+  };
+
   const calculateTotals = () => {
     const totalHenEggs = Object.values(formData.henEggs).reduce(
       (sum, count) => sum + count,
@@ -402,6 +648,20 @@ const EggCollectionComponent: React.FC = () => {
     { henEggs: 0, duckEggs: 0, totalValue: 0, collections: 0 },
   );
 
+  const inventoryTotals = eggInventory
+    ? {
+        henTotal:
+          eggInventory.henEggsSmall +
+          eggInventory.henEggsMedium +
+          eggInventory.henEggsLarge +
+          eggInventory.henEggsExtraLarge,
+        duckTotal:
+          eggInventory.duckEggsSmall +
+          eggInventory.duckEggsMedium +
+          eggInventory.duckEggsLarge,
+      }
+    : { henTotal: 0, duckTotal: 0 };
+
   return (
     <div className="p-6 bg-gray-50 min-h-screen">
       {/* Header */}
@@ -413,93 +673,66 @@ const EggCollectionComponent: React.FC = () => {
               Collect eggs from farms and manage routes
             </p>
           </div>
-          <button
-            onClick={() => openModal()}
-            className="bg-blue-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-blue-700 flex items-center"
-          >
-            <PlusIcon className="w-5 h-5 mr-2" />
-            Record Collection
-          </button>
-          <button
-            onClick={() => openRouteModal()}
-            className="bg-green-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-green-700 flex items-center"
-          >
-            <PlusIcon className="w-5 h-5 mr-2" />
-            Add New Collection Route
-          </button>
+          {activeTab === 'collections' && (
+            <button
+              onClick={() => openModal()}
+              className="bg-blue-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-blue-700 flex items-center"
+            >
+              <PlusIcon className="w-5 h-5 mr-2" />
+              Record Collection
+            </button>
+          )}
+          {activeTab === 'routes' && (
+            <button
+              onClick={() => openRouteModal()}
+              className="bg-green-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-green-700 flex items-center"
+            >
+              <PlusIcon className="w-5 h-5 mr-2" />
+              Add New Collection Route
+            </button>
+          )}
+          {activeTab === 'inventory' && (
+            <button
+              onClick={() => openDeliveryModal()}
+              className="bg-indigo-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-indigo-700 flex items-center"
+            >
+              <PlusIcon className="w-5 h-5 mr-2" />
+              Schedule Delivery
+            </button>
+          )}
         </div>
 
-        {/* Market Prices */}
-        <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-4">
-          <h3 className="font-medium text-yellow-800 mb-2">
-            Today's Market Prices
-          </h3>
-          <div className="grid grid-cols-2 gap-4">
-            <div className="flex justify-between">
-              <span className="text-yellow-700">Hen Eggs:</span>
-              <span className="font-medium text-yellow-800">
-                {Math.round(marketPrices.henEggs).toLocaleString()} MMK/dozen
-              </span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-yellow-700">Duck Eggs:</span>
-              <span className="font-medium text-yellow-800">
-                {Math.round(marketPrices.duckEggs).toLocaleString()} MMK/dozen
-              </span>
-            </div>
-          </div>
-        </div>
-
-        {/* Daily Summary Cards */}
-        <div className="grid grid-cols-4 gap-4 mb-6">
-          <div className="bg-white p-4 rounded-lg shadow">
-            <div className="flex items-center">
-              <div className="w-8 h-8 bg-orange-100 rounded-full flex items-center justify-center mr-3">
-                🥚
-              </div>
-              <div>
-                <h3 className="text-2xl font-bold text-gray-900">
-                  {dailyTotals.henEggs}
-                </h3>
-                <p className="text-gray-600">Hen Eggs Collected</p>
-              </div>
-            </div>
-          </div>
-          <div className="bg-white p-4 rounded-lg shadow">
-            <div className="flex items-center">
-              <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center mr-3">
-                🦆
-              </div>
-              <div>
-                <h3 className="text-2xl font-bold text-gray-900">
-                  {dailyTotals.duckEggs}
-                </h3>
-                <p className="text-gray-600">Duck Eggs Collected</p>
-              </div>
-            </div>
-          </div>
-          <div className="bg-white p-4 rounded-lg shadow">
-            <div className="flex items-center">
-              <CurrencyDollarIcon className="h-8 w-8 text-green-600 mr-3" />
-              <div>
-                <h3 className="text-2xl font-bold text-green-600">
-                  {Math.round(dailyTotals.totalValue).toLocaleString()} MMK
-                </h3>
-                <p className="text-gray-600">Total Value</p>
-              </div>
-            </div>
-          </div>
-          <div className="bg-white p-4 rounded-lg shadow">
-            <div className="flex items-center">
-              <TruckIcon className="h-8 w-8 text-purple-600 mr-3" />
-              <div>
-                <h3 className="text-2xl font-bold text-purple-600">
-                  {dailyTotals.collections}
-                </h3>
-                <p className="text-gray-600">Collections</p>
-              </div>
-            </div>
-          </div>
+        <div className="flex items-center gap-3 border-b border-gray-200 mb-4">
+          <button
+            onClick={() => setActiveTab('collections')}
+            className={`px-3 py-2 text-sm font-medium border-b-2 ${
+              activeTab === 'collections'
+                ? 'border-blue-600 text-blue-600'
+                : 'border-transparent text-gray-600 hover:text-gray-800'
+            }`}
+          >
+            Collections
+          </button>
+          <button
+            onClick={() => setActiveTab('routes')}
+            className={`px-3 py-2 text-sm font-medium border-b-2 ${
+              activeTab === 'routes'
+                ? 'border-green-600 text-green-600'
+                : 'border-transparent text-gray-600 hover:text-gray-800'
+            }`}
+          >
+            Routes
+          </button>
+          <button
+            onClick={() => setActiveTab('inventory')}
+            className={`px-3 py-2 text-sm font-medium border-b-2 ${
+              activeTab === 'inventory'
+                ? 'border-indigo-600 text-indigo-600'
+                : 'border-transparent text-gray-600 hover:text-gray-800'
+            }`}
+          >
+            Inventory & Deliveries
+          </button>
         </div>
 
         {/* Filters */}
@@ -515,42 +748,46 @@ const EggCollectionComponent: React.FC = () => {
               className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
             />
           </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Route
-            </label>
-            <select
-              value={selectedRoute}
-              onChange={(e) => setSelectedRoute(e.target.value)}
-              className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-            >
-              <option value="all">All Routes</option>
-              {routes.map((route) => (
-                <option key={route.id} value={route.id}>
-                  {route.name}
-                </option>
-              ))}
-            </select>
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Collector
-            </label>
-            <select
-              value={selectedStaff}
-              onChange={(e) => setSelectedStaff(e.target.value)}
-              className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-            >
-              <option value="all">All Collectors</option>
-              {staff
-                .filter((s) => s.department === 'COLLECTION')
-                .map((member) => (
-                  <option key={member.id} value={member.id}>
-                    {member.firstName} {member.lastName}
-                  </option>
-                ))}
-            </select>
-          </div>
+          {activeTab === 'collections' && (
+            <>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Route
+                </label>
+                <select
+                  value={selectedRoute}
+                  onChange={(e) => setSelectedRoute(e.target.value)}
+                  className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                >
+                  <option value="all">All Routes</option>
+                  {routes.map((route) => (
+                    <option key={route.id} value={route.id}>
+                      {route.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Collector
+                </label>
+                <select
+                  value={selectedStaff}
+                  onChange={(e) => setSelectedStaff(e.target.value)}
+                  className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                >
+                  <option value="all">All Collectors</option>
+                  {staff
+                    .filter((s) => s.department === 'COLLECTION')
+                    .map((member) => (
+                      <option key={member.id} value={member.id}>
+                        {member.firstName} {member.lastName}
+                      </option>
+                    ))}
+                </select>
+              </div>
+            </>
+          )}
         </div>
       </div>
 
@@ -566,281 +803,552 @@ const EggCollectionComponent: React.FC = () => {
         </div>
       )}
 
-      {/* Collection Routes */}
-      <div className="bg-white rounded-lg shadow overflow-hidden mb-6">
-        <div className="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
-          <h2 className="text-lg font-semibold text-gray-900">
-            Collection Routes
-          </h2>
-          <button
-            onClick={() => openRouteModal()}
-            className="bg-green-600 text-white px-3 py-2 rounded-lg text-sm font-medium hover:bg-green-700 flex items-center"
-          >
-            <PlusIcon className="w-4 h-4 mr-2" />
-            Add Route
-          </button>
+      {loadingDeliveries && (
+        <div className="mb-4 rounded-lg border border-blue-200 bg-blue-50 px-4 py-3 text-sm text-blue-700">
+          Loading delivery data...
         </div>
-        <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-50">
-              <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Route
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Schedule
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Farms
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Collector
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Status
-                </th>
-                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Actions
-                </th>
-              </tr>
-            </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
-              {routes.length === 0 && (
-                <tr>
-                  <td
-                    colSpan={6}
-                    className="px-6 py-6 text-center text-sm text-gray-500"
-                  >
-                    No routes created yet.
-                  </td>
-                </tr>
-              )}
-              {routes.map((route) => {
-                const collector = staff.find((s) => s.id === route.staffId);
-                const farmNames = route.farmerIds
-                  .map(
-                    (id) =>
-                      farmers.find((f) => f.id === id)?.businessName ||
-                      farmers.find((f) => f.id === id)?.contactPerson,
-                  )
-                  .filter(Boolean)
-                  .join(', ');
+      )}
 
-                return (
-                  <tr key={route.id} className="hover:bg-gray-50">
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm font-medium text-gray-900">
-                        {route.name}
-                      </div>
-                      <div className="text-xs text-gray-500">
-                        {route.description || 'No description'}
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
-                      {route.schedule}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
-                      {farmNames || 'No farms'}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
-                      {collector
-                        ? `${collector.firstName} ${collector.lastName}`
-                        : 'Unassigned'}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span
-                        className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                          route.active
-                            ? 'bg-green-100 text-green-800'
-                            : 'bg-gray-100 text-gray-800'
-                        }`}
-                      >
-                        {route.active ? 'Active' : 'Inactive'}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-2">
-                      <button
-                        onClick={() => openRouteModal(route)}
-                        className="text-indigo-600 hover:text-indigo-900"
-                      >
-                        Edit
-                      </button>
-                      <button
-                        onClick={() => handleRouteDelete(route.id)}
-                        className="text-red-600 hover:text-red-900"
-                      >
-                        Delete
-                      </button>
+      {activeTab === 'collections' && (
+        <>
+          {/* Market Prices */}
+          <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-4">
+            <h3 className="font-medium text-yellow-800 mb-2">
+              Today's Market Prices
+            </h3>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="flex justify-between">
+                <span className="text-yellow-700">Hen Eggs:</span>
+                <span className="font-medium text-yellow-800">
+                  {Math.round(marketPrices.henEggs).toLocaleString()} MMK/dozen
+                </span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-yellow-700">Duck Eggs:</span>
+                <span className="font-medium text-yellow-800">
+                  {Math.round(marketPrices.duckEggs).toLocaleString()} MMK/dozen
+                </span>
+              </div>
+            </div>
+          </div>
+
+          {/* Daily Summary Cards */}
+          <div className="grid grid-cols-4 gap-4 mb-6">
+            <div className="bg-white p-4 rounded-lg shadow">
+              <div className="flex items-center">
+                <div className="w-8 h-8 bg-orange-100 rounded-full flex items-center justify-center mr-3">
+                  🥚
+                </div>
+                <div>
+                  <h3 className="text-2xl font-bold text-gray-900">
+                    {dailyTotals.henEggs}
+                  </h3>
+                  <p className="text-gray-600">Hen Eggs Collected</p>
+                </div>
+              </div>
+            </div>
+            <div className="bg-white p-4 rounded-lg shadow">
+              <div className="flex items-center">
+                <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center mr-3">
+                  🦆
+                </div>
+                <div>
+                  <h3 className="text-2xl font-bold text-gray-900">
+                    {dailyTotals.duckEggs}
+                  </h3>
+                  <p className="text-gray-600">Duck Eggs Collected</p>
+                </div>
+              </div>
+            </div>
+            <div className="bg-white p-4 rounded-lg shadow">
+              <div className="flex items-center">
+                <CurrencyDollarIcon className="h-8 w-8 text-green-600 mr-3" />
+                <div>
+                  <h3 className="text-2xl font-bold text-green-600">
+                    {Math.round(dailyTotals.totalValue).toLocaleString()} MMK
+                  </h3>
+                  <p className="text-gray-600">Total Value</p>
+                </div>
+              </div>
+            </div>
+            <div className="bg-white p-4 rounded-lg shadow">
+              <div className="flex items-center">
+                <TruckIcon className="h-8 w-8 text-purple-600 mr-3" />
+                <div>
+                  <h3 className="text-2xl font-bold text-purple-600">
+                    {dailyTotals.collections}
+                  </h3>
+                  <p className="text-gray-600">Collections</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </>
+      )}
+
+      {activeTab === 'routes' && (
+        <div className="bg-white rounded-lg shadow overflow-hidden mb-6">
+          <div className="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
+            <h2 className="text-lg font-semibold text-gray-900">
+              Collection Routes
+            </h2>
+            <button
+              onClick={() => openRouteModal()}
+              className="bg-green-600 text-white px-3 py-2 rounded-lg text-sm font-medium hover:bg-green-700 flex items-center"
+            >
+              <PlusIcon className="w-4 h-4 mr-2" />
+              Add Route
+            </button>
+          </div>
+          <div className="overflow-x-auto">
+            <table className="min-w-full divide-y divide-gray-200">
+              <thead className="bg-gray-50">
+                <tr>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Route
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Schedule
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Farms
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Collector
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Status
+                  </th>
+                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Actions
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="bg-white divide-y divide-gray-200">
+                {routes.length === 0 && (
+                  <tr>
+                    <td
+                      colSpan={6}
+                      className="px-6 py-6 text-center text-sm text-gray-500"
+                    >
+                      No routes created yet.
                     </td>
                   </tr>
-                );
-              })}
-            </tbody>
-          </table>
+                )}
+                {routes.map((route) => {
+                  const collector = staff.find((s) => s.id === route.staffId);
+                  const farmNames = route.farmerIds
+                    .map(
+                      (id) =>
+                        farmers.find((f) => f.id === id)?.businessName ||
+                        farmers.find((f) => f.id === id)?.contactPerson,
+                    )
+                    .filter(Boolean)
+                    .join(', ');
+
+                  return (
+                    <tr key={route.id} className="hover:bg-gray-50">
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="text-sm font-medium text-gray-900">
+                          {route.name}
+                        </div>
+                        <div className="text-xs text-gray-500">
+                          {route.description || 'No description'}
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                        {route.schedule}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                        {farmNames || 'No farms'}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                        {collector
+                          ? `${collector.firstName} ${collector.lastName}`
+                          : 'Unassigned'}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <span
+                          className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                            route.active
+                              ? 'bg-green-100 text-green-800'
+                              : 'bg-gray-100 text-gray-800'
+                          }`}
+                        >
+                          {route.active ? 'Active' : 'Inactive'}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-2">
+                        <button
+                          onClick={() => openRouteModal(route)}
+                          className="text-indigo-600 hover:text-indigo-900"
+                        >
+                          Edit
+                        </button>
+                        <button
+                          onClick={() => handleRouteDelete(route.id)}
+                          className="text-red-600 hover:text-red-900"
+                        >
+                          Delete
+                        </button>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
         </div>
-      </div>
+      )}
+
+      {activeTab === 'inventory' && (
+        <>
+          {/* Egg Inventory Summary */}
+          <div className="bg-white rounded-lg shadow p-4 mb-6">
+            <div className="flex items-center justify-between mb-3">
+              <h2 className="text-lg font-semibold text-gray-900">
+                Current Egg Inventory
+              </h2>
+              <span className="text-xs text-gray-500">
+                Updated:{' '}
+                {eggInventory?.updatedAt
+                  ? new Date(eggInventory.updatedAt).toLocaleString()
+                  : 'N/A'}
+              </span>
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="border border-gray-200 rounded-lg p-3">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-sm font-medium text-gray-700">
+                    Hen Eggs
+                  </span>
+                  <span className="text-sm font-semibold text-gray-900">
+                    Total: {inventoryTotals.henTotal}
+                  </span>
+                </div>
+                <div className="grid grid-cols-2 gap-2 text-xs text-gray-600">
+                  <span>Small: {eggInventory?.henEggsSmall || 0}</span>
+                  <span>Medium: {eggInventory?.henEggsMedium || 0}</span>
+                  <span>Large: {eggInventory?.henEggsLarge || 0}</span>
+                  <span>XL: {eggInventory?.henEggsExtraLarge || 0}</span>
+                </div>
+              </div>
+              <div className="border border-gray-200 rounded-lg p-3">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-sm font-medium text-gray-700">
+                    Duck Eggs
+                  </span>
+                  <span className="text-sm font-semibold text-gray-900">
+                    Total: {inventoryTotals.duckTotal}
+                  </span>
+                </div>
+                <div className="grid grid-cols-2 gap-2 text-xs text-gray-600">
+                  <span>Small: {eggInventory?.duckEggsSmall || 0}</span>
+                  <span>Medium: {eggInventory?.duckEggsMedium || 0}</span>
+                  <span>Large: {eggInventory?.duckEggsLarge || 0}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </>
+      )}
+
+      {activeTab === 'inventory' && (
+        <div className="bg-white rounded-lg shadow overflow-hidden mb-6">
+          <div className="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
+            <h2 className="text-lg font-semibold text-gray-900">
+              Egg Deliveries
+            </h2>
+            <button
+              onClick={() => openDeliveryModal()}
+              className="bg-indigo-600 text-white px-3 py-2 rounded-lg text-sm font-medium hover:bg-indigo-700 flex items-center"
+            >
+              <PlusIcon className="w-4 h-4 mr-2" />
+              Schedule Delivery
+            </button>
+          </div>
+          <div className="overflow-x-auto">
+            <table className="min-w-full divide-y divide-gray-200">
+              <thead className="bg-gray-50">
+                <tr>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Customer
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Delivery Date
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Eggs
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Total Value
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Status
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Paid
+                  </th>
+                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Actions
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="bg-white divide-y divide-gray-200">
+                {deliveries.length === 0 && (
+                  <tr>
+                    <td
+                      colSpan={7}
+                      className="px-6 py-6 text-center text-sm text-gray-500"
+                    >
+                      No deliveries scheduled for this date.
+                    </td>
+                  </tr>
+                )}
+                {deliveries.map((delivery) => {
+                  const customer = wholesaleCustomers.find(
+                    (c) => c.id === delivery.customerId,
+                  );
+                  return (
+                    <tr key={delivery.id} className="hover:bg-gray-50">
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="text-sm font-medium text-gray-900">
+                          {customer?.businessName || customer?.contactPerson}
+                        </div>
+                        <div className="text-xs text-gray-500">
+                          {customer?.phone || ''}
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                        {new Date(delivery.deliveryDate).toLocaleDateString()}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                        Hen: {delivery.totalHenEggs} | Duck:{' '}
+                        {delivery.totalDuckEggs}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-green-600">
+                        {Math.round(delivery.totalValue).toLocaleString()} MMK
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <span
+                          className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                            delivery.status === 'DELIVERED'
+                              ? 'bg-green-100 text-green-800'
+                              : delivery.status === 'IN_TRANSIT'
+                                ? 'bg-blue-100 text-blue-800'
+                                : delivery.status === 'CANCELLED'
+                                  ? 'bg-red-100 text-red-800'
+                                  : 'bg-yellow-100 text-yellow-800'
+                          }`}
+                        >
+                          {delivery.status.replace('_', ' ')}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <span
+                          className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                            delivery.paid
+                              ? 'bg-green-100 text-green-800'
+                              : 'bg-gray-100 text-gray-800'
+                          }`}
+                        >
+                          {delivery.paid ? 'Paid' : 'Unpaid'}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-2">
+                        {delivery.status !== 'DELIVERED' && (
+                          <button
+                            onClick={() => handleMarkDelivered(delivery)}
+                            className="text-green-600 hover:text-green-900"
+                          >
+                            Mark Delivered
+                          </button>
+                        )}
+                        <button
+                          onClick={() => openDeliveryModal(delivery)}
+                          className="text-indigo-600 hover:text-indigo-900"
+                        >
+                          Edit
+                        </button>
+                        <button
+                          onClick={() => handleDeliveryDelete(delivery.id)}
+                          className="text-red-600 hover:text-red-900"
+                        >
+                          Delete
+                        </button>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
 
       {/* Collections Table */}
-      <div className="bg-white rounded-lg shadow overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-50">
-              <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Farm
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Route & Collector
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Hen Eggs
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Duck Eggs
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Total Value
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Quality
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Status
-                </th>
-                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Actions
-                </th>
-              </tr>
-            </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
-              {filteredCollections.map((collection) => {
-                const farmer = farmers.find(
-                  (f) => f.id === collection.farmerId,
-                );
-                const route = routes.find((r) => r.id === collection.routeId);
-                const collector = staff.find(
-                  (s) => s.id === collection.staffId,
-                );
+      {activeTab === 'collections' && (
+        <div className="bg-white rounded-lg shadow overflow-hidden">
+          <div className="overflow-x-auto">
+            <table className="min-w-full divide-y divide-gray-200">
+              <thead className="bg-gray-50">
+                <tr>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Farm
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Route & Collector
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Hen Eggs
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Duck Eggs
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Total Value
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Quality
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Status
+                  </th>
+                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Actions
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="bg-white divide-y divide-gray-200">
+                {filteredCollections.map((collection) => {
+                  const farmer = farmers.find(
+                    (f) => f.id === collection.farmerId,
+                  );
+                  const route = routes.find((r) => r.id === collection.routeId);
+                  const collector = staff.find(
+                    (s) => s.id === collection.staffId,
+                  );
 
-                return (
-                  <tr key={collection.id} className="hover:bg-gray-50">
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="flex items-center">
-                        <div className="flex-shrink-0 h-10 w-10">
-                          <div className="h-10 w-10 rounded-lg bg-green-100 flex items-center justify-center">
-                            🚜
+                  return (
+                    <tr key={collection.id} className="hover:bg-gray-50">
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="flex items-center">
+                          <div className="flex-shrink-0 h-10 w-10">
+                            <div className="h-10 w-10 rounded-lg bg-green-100 flex items-center justify-center">
+                              🚜
+                            </div>
+                          </div>
+                          <div className="ml-4">
+                            <div className="text-sm font-medium text-gray-900">
+                              {farmer?.businessName || farmer?.contactPerson}
+                            </div>
+                            <div className="text-sm text-gray-500">
+                              {farmer?.phone}
+                            </div>
                           </div>
                         </div>
-                        <div className="ml-4">
-                          <div className="text-sm font-medium text-gray-900">
-                            {farmer?.businessName || farmer?.contactPerson}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="text-sm text-gray-900">
+                          {route?.name || 'Direct'}
+                        </div>
+                        <div className="text-sm text-gray-500">
+                          {collector?.firstName} {collector?.lastName}
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="text-sm text-gray-900">
+                          <div className="grid grid-cols-2 gap-1 text-xs">
+                            <span>S: {collection.henEggs.small}</span>
+                            <span>M: {collection.henEggs.medium}</span>
+                            <span>L: {collection.henEggs.large}</span>
+                            <span>XL: {collection.henEggs.extraLarge}</span>
                           </div>
-                          <div className="text-sm text-gray-500">
-                            {farmer?.phone}
+                          <div className="font-medium mt-1">
+                            Total: {collection.totalHenEggs}
                           </div>
+                          {collection.henEggs.damaged > 0 && (
+                            <div className="text-red-500 text-xs">
+                              Damaged: {collection.henEggs.damaged}
+                            </div>
+                          )}
                         </div>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm text-gray-900">
-                        {route?.name || 'Direct'}
-                      </div>
-                      <div className="text-sm text-gray-500">
-                        {collector?.firstName} {collector?.lastName}
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm text-gray-900">
-                        <div className="grid grid-cols-2 gap-1 text-xs">
-                          <span>S: {collection.henEggs.small}</span>
-                          <span>M: {collection.henEggs.medium}</span>
-                          <span>L: {collection.henEggs.large}</span>
-                          <span>XL: {collection.henEggs.extraLarge}</span>
-                        </div>
-                        <div className="font-medium mt-1">
-                          Total: {collection.totalHenEggs}
-                        </div>
-                        {collection.henEggs.damaged > 0 && (
-                          <div className="text-red-500 text-xs">
-                            Damaged: {collection.henEggs.damaged}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="text-sm text-gray-900">
+                          <div className="grid grid-cols-2 gap-1 text-xs">
+                            <span>S: {collection.duckEggs.small}</span>
+                            <span>M: {collection.duckEggs.medium}</span>
+                            <span>L: {collection.duckEggs.large}</span>
+                            <span></span>
                           </div>
-                        )}
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm text-gray-900">
-                        <div className="grid grid-cols-2 gap-1 text-xs">
-                          <span>S: {collection.duckEggs.small}</span>
-                          <span>M: {collection.duckEggs.medium}</span>
-                          <span>L: {collection.duckEggs.large}</span>
-                          <span></span>
-                        </div>
-                        <div className="font-medium mt-1">
-                          Total: {collection.totalDuckEggs}
-                        </div>
-                        {collection.duckEggs.damaged > 0 && (
-                          <div className="text-red-500 text-xs">
-                            Damaged: {collection.duckEggs.damaged}
+                          <div className="font-medium mt-1">
+                            Total: {collection.totalDuckEggs}
                           </div>
-                        )}
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm font-medium text-green-600">
-                        {Math.round(collection.totalValue).toLocaleString()} MMK
-                      </div>
-                      <div className="text-xs text-gray-500">
-                        H: {Math.round(collection.henEggPrice).toLocaleString()}
-                        MMK/dz | D:{' '}
-                        {Math.round(collection.duckEggPrice).toLocaleString()}
-                        MMK/dz
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm text-gray-900">
-                        {collection.qualityNotes ? (
-                          <span className="text-green-600">✓ Notes</span>
-                        ) : (
-                          <span className="text-gray-400">No notes</span>
-                        )}
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span
-                        className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                          collection.paid
-                            ? 'bg-green-100 text-green-800'
-                            : 'bg-yellow-100 text-yellow-800'
-                        }`}
-                      >
-                        {collection.paid ? 'Paid' : 'Unpaid'}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-2">
-                      {!collection.paid && (
-                        <button
-                          onClick={() => handleMarkPaid(collection)}
-                          className="text-green-600 hover:text-green-900"
-                          title="Mark as Paid"
+                          {collection.duckEggs.damaged > 0 && (
+                            <div className="text-red-500 text-xs">
+                              Damaged: {collection.duckEggs.damaged}
+                            </div>
+                          )}
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="text-sm font-medium text-green-600">
+                          {Math.round(collection.totalValue).toLocaleString()} MMK
+                        </div>
+                        <div className="text-xs text-gray-500">
+                          H: {Math.round(collection.henEggPrice).toLocaleString()}
+                          MMK/dz | D:{' '}
+                          {Math.round(collection.duckEggPrice).toLocaleString()}
+                          MMK/dz
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="text-sm text-gray-900">
+                          {collection.qualityNotes ? (
+                            <span className="text-green-600">✓ Notes</span>
+                          ) : (
+                            <span className="text-gray-400">No notes</span>
+                          )}
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <span
+                          className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                            collection.paid
+                              ? 'bg-green-100 text-green-800'
+                              : 'bg-yellow-100 text-yellow-800'
+                          }`}
                         >
-                          Mark Paid
+                          {collection.paid ? 'Paid' : 'Unpaid'}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-2">
+                        {!collection.paid && (
+                          <button
+                            onClick={() => handleMarkPaid(collection)}
+                            className="text-green-600 hover:text-green-900"
+                            title="Mark as Paid"
+                          >
+                            Mark Paid
+                          </button>
+                        )}
+                        <button
+                          onClick={() => openModal(collection)}
+                          className="text-indigo-600 hover:text-indigo-900"
+                          title="View/Edit Collection"
+                        >
+                          <EyeIcon className="h-4 w-4" />
                         </button>
-                      )}
-                      <button
-                        onClick={() => openModal(collection)}
-                        className="text-indigo-600 hover:text-indigo-900"
-                        title="View/Edit Collection"
-                      >
-                        <EyeIcon className="h-4 w-4" />
-                      </button>
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
         </div>
-      </div>
+      )}
 
       {/* Collection Modal */}
       {showModal && (
@@ -1243,6 +1751,413 @@ const EggCollectionComponent: React.FC = () => {
                     {editingCollection
                       ? 'Update Collection'
                       : 'Record Collection'}
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Delivery Modal */}
+      {showDeliveryModal && (
+        <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
+          <div className="relative top-10 mx-auto p-5 border w-[800px] shadow-lg rounded-md bg-white">
+            <div className="mt-3">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-lg font-medium text-gray-900">
+                  {editingDelivery ? 'Edit Delivery' : 'Schedule Delivery'}
+                </h3>
+                <button
+                  onClick={closeDeliveryModal}
+                  className="text-gray-400 hover:text-gray-600 text-2xl"
+                >
+                  ×
+                </button>
+              </div>
+
+              <form onSubmit={handleDeliverySubmit} className="space-y-6">
+                <div className="grid grid-cols-3 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700">
+                      Wholesale Customer *
+                    </label>
+                    <select
+                      value={deliveryForm.customerId}
+                      onChange={(e) =>
+                        setDeliveryForm((prev) => ({
+                          ...prev,
+                          customerId: e.target.value,
+                        }))
+                      }
+                      className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-500"
+                      required
+                    >
+                      <option value="">Select Customer</option>
+                      {wholesaleCustomers.map((customer) => (
+                        <option key={customer.id} value={customer.id}>
+                          {customer.businessName || customer.contactPerson}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700">
+                      Delivery Date *
+                    </label>
+                    <input
+                      type="date"
+                      value={deliveryForm.deliveryDate}
+                      onChange={(e) =>
+                        setDeliveryForm((prev) => ({
+                          ...prev,
+                          deliveryDate: e.target.value,
+                        }))
+                      }
+                      className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-500"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700">
+                      Status
+                    </label>
+                    <select
+                      value={deliveryForm.status}
+                      onChange={(e) =>
+                        setDeliveryForm((prev) => ({
+                          ...prev,
+                          status: e.target.value as DeliveryStatus,
+                        }))
+                      }
+                      className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-500"
+                    >
+                      <option value="SCHEDULED">Scheduled</option>
+                      <option value="IN_TRANSIT">In Transit</option>
+                      <option value="DELIVERED">Delivered</option>
+                      <option value="CANCELLED">Cancelled</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700">
+                      Assigned Staff
+                    </label>
+                    <select
+                      value={deliveryForm.staffId}
+                      onChange={(e) =>
+                        setDeliveryForm((prev) => ({
+                          ...prev,
+                          staffId: e.target.value,
+                        }))
+                      }
+                      className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-500"
+                    >
+                      <option value="">Unassigned</option>
+                      {staff.map((member) => (
+                        <option key={member.id} value={member.id}>
+                          {member.firstName} {member.lastName}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                  <div className="flex items-center space-x-4 mt-6">
+                    <label className="flex items-center space-x-2">
+                      <input
+                        type="checkbox"
+                        checked={deliveryForm.paid}
+                        onChange={(e) =>
+                          setDeliveryForm((prev) => ({
+                            ...prev,
+                            paid: e.target.checked,
+                          }))
+                        }
+                        className="h-4 w-4 text-blue-600"
+                      />
+                      <span className="text-sm text-gray-700">Paid</span>
+                    </label>
+                    <select
+                      value={deliveryForm.paymentMethod}
+                      onChange={(e) =>
+                        setDeliveryForm((prev) => ({
+                          ...prev,
+                          paymentMethod: e.target.value as PaymentMethod,
+                        }))
+                      }
+                      className="border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500"
+                    >
+                      <option value="CASH">Cash</option>
+                      <option value="CREDIT">Credit</option>
+                      <option value="BANK_TRANSFER">Bank Transfer</option>
+                      <option value="CHECK">Check</option>
+                      <option value="DIGITAL">Digital</option>
+                    </select>
+                  </div>
+                </div>
+
+                {/* Hen Eggs */}
+                <div className="border border-gray-200 rounded-lg p-4">
+                  <h4 className="font-medium text-gray-900 mb-3 flex items-center">
+                    🐔 Hen Eggs Delivery
+                    <span className="ml-2 text-sm font-normal text-gray-600">
+                      (Price: {deliveryForm.henEggPrice.toLocaleString()} MMK/dozen)
+                    </span>
+                  </h4>
+                  <div className="grid grid-cols-4 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700">
+                        Small
+                      </label>
+                      <input
+                        type="number"
+                        value={deliveryForm.henEggs.small}
+                        onChange={(e) =>
+                          setDeliveryForm((prev) => ({
+                            ...prev,
+                            henEggs: {
+                              ...prev.henEggs,
+                              small: parseInt(e.target.value) || 0,
+                            },
+                          }))
+                        }
+                        className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-500"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700">
+                        Medium
+                      </label>
+                      <input
+                        type="number"
+                        value={deliveryForm.henEggs.medium}
+                        onChange={(e) =>
+                          setDeliveryForm((prev) => ({
+                            ...prev,
+                            henEggs: {
+                              ...prev.henEggs,
+                              medium: parseInt(e.target.value) || 0,
+                            },
+                          }))
+                        }
+                        className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-500"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700">
+                        Large
+                      </label>
+                      <input
+                        type="number"
+                        value={deliveryForm.henEggs.large}
+                        onChange={(e) =>
+                          setDeliveryForm((prev) => ({
+                            ...prev,
+                            henEggs: {
+                              ...prev.henEggs,
+                              large: parseInt(e.target.value) || 0,
+                            },
+                          }))
+                        }
+                        className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-500"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700">
+                        Extra Large
+                      </label>
+                      <input
+                        type="number"
+                        value={deliveryForm.henEggs.extraLarge}
+                        onChange={(e) =>
+                          setDeliveryForm((prev) => ({
+                            ...prev,
+                            henEggs: {
+                              ...prev.henEggs,
+                              extraLarge: parseInt(e.target.value) || 0,
+                            },
+                          }))
+                        }
+                        className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-500"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Duck Eggs */}
+                <div className="border border-gray-200 rounded-lg p-4">
+                  <h4 className="font-medium text-gray-900 mb-3 flex items-center">
+                    🦆 Duck Eggs Delivery
+                    <span className="ml-2 text-sm font-normal text-gray-600">
+                      (Price: {deliveryForm.duckEggPrice.toLocaleString()} MMK/dozen)
+                    </span>
+                  </h4>
+                  <div className="grid grid-cols-3 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700">
+                        Small
+                      </label>
+                      <input
+                        type="number"
+                        value={deliveryForm.duckEggs.small}
+                        onChange={(e) =>
+                          setDeliveryForm((prev) => ({
+                            ...prev,
+                            duckEggs: {
+                              ...prev.duckEggs,
+                              small: parseInt(e.target.value) || 0,
+                            },
+                          }))
+                        }
+                        className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-500"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700">
+                        Medium
+                      </label>
+                      <input
+                        type="number"
+                        value={deliveryForm.duckEggs.medium}
+                        onChange={(e) =>
+                          setDeliveryForm((prev) => ({
+                            ...prev,
+                            duckEggs: {
+                              ...prev.duckEggs,
+                              medium: parseInt(e.target.value) || 0,
+                            },
+                          }))
+                        }
+                        className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-500"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700">
+                        Large
+                      </label>
+                      <input
+                        type="number"
+                        value={deliveryForm.duckEggs.large}
+                        onChange={(e) =>
+                          setDeliveryForm((prev) => ({
+                            ...prev,
+                            duckEggs: {
+                              ...prev.duckEggs,
+                              large: parseInt(e.target.value) || 0,
+                            },
+                          }))
+                        }
+                        className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-500"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Pricing */}
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700">
+                      Hen Egg Price (per dozen, MMK)
+                    </label>
+                    <input
+                      type="number"
+                      step="1"
+                      value={deliveryForm.henEggPrice}
+                      onChange={(e) =>
+                        setDeliveryForm((prev) => ({
+                          ...prev,
+                          henEggPrice:
+                            Math.round(parseFloat(e.target.value)) || 0,
+                        }))
+                      }
+                      className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-500"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700">
+                      Duck Egg Price (per dozen, MMK)
+                    </label>
+                    <input
+                      type="number"
+                      step="1"
+                      value={deliveryForm.duckEggPrice}
+                      onChange={(e) =>
+                        setDeliveryForm((prev) => ({
+                          ...prev,
+                          duckEggPrice:
+                            Math.round(parseFloat(e.target.value)) || 0,
+                        }))
+                      }
+                      className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-500"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">
+                    Notes
+                  </label>
+                  <textarea
+                    value={deliveryForm.notes}
+                    onChange={(e) =>
+                      setDeliveryForm((prev) => ({
+                        ...prev,
+                        notes: e.target.value,
+                      }))
+                    }
+                    rows={2}
+                    className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-500"
+                  />
+                </div>
+
+                <div className="bg-gray-50 rounded-lg p-4">
+                  <h4 className="font-medium text-gray-900 mb-2">
+                    Delivery Summary
+                  </h4>
+                  <div className="grid grid-cols-3 gap-4 text-sm">
+                    <div>
+                      <span className="text-gray-600">Hen Eggs:</span>
+                      <div className="font-medium">
+                        {calculateDeliveryTotals().totalHenEggs} eggs (
+                        {calculateDeliveryTotals().henDozens} dozen)
+                      </div>
+                      <div className="text-green-600">
+                        {calculateDeliveryTotals().henValue.toLocaleString()} MMK
+                      </div>
+                    </div>
+                    <div>
+                      <span className="text-gray-600">Duck Eggs:</span>
+                      <div className="font-medium">
+                        {calculateDeliveryTotals().totalDuckEggs} eggs (
+                        {calculateDeliveryTotals().duckDozens} dozen)
+                      </div>
+                      <div className="text-green-600">
+                        {calculateDeliveryTotals().duckValue.toLocaleString()} MMK
+                      </div>
+                    </div>
+                    <div>
+                      <span className="text-gray-600">Total Value:</span>
+                      <div className="text-lg font-bold text-green-600">
+                        {calculateDeliveryTotals().totalValue.toLocaleString()} MMK
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="flex justify-end space-x-3 pt-4">
+                  <button
+                    type="button"
+                    onClick={closeDeliveryModal}
+                    className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    className="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700"
+                  >
+                    {editingDelivery ? 'Update Delivery' : 'Create Delivery'}
                   </button>
                 </div>
               </form>

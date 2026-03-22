@@ -245,6 +245,53 @@ export interface EggCollection {
   synced: boolean;
 }
 
+export type DeliveryStatus =
+  | 'SCHEDULED'
+  | 'IN_TRANSIT'
+  | 'DELIVERED'
+  | 'CANCELLED';
+
+export interface EggInventory {
+  id: string;
+  henEggsSmall: number;
+  henEggsMedium: number;
+  henEggsLarge: number;
+  henEggsExtraLarge: number;
+  duckEggsSmall: number;
+  duckEggsMedium: number;
+  duckEggsLarge: number;
+  updatedAt: Date;
+}
+
+export interface EggDelivery {
+  id: string;
+  customerId: string;
+  staffId?: string;
+  deliveryDate: Date;
+  status: DeliveryStatus;
+  henEggs: {
+    small: number;
+    medium: number;
+    large: number;
+    extraLarge: number;
+  };
+  duckEggs: {
+    small: number;
+    medium: number;
+    large: number;
+  };
+  totalHenEggs: number;
+  totalDuckEggs: number;
+  henEggPrice: number;
+  duckEggPrice: number;
+  totalValue: number;
+  paid: boolean;
+  paymentMethod?: PaymentMethod;
+  notes?: string;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
 // Staff Management
 export interface Staff {
   id: string;

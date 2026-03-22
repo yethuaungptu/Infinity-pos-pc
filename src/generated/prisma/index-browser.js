@@ -317,6 +317,43 @@ exports.Prisma.EggCollectionScalarFieldEnum = {
   updatedAt: 'updatedAt'
 };
 
+exports.Prisma.EggInventoryScalarFieldEnum = {
+  id: 'id',
+  henEggsSmall: 'henEggsSmall',
+  henEggsMedium: 'henEggsMedium',
+  henEggsLarge: 'henEggsLarge',
+  henEggsExtraLarge: 'henEggsExtraLarge',
+  duckEggsSmall: 'duckEggsSmall',
+  duckEggsMedium: 'duckEggsMedium',
+  duckEggsLarge: 'duckEggsLarge',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.EggDeliveryScalarFieldEnum = {
+  id: 'id',
+  customerId: 'customerId',
+  staffId: 'staffId',
+  deliveryDate: 'deliveryDate',
+  status: 'status',
+  henEggsSmall: 'henEggsSmall',
+  henEggsMedium: 'henEggsMedium',
+  henEggsLarge: 'henEggsLarge',
+  henEggsExtraLarge: 'henEggsExtraLarge',
+  totalHenEggs: 'totalHenEggs',
+  duckEggsSmall: 'duckEggsSmall',
+  duckEggsMedium: 'duckEggsMedium',
+  duckEggsLarge: 'duckEggsLarge',
+  totalDuckEggs: 'totalDuckEggs',
+  henEggPrice: 'henEggPrice',
+  duckEggPrice: 'duckEggPrice',
+  totalValue: 'totalValue',
+  paid: 'paid',
+  paymentMethod: 'paymentMethod',
+  notes: 'notes',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
 exports.Prisma.CollectionRouteScalarFieldEnum = {
   id: 'id',
   name: 'name',
@@ -539,6 +576,13 @@ exports.TransactionStatus = exports.$Enums.TransactionStatus = {
   PARTIAL_REFUND: 'PARTIAL_REFUND'
 };
 
+exports.DeliveryStatus = exports.$Enums.DeliveryStatus = {
+  SCHEDULED: 'SCHEDULED',
+  IN_TRANSIT: 'IN_TRANSIT',
+  DELIVERED: 'DELIVERED',
+  CANCELLED: 'CANCELLED'
+};
+
 exports.PurchaseOrderStatus = exports.$Enums.PurchaseOrderStatus = {
   PENDING: 'PENDING',
   ORDERED: 'ORDERED',
@@ -613,6 +657,8 @@ exports.Prisma.ModelName = {
   Transaction: 'Transaction',
   TransactionItem: 'TransactionItem',
   EggCollection: 'EggCollection',
+  EggInventory: 'EggInventory',
+  EggDelivery: 'EggDelivery',
   CollectionRoute: 'CollectionRoute',
   PurchaseOrder: 'PurchaseOrder',
   PurchaseOrderItem: 'PurchaseOrderItem',

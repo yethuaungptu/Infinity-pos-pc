@@ -84,6 +84,7 @@ model Staff {
   eggCollections   EggCollection[]
   paymentRecords   PaymentRecord[]
   collectionRoutes CollectionRoute[]
+  eggDeliveries    EggDelivery[]
 
   createdAt     DateTime        @default(now())
   updatedAt     DateTime        @updatedAt
@@ -156,6 +157,7 @@ model Customer {
   eggCollections EggCollection[]
   paymentRecords PaymentRecord[]
   routes         CollectionRoute[] @relation("RouteCustomers")
+  eggDeliveries  EggDelivery[]
 
   active    Boolean  @default(true)
   createdAt DateTime @default(now())
@@ -183,6 +185,13 @@ enum CollectionSchedule {
   ALTERNATE
   WEEKLY
   CUSTOM
+}
+
+enum DeliveryStatus {
+  SCHEDULED
+  IN_TRANSIT
+  DELIVERED
+  CANCELLED
 }
 
 // ===== VENDOR MANAGEMENT =====
@@ -463,6 +472,67 @@ model EggCollection {
   @@index([collectionDate], map: "idx_egg_collections_date")
   @@index([paid], map: "idx_egg_collections_paid")
   @@map("egg_collections")
+}
+
+model EggInventory {
+  id String @id @default(cuid())
+
+  // Hen eggs inventory
+  henEggsSmall      Int @default(0)
+  henEggsMedium     Int @default(0)
+  henEggsLarge      Int @default(0)
+  henEggsExtraLarge Int @default(0)
+
+  // Duck eggs inventory
+  duckEggsSmall  Int @default(0)
+  duckEggsMedium Int @default(0)
+  duckEggsLarge  Int @default(0)
+
+  updatedAt DateTime @updatedAt
+
+  @@map("egg_inventory")
+}
+
+model EggDelivery {
+  id String @id @default(cuid())
+
+  customerId String
+  customer   Customer @relation(fields: [customerId], references: [id])
+
+  staffId String?
+  staff   Staff?  @relation(fields: [staffId], references: [id])
+
+  deliveryDate DateTime
+  status       DeliveryStatus @default(SCHEDULED)
+
+  // Hen eggs breakdown
+  henEggsSmall      Int @default(0)
+  henEggsMedium     Int @default(0)
+  henEggsLarge      Int @default(0)
+  henEggsExtraLarge Int @default(0)
+  totalHenEggs      Int @default(0)
+
+  // Duck eggs breakdown
+  duckEggsSmall  Int @default(0)
+  duckEggsMedium Int @default(0)
+  duckEggsLarge  Int @default(0)
+  totalDuckEggs  Int @default(0)
+
+  // Pricing (per dozen)
+  henEggPrice  Float
+  duckEggPrice Float
+  totalValue   Float
+
+  paid          Boolean        @default(false)
+  paymentMethod PaymentMethod?
+  notes         String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([deliveryDate], map: "idx_egg_deliveries_date")
+  @@index([status], map: "idx_egg_deliveries_status")
+  @@map("egg_deliveries")
 }
 
 model CollectionRoute {

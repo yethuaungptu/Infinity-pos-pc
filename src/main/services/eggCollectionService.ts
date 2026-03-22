@@ -3,6 +3,7 @@
 
 import { databaseService } from '../database';
 import { EggCollection } from '../../../src/renderer/types/core';
+import { EggInventoryService } from './eggInventoryService';
 
 export interface EggCollectionRequest {
   farmerId: string;
@@ -283,6 +284,20 @@ export class EggCollectionServiceClass {
       synced: false,
     });
 
+    await EggInventoryService.adjustEggInventory({
+      henEggs: {
+        small: request.henEggs.small,
+        medium: request.henEggs.medium,
+        large: request.henEggs.large,
+        extraLarge: request.henEggs.extraLarge,
+      },
+      duckEggs: {
+        small: request.duckEggs.small,
+        medium: request.duckEggs.medium,
+        large: request.duckEggs.large,
+      },
+    });
+
     const farmer = await databaseService.findById(
       'customer',
       request.farmerId,
@@ -324,6 +339,11 @@ export class EggCollectionServiceClass {
   }
 
   async updateEggCollection(data: EggCollection): Promise<EggCollection> {
+    const existing = await databaseService.findById('eggCollection', data.id);
+    if (!existing) {
+      throw new Error('Egg collection not found');
+    }
+
     const totalHenEggs = calculateTotalEggs(data.henEggs);
     const totalDuckEggs = calculateTotalEggs(data.duckEggs);
     const totalValue = Math.round(
@@ -351,6 +371,23 @@ export class EggCollectionServiceClass {
       duckEggPrice: data.duckEggPrice,
       totalValue,
       qualityNotes: data.qualityNotes || null,
+    });
+
+    const deltaHen = {
+      small: data.henEggs.small - (existing as any).henEggsSmall,
+      medium: data.henEggs.medium - (existing as any).henEggsMedium,
+      large: data.henEggs.large - (existing as any).henEggsLarge,
+      extraLarge: data.henEggs.extraLarge - (existing as any).henEggsExtraLarge,
+    };
+    const deltaDuck = {
+      small: data.duckEggs.small - (existing as any).duckEggsSmall,
+      medium: data.duckEggs.medium - (existing as any).duckEggsMedium,
+      large: data.duckEggs.large - (existing as any).duckEggsLarge,
+    };
+
+    await EggInventoryService.adjustEggInventory({
+      henEggs: deltaHen,
+      duckEggs: deltaDuck,
     });
 
     return mapDbToEggCollection(record);

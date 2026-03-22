@@ -20,6 +20,7 @@ import { PaymentRecordService } from './services/paymentService';
 import { PurchaseService } from './services/purchaseService';
 import { EggCollectionService } from './services/eggCollectionService';
 import { FinancialService } from './services/financialService';
+import { EggInventoryService } from './services/eggInventoryService';
 
 class AppUpdater {
   constructor() {
@@ -206,6 +207,30 @@ ipcMain.handle('db:deleteCollectionRoute', async (event, id) => {
 
 ipcMain.handle('db:getFinancialDashboardData', async (event, data) => {
   return FinancialService.getFinancialDashboardData(data.period, data.date);
+});
+
+ipcMain.handle('db:getEggInventory', async () => {
+  return EggInventoryService.getEggInventory();
+});
+
+ipcMain.handle('db:adjustEggInventory', async (event, data) => {
+  return EggInventoryService.adjustEggInventory(data);
+});
+
+ipcMain.handle('db:getEggDeliveries', async (event, data) => {
+  return EggInventoryService.getEggDeliveries(data);
+});
+
+ipcMain.handle('db:createEggDelivery', async (event, data) => {
+  return EggInventoryService.createEggDelivery(data);
+});
+
+ipcMain.handle('db:updateEggDelivery', async (event, data) => {
+  return EggInventoryService.updateEggDelivery(data);
+});
+
+ipcMain.handle('db:deleteEggDelivery', async (event, id) => {
+  return EggInventoryService.deleteEggDelivery(id);
 });
 
 // ---------------------------
