@@ -209,6 +209,10 @@ ipcMain.handle('db:getFinancialDashboardData', async (event, data) => {
   return FinancialService.getFinancialDashboardData(data.period, data.date);
 });
 
+ipcMain.handle('db:syncNow', async () => {
+  await SyncService.syncNow();
+  return { ok: true };
+});
 ipcMain.handle('db:getEggInventory', async () => {
   return EggInventoryService.getEggInventory();
 });

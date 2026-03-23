@@ -140,6 +140,12 @@ const SettingsManagement: React.FC = () => {
     offlineMode: false,
     conflictResolution: 'server_wins',
   });
+  const [syncStatusMessage, setSyncStatusMessage] = useState<string | null>(
+    null,
+  );
+  const [syncStatusType, setSyncStatusType] = useState<
+    'idle' | 'success' | 'error'
+  >('idle');
 
   // Notification Settings
   const [notificationSettings, setNotificationSettings] =
@@ -1094,16 +1100,49 @@ const SettingsManagement: React.FC = () => {
 
                   <div className="border-t border-gray-200 pt-4">
                     <h3 className="font-medium mb-3">Sync Status</h3>
-                    <div className="bg-green-50 border border-green-200 rounded-lg p-3">
+                    <div
+                      className={`border rounded-lg p-3 ${
+                        syncStatusType === 'error'
+                          ? 'bg-red-50 border-red-200'
+                          : 'bg-green-50 border-green-200'
+                      }`}
+                    >
                       <div className="flex items-center">
-                        <CheckIcon className="w-5 h-5 text-green-600 mr-2" />
-                        <span className="text-green-800">
-                          Last sync: 2 minutes ago
+                        <CheckIcon
+                          className={`w-5 h-5 mr-2 ${
+                            syncStatusType === 'error'
+                              ? 'text-red-600'
+                              : 'text-green-600'
+                          }`}
+                        />
+                        <span
+                          className={`${
+                            syncStatusType === 'error'
+                              ? 'text-red-800'
+                              : 'text-green-800'
+                          }`}
+                        >
+                          {syncStatusMessage || 'Sync status ready'}
                         </span>
                       </div>
                     </div>
                     <div className="mt-3 flex gap-2">
-                      <button className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+                      <button
+                        className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+                        onClick={async () => {
+                          try {
+                            setSyncStatusMessage('Syncing now...');
+                            setSyncStatusType('idle');
+                            await window.api.syncNow();
+                            setSyncStatusMessage('Sync completed successfully.');
+                            setSyncStatusType('success');
+                          } catch (error) {
+                            console.error('Sync now failed:', error);
+                            setSyncStatusMessage('Sync failed. Check logs.');
+                            setSyncStatusType('error');
+                          }
+                        }}
+                      >
                         Sync Now
                       </button>
                       <button className="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700">

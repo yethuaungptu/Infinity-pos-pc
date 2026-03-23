@@ -123,6 +123,7 @@ contextBridge.exposeInMainWorld('api', {
     ipcRenderer.invoke('db:updateEggDelivery', data),
   deleteEggDelivery: (id: string) =>
     ipcRenderer.invoke('db:deleteEggDelivery', id),
+  syncNow: () => ipcRenderer.invoke('db:syncNow'),
 });
 
 export type ElectronHandler = typeof electronHandler;
