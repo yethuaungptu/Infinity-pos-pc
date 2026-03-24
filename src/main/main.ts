@@ -20,7 +20,8 @@ import { PaymentRecordService } from './services/paymentService';
 import { PurchaseService } from './services/purchaseService';
 import { EggCollectionService } from './services/eggCollectionService';
 import { FinancialService } from './services/financialService';
-import { EggInventoryService } from './services/eggInventoryService';
+import { EggInventoryService } from './services/eggInventoryService.js';
+import { SyncService } from './services/syncService.js';
 
 class AppUpdater {
   constructor() {
