@@ -214,6 +214,9 @@ ipcMain.handle('db:syncNow', async () => {
   await SyncService.syncNow();
   return { ok: true };
 });
+ipcMain.handle('db:getSyncLogs', async (event, limit?: number) => {
+  return SyncService.getSyncLogs(limit);
+});
 ipcMain.handle('db:getEggInventory', async () => {
   return EggInventoryService.getEggInventory();
 });
@@ -289,8 +292,8 @@ const createWindow = async () => {
     icon: getAssetPath('icon.png'),
     webPreferences: {
       preload: app.isPackaged
-        ? path.join(__dirname, 'preload.js')
-        : path.join(__dirname, '../../.erb/dll/preload.js'),
+        ? path.join(__dirname, 'preload.cjs')
+        : path.join(__dirname, '../../.erb/dll/preload.cjs'),
     },
   });
 

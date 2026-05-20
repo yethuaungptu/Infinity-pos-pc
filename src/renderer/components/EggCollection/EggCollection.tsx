@@ -40,8 +40,9 @@ const EggCollectionComponent: React.FC = () => {
     null,
   );
   const [showDeliveryModal, setShowDeliveryModal] = useState(false);
-  const [editingDelivery, setEditingDelivery] =
-    useState<EggDelivery | null>(null);
+  const [editingDelivery, setEditingDelivery] = useState<EggDelivery | null>(
+    null,
+  );
   const [routeSaving, setRouteSaving] = useState(false);
   const [loading, setLoading] = useState(false);
   const [loadingCollections, setLoadingCollections] = useState(false);
@@ -192,7 +193,6 @@ const EggCollectionComponent: React.FC = () => {
           ...collection,
           collectionDate: new Date(collection.collectionDate),
         }));
-        console.log('Loaded collections:', normalized);
         setCollections(normalized);
       } catch (error) {
         console.error('Failed to load collections:', error);
@@ -621,7 +621,7 @@ const EggCollectionComponent: React.FC = () => {
       alert('Failed to save collection. Please try again.');
     }
   };
-
+  console.log(collections);
   const filteredCollections = collections.filter((collection) => {
     const collectionDate = collection.collectionDate
       .toISOString()
@@ -1294,10 +1294,12 @@ const EggCollectionComponent: React.FC = () => {
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="text-sm font-medium text-green-600">
-                          {Math.round(collection.totalValue).toLocaleString()} MMK
+                          {Math.round(collection.totalValue).toLocaleString()}{' '}
+                          MMK
                         </div>
                         <div className="text-xs text-gray-500">
-                          H: {Math.round(collection.henEggPrice).toLocaleString()}
+                          H:{' '}
+                          {Math.round(collection.henEggPrice).toLocaleString()}
                           MMK/dz | D:{' '}
                           {Math.round(collection.duckEggPrice).toLocaleString()}
                           MMK/dz
@@ -1902,7 +1904,8 @@ const EggCollectionComponent: React.FC = () => {
                   <h4 className="font-medium text-gray-900 mb-3 flex items-center">
                     🐔 Hen Eggs Delivery
                     <span className="ml-2 text-sm font-normal text-gray-600">
-                      (Price: {deliveryForm.henEggPrice.toLocaleString()} MMK/dozen)
+                      (Price: {deliveryForm.henEggPrice.toLocaleString()}{' '}
+                      MMK/dozen)
                     </span>
                   </h4>
                   <div className="grid grid-cols-4 gap-4">
@@ -1990,7 +1993,8 @@ const EggCollectionComponent: React.FC = () => {
                   <h4 className="font-medium text-gray-900 mb-3 flex items-center">
                     🦆 Duck Eggs Delivery
                     <span className="ml-2 text-sm font-normal text-gray-600">
-                      (Price: {deliveryForm.duckEggPrice.toLocaleString()} MMK/dozen)
+                      (Price: {deliveryForm.duckEggPrice.toLocaleString()}{' '}
+                      MMK/dozen)
                     </span>
                   </h4>
                   <div className="grid grid-cols-3 gap-4">
@@ -2123,7 +2127,8 @@ const EggCollectionComponent: React.FC = () => {
                         {calculateDeliveryTotals().henDozens} dozen)
                       </div>
                       <div className="text-green-600">
-                        {calculateDeliveryTotals().henValue.toLocaleString()} MMK
+                        {calculateDeliveryTotals().henValue.toLocaleString()}{' '}
+                        MMK
                       </div>
                     </div>
                     <div>
@@ -2133,13 +2138,15 @@ const EggCollectionComponent: React.FC = () => {
                         {calculateDeliveryTotals().duckDozens} dozen)
                       </div>
                       <div className="text-green-600">
-                        {calculateDeliveryTotals().duckValue.toLocaleString()} MMK
+                        {calculateDeliveryTotals().duckValue.toLocaleString()}{' '}
+                        MMK
                       </div>
                     </div>
                     <div>
                       <span className="text-gray-600">Total Value:</span>
                       <div className="text-lg font-bold text-green-600">
-                        {calculateDeliveryTotals().totalValue.toLocaleString()} MMK
+                        {calculateDeliveryTotals().totalValue.toLocaleString()}{' '}
+                        MMK
                       </div>
                     </div>
                   </div>

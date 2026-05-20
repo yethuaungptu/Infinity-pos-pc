@@ -140,6 +140,8 @@ const SettingsManagement: React.FC = () => {
     offlineMode: false,
     conflictResolution: 'server_wins',
   });
+  const [syncLogs, setSyncLogs] = useState<any[]>([]);
+  const [showSyncLogs, setShowSyncLogs] = useState(false);
   const [syncStatusMessage, setSyncStatusMessage] = useState<string | null>(
     null,
   );
@@ -1134,7 +1136,9 @@ const SettingsManagement: React.FC = () => {
                             setSyncStatusMessage('Syncing now...');
                             setSyncStatusType('idle');
                             await window.api.syncNow();
-                            setSyncStatusMessage('Sync completed successfully.');
+                            setSyncStatusMessage(
+                              'Sync completed successfully.',
+                            );
                             setSyncStatusType('success');
                           } catch (error) {
                             console.error('Sync now failed:', error);
@@ -1145,10 +1149,87 @@ const SettingsManagement: React.FC = () => {
                       >
                         Sync Now
                       </button>
-                      <button className="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700">
+                      <button
+                        className="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700"
+                        onClick={async () => {
+                          try {
+                            const logs = await window.api.getSyncLogs?.(50);
+                            setSyncLogs(logs || []);
+                            setShowSyncLogs(true);
+                          } catch (error) {
+                            console.error('Failed to load sync logs:', error);
+                            setSyncStatusMessage('Failed to load sync logs.');
+                            setSyncStatusType('error');
+                          }
+                        }}
+                      >
                         View Sync Log
                       </button>
                     </div>
+                    {showSyncLogs && (
+                      <div className="mt-4 border rounded-lg bg-white">
+                        <div className="flex items-center justify-between px-4 py-2 border-b">
+                          <h4 className="font-medium">Sync Logs</h4>
+                          <button
+                            className="text-sm text-gray-500 hover:text-gray-700"
+                            onClick={() => setShowSyncLogs(false)}
+                          >
+                            Close
+                          </button>
+                        </div>
+                        <div className="max-h-64 overflow-auto">
+                          {syncLogs.length === 0 ? (
+                            <div className="px-4 py-3 text-sm text-gray-500">
+                              No sync logs yet.
+                            </div>
+                          ) : (
+                            <table className="min-w-full text-sm">
+                              <thead className="bg-gray-50">
+                                <tr>
+                                  <th className="text-left px-4 py-2">
+                                    Time
+                                  </th>
+                                  <th className="text-left px-4 py-2">
+                                    Status
+                                  </th>
+                                  <th className="text-left px-4 py-2">
+                                    Error
+                                  </th>
+                                </tr>
+                              </thead>
+                              <tbody>
+                                {syncLogs.map((log) => (
+                                  <tr
+                                    key={log.id}
+                                    className="border-t border-gray-100"
+                                  >
+                                    <td className="px-4 py-2">
+                                      {log.syncedAt
+                                        ? new Date(log.syncedAt).toLocaleString()
+                                        : '-'}
+                                    </td>
+                                    <td className="px-4 py-2">
+                                      {log.success ? (
+                                        <span className="text-green-600">
+                                          Success
+                                        </span>
+                                      ) : (
+                                        <span className="text-red-600">
+                                          Failed
+                                        </span>
+                                      )}
+                                    </td>
+                                    <td className="px-4 py-2 text-gray-600">
+                                      {log.error || '-'}
+                                    </td>
+                                  </tr>
+                                ))}
+                              </tbody>
+                            </table>
+                          )}
+                        </div>
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>
@@ -1347,8 +1428,7 @@ const SettingsManagement: React.FC = () => {
 
                 {marketPricesUpdatedAt && (
                   <div className="mb-4 text-sm text-gray-600">
-                    Last updated:{' '}
-                    {marketPricesUpdatedAt.toLocaleString()}
+                    Last updated: {marketPricesUpdatedAt.toLocaleString()}
                   </div>
                 )}
 
@@ -1371,7 +1451,8 @@ const SettingsManagement: React.FC = () => {
                               ...prev,
                               henEggs: {
                                 ...prev.henEggs,
-                                small: Math.round(parseFloat(e.target.value)) || 0,
+                                small:
+                                  Math.round(parseFloat(e.target.value)) || 0,
                               },
                             }))
                           }
@@ -1391,7 +1472,8 @@ const SettingsManagement: React.FC = () => {
                               ...prev,
                               henEggs: {
                                 ...prev.henEggs,
-                                medium: Math.round(parseFloat(e.target.value)) || 0,
+                                medium:
+                                  Math.round(parseFloat(e.target.value)) || 0,
                               },
                             }))
                           }
@@ -1411,7 +1493,8 @@ const SettingsManagement: React.FC = () => {
                               ...prev,
                               henEggs: {
                                 ...prev.henEggs,
-                                large: Math.round(parseFloat(e.target.value)) || 0,
+                                large:
+                                  Math.round(parseFloat(e.target.value)) || 0,
                               },
                             }))
                           }
@@ -1431,7 +1514,8 @@ const SettingsManagement: React.FC = () => {
                               ...prev,
                               henEggs: {
                                 ...prev.henEggs,
-                                extraLarge: Math.round(parseFloat(e.target.value)) || 0,
+                                extraLarge:
+                                  Math.round(parseFloat(e.target.value)) || 0,
                               },
                             }))
                           }
@@ -1459,7 +1543,8 @@ const SettingsManagement: React.FC = () => {
                               ...prev,
                               duckEggs: {
                                 ...prev.duckEggs,
-                                small: Math.round(parseFloat(e.target.value)) || 0,
+                                small:
+                                  Math.round(parseFloat(e.target.value)) || 0,
                               },
                             }))
                           }
@@ -1479,7 +1564,8 @@ const SettingsManagement: React.FC = () => {
                               ...prev,
                               duckEggs: {
                                 ...prev.duckEggs,
-                                medium: Math.round(parseFloat(e.target.value)) || 0,
+                                medium:
+                                  Math.round(parseFloat(e.target.value)) || 0,
                               },
                             }))
                           }
@@ -1499,7 +1585,8 @@ const SettingsManagement: React.FC = () => {
                               ...prev,
                               duckEggs: {
                                 ...prev.duckEggs,
-                                large: Math.round(parseFloat(e.target.value)) || 0,
+                                large:
+                                  Math.round(parseFloat(e.target.value)) || 0,
                               },
                             }))
                           }

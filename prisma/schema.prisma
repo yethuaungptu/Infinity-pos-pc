@@ -2,7 +2,7 @@
 // Supports both PostgreSQL (cloud) and SQLite (offline)
 
 generator client {
-  provider = "prisma-client"
+  provider = "prisma-client-js"
   output   = "../src/generated/prisma"
 }
 

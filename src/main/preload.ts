@@ -124,6 +124,7 @@ contextBridge.exposeInMainWorld('api', {
   deleteEggDelivery: (id: string) =>
     ipcRenderer.invoke('db:deleteEggDelivery', id),
   syncNow: () => ipcRenderer.invoke('db:syncNow'),
+  getSyncLogs: (limit?: number) => ipcRenderer.invoke('db:getSyncLogs', limit),
 });
 
 export type ElectronHandler = typeof electronHandler;

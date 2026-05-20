@@ -3,6 +3,7 @@
 
 import { databaseService } from '../database';
 import path from 'path';
+import 'dotenv/config';
 
 const SYNC_LAST_PUSH_KEY = 'SYNC_LAST_PUSH';
 const SYNC_LAST_PULL_KEY = 'SYNC_LAST_PULL';
@@ -20,6 +21,35 @@ export class SyncServiceClass {
   private cloudClient: any | null = null;
   private cloudClientConstructor: any | null = null;
   private warnedMissingClient = false;
+  private nodeRequire: NodeRequire | null = null;
+
+  private getNodeRequire() {
+    if (this.nodeRequire) return this.nodeRequire;
+    // Avoid webpack static analysis so runtime can load generated client.
+    // eslint-disable-next-line no-eval
+    this.nodeRequire = eval('require');
+    return this.nodeRequire;
+  }
+
+  private async logSync(
+    success: boolean,
+    error?: string,
+    operation: 'BULK_SYNC' | 'CREATE' | 'UPDATE' | 'DELETE' = 'BULK_SYNC',
+    tableName = 'all',
+    recordId = 'sync',
+  ) {
+    try {
+      await databaseService.create('syncLog', {
+        tableName,
+        recordId,
+        operation,
+        success,
+        error: error || null,
+      });
+    } catch (logError) {
+      console.warn('[sync] Failed to write sync log:', logError);
+    }
+  }
 
   private async getSetting(key: string): Promise<string | null> {
     const settings = await databaseService.findMany('systemSetting', {
@@ -56,8 +86,9 @@ export class SyncServiceClass {
     if (this.cloudClient) return this.cloudClient;
     if (!this.cloudClientConstructor) {
       try {
+        const nodeRequire = this.getNodeRequire();
         // eslint-disable-next-line @typescript-eslint/no-var-requires, global-require
-        const module = require(
+        const module = nodeRequire(
           path.resolve(
             process.cwd(),
             'src',
@@ -74,16 +105,22 @@ export class SyncServiceClass {
           );
           this.warnedMissingClient = true;
         }
+
         return null;
       }
     }
 
-    const url = process.env.CLOUD_DATABASE_URL;
+    const url = process.env.DATABASE_URL_CLOUD;
     if (!url) return null;
 
     this.cloudClient = new this.cloudClientConstructor({
       datasources: { db: { url } },
     });
+
+    console.log(
+      '[sync] Ensuring cloud client is available...',
+      this.cloudClient,
+    );
     return this.cloudClient;
   }
 
@@ -121,6 +158,7 @@ export class SyncServiceClass {
     console.log(`[sync] Sync triggered. Online status: ${online}`);
     if (!online) {
       console.log('[sync] Offline or cloud unreachable. Skipping sync.');
+      await this.logSync(false, 'Offline or cloud unreachable');
       return;
     }
 
@@ -129,8 +167,13 @@ export class SyncServiceClass {
       await this.pushLocalChanges();
       await this.pullCloudChanges();
       console.log('[sync] Sync completed.');
+      await this.logSync(true);
     } catch (error) {
       console.error('[sync] Sync failed:', error);
+      await this.logSync(
+        false,
+        error instanceof Error ? error.message : String(error),
+      );
     }
   }
 
@@ -448,6 +491,13 @@ export class SyncServiceClass {
     // Prevent pushing pulled changes in the next cycle
     await this.setSetting(SYNC_LAST_PUSH_KEY, new Date().toISOString());
     console.log('[sync] Pull complete. Updated SYNC_LAST_PULL.');
+  }
+
+  async getSyncLogs(limit = 50) {
+    return databaseService.findMany('syncLog', {
+      orderBy: { syncedAt: 'desc' },
+      take: limit,
+    });
   }
 }
 
