@@ -1,5 +1,6 @@
 /* eslint global-require: off, no-console: off, promise/always-return: off */
 
+import 'dotenv/config';
 import path from 'path';
 import { app, BrowserWindow, shell, ipcMain } from 'electron';
 import { autoUpdater } from 'electron-updater';
@@ -217,6 +218,11 @@ ipcMain.handle('db:syncNow', async () => {
 ipcMain.handle('db:getSyncLogs', async (event, limit?: number) => {
   return SyncService.getSyncLogs(limit);
 });
+
+ipcMain.handle('db:clearSyncLogs', async () => {
+  await SyncService.clearSyncLogs();
+  return { ok: true };
+});
 ipcMain.handle('db:getEggInventory', async () => {
   return EggInventoryService.getEggInventory();
 });
@@ -341,6 +347,7 @@ app
   .whenReady()
   .then(() => {
     createWindow();
+    SyncService.start(Number(process.env.SYNC_INTERVAL_MINUTES) || 5);
     app.on('activate', () => {
       if (mainWindow === null) createWindow();
     });

@@ -1,5 +1,7 @@
 // Database service layer for Agricultural POS System
-// This handles both online (PostgreSQL) and offline (SQLite) operations
+// Local-first: all reads/writes go to SQLite. Sync handled by main process SyncService.
+
+import { PrismaClient } from '../../generated/prisma';
 
 import {
   Customer,
@@ -12,36 +14,16 @@ import {
   CollectionRoute,
 } from '../types/core';
 
-interface DatabaseConfig {
-  isOnline: boolean;
-  cloudUrl?: string;
-  localDbPath?: string;
-}
-
-import { PrismaClient } from '../../generated/prisma';
-
 export class DatabaseService {
-  private config: DatabaseConfig;
-  private cloudPrisma: any; // Would be PrismaClient for PostgreSQL
-  private localPrisma: any; // Would be PrismaClient for SQLite
+  private localPrisma: PrismaClient | null = null;
 
-  constructor(config: DatabaseConfig) {
-    this.config = config;
+  constructor() {
     this.initializeConnections();
   }
 
-  private async initializeConnections() {
+  private initializeConnections() {
     console.log('Initializing database connections...##########s');
     try {
-      // Initialize cloud connection (PostgreSQL)
-      if (this.config.isOnline && this.config.cloudUrl) {
-        this.cloudPrisma = new PrismaClient();
-        console.log('Cloud database connection initialized');
-      }
-
-      // Initialize local connection (SQLite) - Always available for offline mode
-      // const dbPath = path.join(__dirname, '..', 'prisma', 'agripos.db')
-      // console.log('Local DB Path:', dbPath);
       this.localPrisma = new PrismaClient();
       console.log('Local database connection initialized');
     } catch (error) {
@@ -50,30 +32,18 @@ export class DatabaseService {
     }
   }
 
-  // Get active database client based on connection status
   private getActiveClient() {
-    const res =
-      this.config.isOnline && this.cloudPrisma
-        ? this.cloudPrisma
-        : this.localPrisma;
-    console.log(
-      'Using database client:',
-      this.config.isOnline ? 'Cloud' : 'Local',
-      res,
-    );
-    return this.config.isOnline && this.cloudPrisma
-      ? this.cloudPrisma
-      : this.localPrisma;
+    return this.localPrisma;
   }
 
-  // Test database connection
+  getLocalClient() {
+    return this.localPrisma;
+  }
+
   async testConnection(): Promise<boolean> {
     try {
       const client = this.getActiveClient();
-      // await client.$queryRaw`SELECT 1`;
-      console.log(
-        `${this.config.isOnline ? 'Cloud' : 'Local'} database connection successful`,
-      );
+      console.log('Local database connection successful');
       return true;
     } catch (error) {
       console.error('Database connection test failed:', error);
@@ -81,104 +51,19 @@ export class DatabaseService {
     }
   }
 
-  // Switch between online/offline mode
-  async switchMode(isOnline: boolean) {
-    this.config.isOnline = isOnline;
-    if (isOnline) {
-      // Trigger sync when switching to online
-      await this.syncLocalToCloud();
-    }
+  getAllProducts() {
+    const client = this.getActiveClient();
+    return client.product.findMany({
+      where: { active: true },
+    });
   }
 
-  // Sync local changes to cloud
-  async syncLocalToCloud(): Promise<{
-    success: boolean;
-    synced: number;
-    errors: number;
-  }> {
-    if (!this.config.isOnline || !this.cloudPrisma) {
-      return { success: false, synced: 0, errors: 0 };
-    }
-
-    let synced = 0;
-    let errors = 0;
-
-    try {
-      // Sync unsynced transactions
-      const unsyncedTransactions = await this.getUnsyncedTransactions();
-      for (const transaction of unsyncedTransactions) {
-        try {
-          await this.syncTransactionToCloud(transaction);
-          synced++;
-        } catch (error) {
-          console.error('Failed to sync transaction:', transaction.id, error);
-          errors++;
-        }
-      }
-
-      // Sync other entities...
-      // Similar process for customers, products, etc.
-
-      console.log(`Sync completed: ${synced} records synced, ${errors} errors`);
-      return { success: errors === 0, synced, errors };
-    } catch (error) {
-      console.error('Sync process failed:', error);
-      return { success: false, synced, errors: errors + 1 };
-    }
-  }
-
-  async getAllProducts(): Promise<Product[]> {
+  async create<T>(table: string, data: any): Promise<T> {
     const client = this.getActiveClient();
     try {
-      // Mock database operation
-      console.log('Fetching all products from database...');
-      const test = await this.testConnection();
-      console.log('Raw query result:', client);
-      const products = await this.localPrisma.product.findMany({
-        where: { active: true },
-      });
-      return products; // Mock empty result
-    } catch (error) {
-      console.error('Failed to fetch products:', error);
-      throw new Error('Failed to fetch products');
-    }
-  }
-
-  // Get unsynced transactions
-  private async getUnsyncedTransactions(): Promise<Transaction[]> {
-    // Mock implementation - replace with actual Prisma query
-    return [];
-  }
-
-  // Sync individual transaction to cloud
-  private async syncTransactionToCloud(
-    transaction: Transaction,
-  ): Promise<void> {
-    // Mock implementation - replace with actual cloud sync logic
-    console.log('Syncing transaction to cloud:', transaction.id);
-  }
-
-  // Generic CRUD operations with offline support
-  async create<T>(
-    table: string,
-    data: Omit<T, 'id' | 'createdAt' | 'updatedAt'>,
-  ): Promise<T> {
-    const client = this.getActiveClient();
-    const now = new Date();
-
-    const record = {
-      ...data,
-      id: this.generateId(),
-      createdAt: now,
-      updatedAt: now,
-      synced: this.config.isOnline,
-    } as T;
-
-    try {
-      // Mock database operation
-      console.log(`Creating ${table}:`, record);
-      // const result = await client[table].create({ data: record });
-      return record;
+      console.log(`Creating ${table}:`, data);
+      const result = await client[table].create({ data });
+      return result as T;
     } catch (error) {
       console.error(`Failed to create ${table}:`, error);
       throw new Error(`Failed to create ${table}`);
@@ -196,12 +81,10 @@ export class DatabaseService {
     },
   ): Promise<T[]> {
     const client = this.getActiveClient();
-
     try {
-      // Mock database operation
       console.log(`Finding ${table} with options:`, options);
-      // const results = await client[table].findMany(options);
-      return []; // Mock empty result
+      const results = await client[table].findMany(options);
+      return results as T[];
     } catch (error) {
       console.error(`Failed to find ${table}:`, error);
       throw new Error(`Failed to find ${table}`);
@@ -214,12 +97,10 @@ export class DatabaseService {
     include?: any,
   ): Promise<T | null> {
     const client = this.getActiveClient();
-
     try {
-      // Mock database operation
       console.log(`Finding ${table} by id:`, id);
-      // const result = await client[table].findUnique({ where: { id }, include });
-      return null; // Mock null result
+      const result = await client[table].findUnique({ where: { id }, include });
+      return result as T | null;
     } catch (error) {
       console.error(`Failed to find ${table} by id:`, error);
       throw new Error(`Failed to find ${table}`);
@@ -229,24 +110,20 @@ export class DatabaseService {
   async update<T>(
     table: string,
     id: string,
-    data: Partial<Omit<T, 'id' | 'createdAt'>>,
+    data: any,
   ): Promise<T> {
     const client = this.getActiveClient();
-
     const updateData = {
       ...data,
       updatedAt: new Date(),
-      synced: this.config.isOnline,
     };
-
     try {
-      // Mock database operation
       console.log(`Updating ${table}:`, id, updateData);
       const result = await client[table].update({
         where: { id },
         data: updateData,
       });
-      return updateData as T;
+      return result as T;
     } catch (error) {
       console.error(`Failed to update ${table}:`, error);
       throw new Error(`Failed to update ${table}`);
@@ -255,29 +132,20 @@ export class DatabaseService {
 
   async delete(table: string, id: string): Promise<void> {
     const client = this.getActiveClient();
-
     try {
-      // Mock database operation
       console.log(`Deleting ${table}:`, id);
-      // await client[table].delete({ where: { id } });
+      await client[table].delete({ where: { id } });
     } catch (error) {
       console.error(`Failed to delete ${table}:`, error);
       throw new Error(`Failed to delete ${table}`);
     }
   }
 
-  // Soft delete with sync support
   async softDelete(table: string, id: string): Promise<void> {
     await this.update(table, id, {
       active: false,
       deletedAt: new Date(),
-      synced: this.config.isOnline,
     });
-  }
-
-  // Generate offline-compatible IDs
-  private generateId(): string {
-    return `${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
   }
 
   // Transaction-specific operations
@@ -548,15 +416,10 @@ export class DatabaseService {
     }
   }
 
-  // Close database connections
   async disconnect(): Promise<void> {
     try {
-      if (this.cloudPrisma) {
-        // await this.cloudPrisma.$disconnect();
-        console.log('Cloud database disconnected');
-      }
       if (this.localPrisma) {
-        // await this.localPrisma.$disconnect();
+        await this.localPrisma.$disconnect();
         console.log('Local database disconnected');
       }
     } catch (error) {
@@ -565,15 +428,4 @@ export class DatabaseService {
   }
 }
 
-// Export singleton instance
-// export const databaseService = new DatabaseService({
-//   isOnline: navigator.onLine,
-//   cloudUrl: process.env.DATABASE_URL,
-//   localDbPath: './agripos.db',
-// });
-
-export const databaseService = new DatabaseService({
-  isOnline: false,
-  cloudUrl: '../../../prisma/agripos.db',
-  localDbPath: '../../../prisma/agripos.db',
-});
+export const databaseService = new DatabaseService();

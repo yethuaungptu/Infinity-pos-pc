@@ -1,9 +1,11 @@
 // Offline-first Sync Service (Main process)
 // Push local changes to cloud and pull cloud updates
 
-import { databaseService } from '../database';
-import path from 'path';
+import { databaseService } from '../database.js';
 import 'dotenv/config';
+import pg from 'pg';
+import { PrismaPg } from '@prisma/adapter-pg';
+import { PrismaClient as CloudPrismaClient } from '../../generated/prisma-cloud';
 
 const SYNC_LAST_PUSH_KEY = 'SYNC_LAST_PUSH';
 const SYNC_LAST_PULL_KEY = 'SYNC_LAST_PULL';
@@ -15,21 +17,14 @@ const omitId = <T extends { id?: any }>(record: T) => {
   const { id, ...data } = record;
   return data;
 };
+const omitTransactionItem = <T extends { transactionId?: any }>(record: T) => {
+  const { transactionId, ...data } = record;
+  return data;
+};
 
 export class SyncServiceClass {
   private syncInterval: NodeJS.Timeout | null = null;
   private cloudClient: any | null = null;
-  private cloudClientConstructor: any | null = null;
-  private warnedMissingClient = false;
-  private nodeRequire: NodeRequire | null = null;
-
-  private getNodeRequire() {
-    if (this.nodeRequire) return this.nodeRequire;
-    // Avoid webpack static analysis so runtime can load generated client.
-    // eslint-disable-next-line no-eval
-    this.nodeRequire = eval('require');
-    return this.nodeRequire;
-  }
 
   private async logSync(
     success: boolean,
@@ -84,44 +79,26 @@ export class SyncServiceClass {
 
   private async ensureCloudClient() {
     if (this.cloudClient) return this.cloudClient;
-    if (!this.cloudClientConstructor) {
-      try {
-        const nodeRequire = this.getNodeRequire();
-        // eslint-disable-next-line @typescript-eslint/no-var-requires, global-require
-        const module = nodeRequire(
-          path.resolve(
-            process.cwd(),
-            'src',
-            'generated',
-            'prisma-cloud',
-            'client',
-          ),
-        );
-        this.cloudClientConstructor = module.PrismaClient;
-      } catch (error) {
-        if (!this.warnedMissingClient) {
-          console.warn(
-            'Cloud Prisma client not available yet (did you run generate:cloud?).',
-          );
-          this.warnedMissingClient = true;
-        }
-
-        return null;
-      }
-    }
 
     const url = process.env.DATABASE_URL_CLOUD;
-    if (!url) return null;
+    if (!url) {
+      console.warn('[sync] DATABASE_URL_CLOUD not set in .env');
+      return null;
+    }
 
-    this.cloudClient = new this.cloudClientConstructor({
-      datasources: { db: { url } },
-    });
-
-    console.log(
-      '[sync] Ensuring cloud client is available...',
-      this.cloudClient,
-    );
-    return this.cloudClient;
+    try {
+      const pool = new pg.Pool({
+        connectionString: url,
+        ssl: { rejectUnauthorized: false },
+      });
+      const adapter = new PrismaPg(pool);
+      this.cloudClient = new CloudPrismaClient({ adapter });
+      console.log('[sync] Cloud client created');
+      return this.cloudClient;
+    } catch (error) {
+      console.error('[sync] Failed to create cloud client:', error);
+      return null;
+    }
   }
 
   private async isOnline(): Promise<boolean> {
@@ -206,6 +183,22 @@ export class SyncServiceClass {
       });
     }
 
+    const vendors = await local.vendor.findMany({
+      where: { updatedAt: { gt: lastPush } },
+    });
+    console.log(`[sync] Push vendors: ${vendors.length}`);
+    for (const vendor of vendors) {
+      const cloudRecord = await cloud.vendor.findUnique({
+        where: { id: vendor.id },
+      });
+      if (cloudRecord && cloudRecord.updatedAt > vendor.updatedAt) continue;
+      await cloud.vendor.upsert({
+        where: { id: vendor.id },
+        create: vendor,
+        update: omitId(vendor),
+      });
+    }
+
     const products = await local.product.findMany({
       where: { updatedAt: { gt: lastPush } },
     });
@@ -219,6 +212,38 @@ export class SyncServiceClass {
         where: { id: product.id },
         create: product,
         update: omitId(product),
+      });
+    }
+
+    const staff = await local.staff.findMany({
+      where: { updatedAt: { gt: lastPush } },
+    });
+    console.log(`[sync] Push staff: ${staff.length}`);
+    for (const s of staff) {
+      const cloudRecord = await cloud.staff.findUnique({
+        where: { id: s.id },
+      });
+      if (cloudRecord && cloudRecord.updatedAt > s.updatedAt) continue;
+      await cloud.staff.upsert({
+        where: { id: s.id },
+        create: s,
+        update: omitId(s),
+      });
+    }
+
+    const routes = await local.collectionRoute.findMany({
+      where: { updatedAt: { gt: lastPush } },
+    });
+    console.log(`[sync] Push collectionRoutes: ${routes.length}`);
+    for (const route of routes) {
+      const cloudRecord = await cloud.collectionRoute.findUnique({
+        where: { id: route.id },
+      });
+      if (cloudRecord && cloudRecord.updatedAt > route.updatedAt) continue;
+      await cloud.collectionRoute.upsert({
+        where: { id: route.id },
+        create: route,
+        update: omitId(route),
       });
     }
 
@@ -287,18 +312,14 @@ export class SyncServiceClass {
         create: {
           ...transactionData,
           items: {
-            create: items.map((item: any) => ({
-              ...item,
-            })),
+            create: items.map((item: any) => omitTransactionItem(item)),
           },
         },
         update: {
           ...omitId(transactionData),
           items: {
             deleteMany: {},
-            create: items.map((item: any) => ({
-              ...item,
-            })),
+            create: items.map((item: any) => omitTransactionItem(item)),
           },
         },
       });
@@ -356,6 +377,25 @@ export class SyncServiceClass {
       }
     }
 
+    const cloudVendors = await cloud.vendor.findMany({
+      where: { updatedAt: { gt: lastPull } },
+    });
+    console.log(`[sync] Pull vendors: ${cloudVendors.length}`);
+    for (const vendor of cloudVendors) {
+      const localRecord = await local.vendor.findUnique({
+        where: { id: vendor.id },
+      });
+      if (localRecord && localRecord.updatedAt >= vendor.updatedAt) continue;
+      if (localRecord) {
+        await local.vendor.update({
+          where: { id: vendor.id },
+          data: omitId(vendor),
+        });
+      } else {
+        await local.vendor.create({ data: vendor });
+      }
+    }
+
     const cloudProducts = await cloud.product.findMany({
       where: { updatedAt: { gt: lastPull } },
     });
@@ -372,6 +412,44 @@ export class SyncServiceClass {
         });
       } else {
         await local.product.create({ data: product });
+      }
+    }
+
+    const cloudStaff = await cloud.staff.findMany({
+      where: { updatedAt: { gt: lastPull } },
+    });
+    console.log(`[sync] Pull staff: ${cloudStaff.length}`);
+    for (const s of cloudStaff) {
+      const localRecord = await local.staff.findUnique({
+        where: { id: s.id },
+      });
+      if (localRecord && localRecord.updatedAt >= s.updatedAt) continue;
+      if (localRecord) {
+        await local.staff.update({
+          where: { id: s.id },
+          data: omitId(s),
+        });
+      } else {
+        await local.staff.create({ data: s });
+      }
+    }
+
+    const cloudRoutes = await cloud.collectionRoute.findMany({
+      where: { updatedAt: { gt: lastPull } },
+    });
+    console.log(`[sync] Pull collectionRoutes: ${cloudRoutes.length}`);
+    for (const route of cloudRoutes) {
+      const localRecord = await local.collectionRoute.findUnique({
+        where: { id: route.id },
+      });
+      if (localRecord && localRecord.updatedAt >= route.updatedAt) continue;
+      if (localRecord) {
+        await local.collectionRoute.update({
+          where: { id: route.id },
+          data: omitId(route),
+        });
+      } else {
+        await local.collectionRoute.create({ data: route });
       }
     }
 
@@ -452,7 +530,7 @@ export class SyncServiceClass {
             ...omitId(transactionData),
             items: {
               deleteMany: {},
-              create: items.map((item: any) => ({ ...item })),
+              create: items.map((item: any) => omitTransactionItem(item)),
             },
           },
         });
@@ -461,7 +539,7 @@ export class SyncServiceClass {
           data: {
             ...transactionData,
             items: {
-              create: items.map((item: any) => ({ ...item })),
+              create: items.map((item: any) => omitTransactionItem(item)),
             },
           },
         });
@@ -498,6 +576,11 @@ export class SyncServiceClass {
       orderBy: { syncedAt: 'desc' },
       take: limit,
     });
+  }
+
+  async clearSyncLogs() {
+    await databaseService.deleteMany('syncLog');
+    console.log('[sync] Sync logs cleared');
   }
 }
 

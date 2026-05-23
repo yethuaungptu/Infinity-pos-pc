@@ -14,7 +14,7 @@ import {
   EggDelivery,
   DeliveryStatus,
   PaymentMethod,
-} from '../../types/core';
+} from '../../types/core.js';
 
 const EggCollectionComponent: React.FC = () => {
   const [collections, setCollections] = useState<EggCollection[]>([]);
@@ -189,7 +189,7 @@ const EggCollectionComponent: React.FC = () => {
 
         if (!isMounted) return;
 
-        const normalized = results.map((collection) => ({
+        const normalized = results.map((collection: any) => ({
           ...collection,
           collectionDate: new Date(collection.collectionDate),
         }));

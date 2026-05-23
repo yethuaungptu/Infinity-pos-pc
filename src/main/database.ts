@@ -3,41 +3,24 @@ import { app } from 'electron';
 import { PrismaClient } from '../generated/prisma';
 import bcrypt from 'bcryptjs';
 
-interface DatabaseConfig {
-  isOnline: boolean;
-  cloudUrl?: string;
-  localDbPath?: string;
-}
-
 export class DatabaseService {
-  private config: DatabaseConfig;
-  private cloudPrisma: PrismaClient | null = null;
   private localPrisma: PrismaClient | null = null;
 
-  constructor(config: DatabaseConfig) {
-    this.config = config;
+  constructor() {
     this.initializeConnections();
   }
 
   private initializeConnections() {
     console.log('Initializing database connections...########');
     try {
-      // Cloud (PostgreSQL)
-      if (this.config.isOnline && this.config.cloudUrl) {
-        this.cloudPrisma = new PrismaClient({});
-        console.log('✅ Cloud DB initialized');
-      }
-      console.log(PrismaClient);
-      // Local (SQLite)
-      // const dbPath =
-      //   this.config.localDbPath ||
-      //   path.join(app.getPath('userData'), 'agripos.db');
       const isDev = !app.isPackaged;
       const dbPath = isDev
         ? path.join(__dirname, '..', '..', 'prisma', 'agripos.db')
         : path.join(app.getPath('userData'), 'agripos.db');
       console.log('Local DB Path:', dbPath);
-      this.localPrisma = new PrismaClient();
+      this.localPrisma = new PrismaClient({
+        datasourceUrl: `file:${dbPath}`,
+      });
 
       console.log('✅ Local DB initialized at:', dbPath);
     } catch (err) {
@@ -47,9 +30,11 @@ export class DatabaseService {
   }
 
   private getActiveClient(): PrismaClient {
-    return this.config.isOnline && this.cloudPrisma
-      ? this.cloudPrisma
-      : (this.localPrisma as PrismaClient);
+    return this.localPrisma as PrismaClient;
+  }
+
+  getLocalClient(): PrismaClient {
+    return this.localPrisma as PrismaClient;
   }
 
   // -------------------
@@ -60,9 +45,7 @@ export class DatabaseService {
     try {
       const client = this.getActiveClient();
       await client.$queryRaw`SELECT 1`;
-      console.log(
-        `${this.config.isOnline ? 'Cloud' : 'Local'} DB connection OK`,
-      );
+      console.log('Local DB connection OK');
       return true;
     } catch (err) {
       console.error('DB connection failed:', err);
@@ -187,9 +170,13 @@ export class DatabaseService {
     return (client[table] as any).delete({ where: { id } });
   }
 
+  async deleteMany<T extends keyof PrismaClient>(table: T, where?: any) {
+    const client = this.getActiveClient();
+    return (client[table] as any).deleteMany(where || {});
+  }
+
   async disconnect() {
     try {
-      if (this.cloudPrisma) await this.cloudPrisma.$disconnect();
       if (this.localPrisma) await this.localPrisma.$disconnect();
       console.log('✅ DB disconnected');
     } catch (err) {
@@ -199,8 +186,4 @@ export class DatabaseService {
 }
 
 // Singleton instance
-export const databaseService = new DatabaseService({
-  isOnline: false,
-  cloudUrl: process.env.CLOUD_DATABASE_URL, // use env var for cloud DB
-  localDbPath: '../', // defaults to app.getPath("userData")
-});
+export const databaseService = new DatabaseService();

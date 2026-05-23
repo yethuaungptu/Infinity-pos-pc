@@ -1170,12 +1170,23 @@ const SettingsManagement: React.FC = () => {
                       <div className="mt-4 border rounded-lg bg-white">
                         <div className="flex items-center justify-between px-4 py-2 border-b">
                           <h4 className="font-medium">Sync Logs</h4>
-                          <button
-                            className="text-sm text-gray-500 hover:text-gray-700"
-                            onClick={() => setShowSyncLogs(false)}
-                          >
-                            Close
-                          </button>
+                          <div className="flex gap-2">
+                            <button
+                              className="text-sm text-red-500 hover:text-red-700"
+                              onClick={async () => {
+                                await window.api.clearSyncLogs();
+                                setSyncLogs([]);
+                              }}
+                            >
+                              Clear
+                            </button>
+                            <button
+                              className="text-sm text-gray-500 hover:text-gray-700"
+                              onClick={() => setShowSyncLogs(false)}
+                            >
+                              Close
+                            </button>
+                          </div>
                         </div>
                         <div className="max-h-64 overflow-auto">
                           {syncLogs.length === 0 ? (
