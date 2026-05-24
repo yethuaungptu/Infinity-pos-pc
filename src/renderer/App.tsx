@@ -636,6 +636,17 @@ const App: React.FC = () => {
                   minute: '2-digit',
                 })}
               </div>
+
+              {/* Logout */}
+              <button
+                onClick={async () => {
+                  await window.api.logout();
+                  window.location.reload();
+                }}
+                className="text-sm text-gray-500 hover:text-red-600"
+              >
+                Logout
+              </button>
             </div>
           </div>
         </header>

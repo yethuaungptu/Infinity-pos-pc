@@ -126,6 +126,9 @@ contextBridge.exposeInMainWorld('api', {
   syncNow: () => ipcRenderer.invoke('db:syncNow'),
   getSyncLogs: (limit?: number) => ipcRenderer.invoke('db:getSyncLogs', limit),
   clearSyncLogs: () => ipcRenderer.invoke('db:clearSyncLogs'),
+  getLicenseStatus: () => ipcRenderer.invoke('license:status'),
+  activateLicense: (key: string) => ipcRenderer.invoke('license:activate', key),
+  restoreFromCloud: () => ipcRenderer.invoke('license:restore'),
 });
 
 export type ElectronHandler = typeof electronHandler;

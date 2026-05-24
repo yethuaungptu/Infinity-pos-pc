@@ -23,6 +23,7 @@ import { EggCollectionService } from './services/eggCollectionService';
 import { FinancialService } from './services/financialService';
 import { EggInventoryService } from './services/eggInventoryService.js';
 import { SyncService } from './services/syncService.js';
+import { LicenseService } from './services/licenseService.js';
 
 class AppUpdater {
   constructor() {
@@ -222,6 +223,19 @@ ipcMain.handle('db:getSyncLogs', async (event, limit?: number) => {
 ipcMain.handle('db:clearSyncLogs', async () => {
   await SyncService.clearSyncLogs();
   return { ok: true };
+});
+
+ipcMain.handle('license:status', async () => {
+  await LicenseService.ensureDefaultAdmin();
+  return LicenseService.getLicenseStatus();
+});
+
+ipcMain.handle('license:activate', async (event, key: string) => {
+  return LicenseService.activate(key);
+});
+
+ipcMain.handle('license:restore', async () => {
+  return LicenseService.restoreFromCloud();
 });
 ipcMain.handle('db:getEggInventory', async () => {
   return EggInventoryService.getEggInventory();

@@ -1,24 +1,26 @@
-// POS Service - Handles all point-of-sale operations
-// Includes sales transactions, credit management, and inventory updates
-
 import { databaseService } from '../database';
 import bcrypt from 'bcryptjs';
+import { LicenseService } from './licenseService';
 let currentStaff: any = null;
 
 export class AuthServiceClass {
-  // Retrieve held transaction
 
   async login(data: any): Promise<any> {
     try {
+      const status = await LicenseService.getLicenseStatus();
+      if (!status.canLogin) {
+        throw new Error('License expired. Please enter a valid license key.');
+      }
+
       const staff = await databaseService.login(data.username);
       if (!staff) throw new Error('Staff not found');
       const valid = await bcrypt.compare(data.password, staff.password);
       if (!valid) throw new Error('Invalid password');
       currentStaff = staff;
-      return staff; // Replace with actual vendor object
+      return staff;
     } catch (error) {
       console.error('Failed to create staff', error);
-      throw new Error('Failed to create staff');
+      throw error;
     }
   }
   async logout(): Promise<any> {
@@ -29,5 +31,4 @@ export class AuthServiceClass {
   }
 }
 
-// Export singleton instance
 export const AuthService = new AuthServiceClass();

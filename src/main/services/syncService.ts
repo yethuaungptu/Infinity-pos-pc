@@ -582,6 +582,33 @@ export class SyncServiceClass {
     await databaseService.deleteMany('syncLog');
     console.log('[sync] Sync logs cleared');
   }
+
+  async restoreAllFromCloud() {
+    const cloud = await this.ensureCloudClient();
+    if (!cloud) throw new Error('Cloud client not available');
+    const local = databaseService.getLocalClient();
+
+    const models = ['store', 'staff', 'customer', 'vendor', 'product', 'collectionRoute', 'eggCollection', 'eggDelivery', 'eggInventory', 'transaction', 'paymentRecord', 'systemSetting'] as const;
+
+    for (const model of models) {
+      try {
+        const records = await (cloud[model] as any).findMany(model === 'transaction' ? { include: { items: true } } : undefined);
+        console.log(`[restore] ${model}: ${records.length} records`);
+        for (const record of records) {
+          const { items, ...data } = record;
+          await (local[model] as any).upsert({
+            where: { id: data.id },
+            create: model === 'transaction' && items ? { ...data, items: { create: items.map((i: any) => omitTransactionItem(i)) } } : data,
+            update: model === 'transaction' && items ? { ...omitId(data), items: { deleteMany: {}, create: items.map((i: any) => omitTransactionItem(i)) } } : omitId(data),
+          });
+        }
+      } catch (err) {
+        console.warn(`[restore] Failed to restore ${model}:`, err);
+      }
+    }
+
+    console.log('[restore] Restore from cloud complete.');
+  }
 }
 
 export const SyncService = new SyncServiceClass();

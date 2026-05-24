@@ -2,6 +2,7 @@
 // Populates the database with initial data for Agricultural POS System
 
 import { PrismaClient } from '@prisma/client';
+import bcrypt from 'bcryptjs';
 import {
   StaffPermission,
   ProductType,
@@ -117,15 +118,18 @@ async function main() {
     // ================================
     console.log('Creating staff accounts...');
 
+    const adminPassword = await bcrypt.hash('admin123', 10);
+
     const adminStaff = await prisma.staff.upsert({
       where: { username: 'admin' },
-      update: {},
+      update: { password: adminPassword },
       create: {
         employeeId: 'EMP001',
         firstName: 'System',
         lastName: 'Administrator',
         email: 'admin@agrisupply.com',
         username: 'admin',
+        password: adminPassword,
         position: StaffPosition.ADMIN,
         department: StaffDepartment.ADMIN,
         hireDate: new Date(),
