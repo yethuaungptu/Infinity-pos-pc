@@ -4,6 +4,7 @@
 generator client {
   provider = "prisma-client-js"
   output   = "../src/generated/prisma"
+  binaryTargets = ["native", "darwin", "darwin-arm64", "windows"]
 }
 
 // Main database - PostgreSQL for production

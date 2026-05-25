@@ -10,7 +10,7 @@ import { BundleAnalyzerPlugin } from 'webpack-bundle-analyzer';
 import baseConfig from './webpack.config.base.js';
 import webpackPaths from './webpack.paths.js';
 import checkNodeEnv from '../scripts/check-node-env.js';
-import deleteSourceMaps from '../scripts/delete-source-maps';
+import deleteSourceMaps from '../scripts/delete-source-maps.js';
 
 checkNodeEnv('production');
 deleteSourceMaps();

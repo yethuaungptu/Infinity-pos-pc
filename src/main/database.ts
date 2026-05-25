@@ -25,7 +25,7 @@ export class DatabaseService {
       console.log('✅ Local DB initialized at:', dbPath);
     } catch (err) {
       console.error('❌ Database initialization failed:', err);
-      throw new Error('Failed to initialize databases');
+      throw new Error(`Failed to initialize databases: ${err instanceof Error ? err.message : String(err)}`);
     }
   }
 

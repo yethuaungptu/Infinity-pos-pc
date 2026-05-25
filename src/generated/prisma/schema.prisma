@@ -2,8 +2,9 @@
 // Supports both PostgreSQL (cloud) and SQLite (offline)
 
 generator client {
-  provider = "prisma-client-js"
-  output   = "../src/generated/prisma"
+  provider      = "prisma-client-js"
+  output        = "../src/generated/prisma"
+  binaryTargets = ["native", "darwin", "darwin-arm64", "windows"]
 }
 
 // Main database - PostgreSQL for production
@@ -15,7 +16,6 @@ generator client {
 // Local database - SQLite for offline mode
 datasource localdb {
   provider = "sqlite"
-  url      = "file:./agripos.db"
 }
 
 // ===== CORE BUSINESS MODELS =====

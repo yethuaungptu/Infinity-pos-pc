@@ -8,11 +8,11 @@
     "email": "electronreactboilerplate@gmail.com",
     "url": "https://github.com/electron-react-boilerplate"
   },
-  "main": "./dist/main/main.js",
+  "main": "./dist/main/main.cjs",
   "scripts": {
-    "rebuild": "node -r ts-node/register ../../.erb/scripts/electron-rebuild.js",
+    "rebuild": "node --loader ts-node/esm ../../.erb/scripts/electron-rebuild.js",
     "postinstall": "npm run rebuild && npm run link-modules",
-    "link-modules": "node -r ts-node/register ../../.erb/scripts/link-modules.ts"
+    "link-modules": "node --loader ts-node/esm ../../.erb/scripts/link-modules.ts"
   },
   "dependencies": {}
 }

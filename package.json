@@ -221,10 +221,10 @@
     "webpack-merge": "^6.0.1"
   },
   "build": {
-    "productName": "ElectronReact",
-    "appId": "org.erb.ElectronReact",
+    "productName": "Infinity POS",
+    "appId": "org.erb.InfinityPOS",
     "asar": true,
-    "afterSign": ".erb/scripts/notarize.js",
+    "afterSign": null,
     "asarUnpack": "**\\*.{node,dll}",
     "files": [
       "dist",
