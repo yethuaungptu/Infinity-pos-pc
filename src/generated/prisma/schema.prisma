@@ -2,9 +2,8 @@
 // Supports both PostgreSQL (cloud) and SQLite (offline)
 
 generator client {
-  provider      = "prisma-client-js"
-  output        = "../src/generated/prisma"
-  binaryTargets = ["native", "darwin", "darwin-arm64", "windows"]
+  provider = "prisma-client-js"
+  output   = "../src/generated/prisma"
 }
 
 // Main database - PostgreSQL for production

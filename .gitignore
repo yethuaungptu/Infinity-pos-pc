@@ -31,3 +31,7 @@ npm-debug.log.*
 .env
 src/generated/prisma-cloud
 prisma/migrations-cloud
+assets/agripos.db
+assets/agripos.db-journal
+assets/agripos.db-wal
+assets/agripos.db-shm

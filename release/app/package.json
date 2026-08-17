@@ -14,5 +14,9 @@
     "postinstall": "npm run rebuild && npm run link-modules",
     "link-modules": "node --loader ts-node/esm ../../.erb/scripts/link-modules.ts"
   },
-  "dependencies": {}
+  "dependencies": {
+    "better-sqlite3": "^12.10.0",
+    "@prisma/adapter-better-sqlite3": "^7.5.0",
+    "@prisma/driver-adapter-utils": "^7.5.0"
+  }
 }
